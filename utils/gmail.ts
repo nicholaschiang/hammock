@@ -4,12 +4,14 @@ import _ from 'lodash';
 export type Newsletter = {
   name: string,
   from: string,
+  selected: boolean,
 }
 
-export async function fetchInboxMessages(token: string, labelId: string, pageToken: string | null): Promise<[Message[], string]> {
+export async function fetchInboxMessages(token: string, labelId: string, pageToken: string | null): Promise<[Message[], string | null]> {
   const query = { maxResults: 10, labelIds: labelId };
   if (pageToken != null) query['pageToken'] = pageToken;
   const messageList = await get('https://gmail.googleapis.com/gmail/v1/users/me/messages', token, query);
+  if (!messageList.messages) return [[], null]
   const messageIds: string[] = messageList.messages.map(m => m.id);
   const nextPageToken = messageList.pageToken;
   const messages = await getMessages(messageIds, token);
@@ -22,6 +24,7 @@ export async function fetchNewsletters(token: string): Promise<Newsletter[]> {
     maxResults: 5,
     q: 'category:forums OR category:promotions',
   });
+  if (!messageList.messages) return [];
   const messageIds: string[] = messageList.messages.map(m => m.id);
   const messages = await getMessages(messageIds, token);
 
@@ -155,6 +158,7 @@ async function post(url: string, token: string, body) {
     },
     body: JSON.stringify(body),
   });
+  if (resp.status === 204) return null;
   return await resp.json();
 }
 
@@ -162,16 +166,16 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function isNewsletter(message: Message): false | { name: string, from: string } {
+export function isNewsletter(message: Message): false | Newsletter {
   const from = getHeader(message, 'from');
   if (!from) return false;
   const { name, email } = parseFrom(from);
   if (email.endsWith('theinformation.com')) {
-    return { name: name, from: email };
+    return { name: name, from: email, selected: true };
   }
   const hasListUnsubscribe = getHeader(message, 'list-unsubscribe');
   if (!hasListUnsubscribe) return false;
-  return { name: name, from: email }
+  return { name: name, from: email, selected: false }
 }
 
 const reFrom = /(.*) <(.*)>/

@@ -25,8 +25,8 @@ function LoggedIn({ user }: { user: firebase.User }) {
 
   return <>
     <Header user={user} />
-    {!userValue.is_onboarded && <Reader user={userValue} />}
-    {userValue.is_onboarded && <Onboarding user={userValue} />}
+    {userValue.is_onboarded && <Reader user={userValue} />}
+    {!userValue.is_onboarded && <Onboarding user={userValue} />}
   </>;
 }
 
