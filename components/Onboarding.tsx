@@ -7,10 +7,11 @@ import Divider from './Divider'
 
 export default function Onboarding({ user }: { user: TUser}) {
   const [newsletters, setNewsletters] = useState<Newsletter[] | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
     const f = async () => {
-      let nl = await fetchNewsletters(user.oauth_access_token);
+      let nl = rows;//await fetchNewsletters(user.oauth_access_token);
       nl = _.sortBy(nl, n => !n.selected);
       setNewsletters(nl);
     }
@@ -18,6 +19,9 @@ export default function Onboarding({ user }: { user: TUser}) {
   }, []);
 
   const onSave = async () => {
+    if (isCreating) return;
+    setIsCreating(true);
+
     const selectedNewsletters = newsletters.filter(n => n.selected);
     if (selectedNewsletters.length === 0) {
       console.log('No selected newsletters!');
@@ -56,6 +60,7 @@ export default function Onboarding({ user }: { user: TUser}) {
         <div className="right flex-none">
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-3 rounded"
+            disabled={isCreating}
             onClick={() => onSave()}
           >
             Go to your feed
@@ -65,7 +70,17 @@ export default function Onboarding({ user }: { user: TUser}) {
 
       <Divider />
 
-      {newsletters == null && <>
+      {isCreating && <>
+        <div className="text-center pb-4 pt-12">
+          <svg className="animate-spin h-8 w-8 mx-auto" viewBox="0 0 24 24">
+            <path className="opacity-75" fill="black" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+        <div className="text-sm text-center">
+           Creating Your Feed Now
+        </div>
+      </>}
+      {!isCreating && newsletters == null && <>
         <div className="text-center pb-4 pt-12">
           <svg className="animate-spin h-8 w-8 mx-auto" viewBox="0 0 24 24">
             <path className="opacity-75" fill="black" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -75,7 +90,7 @@ export default function Onboarding({ user }: { user: TUser}) {
            Loading Recent Emails <br /> (This might take a minute)
         </div>
       </>}
-      {newsletters != null && (
+      {!isCreating && newsletters != null && (
         <table className="w-full my-2">
           <tbody>
           {newsletters.map(r =>
