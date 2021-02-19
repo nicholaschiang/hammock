@@ -11,7 +11,7 @@ export default function Onboarding({ user }: { user: TUser}) {
 
   useEffect(() => {
     const f = async () => {
-      let nl = rows;//await fetchNewsletters(user.oauth_access_token);
+      let nl = await fetchNewsletters(user.oauth_access_token);
       nl = _.sortBy(nl, n => !n.selected);
       setNewsletters(nl);
     }
