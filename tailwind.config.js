@@ -7,8 +7,8 @@ module.exports = {
       screens: {
          sm: "100%",
          md: "600px",
-         lg: "600px",
-         xl: "600px"
+         lg: "800px",
+         xl: "800px"
       }
     }
   },
