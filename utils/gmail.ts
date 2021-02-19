@@ -1,14 +1,15 @@
 import queryString from 'query-string'
 import _ from 'lodash';
+import { Newsletter, isNewsletter } from './newsletter'
 
-export type Newsletter = {
-  name: string,
-  from: string,
-  selected: boolean,
-}
+const INBOX_SIZE = 10;
+const NEWSLETTERS_SIZE = 50;
+const MOVE_LABELS_SIZE = 100;
+const MESSAGE_BATCH_SIZE = 50;
+const MESSAGE_SLEEP_TIME = 1000;
 
 export async function fetchInboxMessages(token: string, labelId: string, pageToken: string | null): Promise<[Message[], string | null]> {
-  const query = { maxResults: 10, labelIds: labelId };
+  const query = { maxResults: INBOX_SIZE, labelIds: labelId };
   if (pageToken != null) query['pageToken'] = pageToken;
   const messageList = await get('https://gmail.googleapis.com/gmail/v1/users/me/messages', token, query);
   if (!messageList.messages) return [[], null]
@@ -21,11 +22,12 @@ export async function fetchInboxMessages(token: string, labelId: string, pageTok
 
 export async function fetchNewsletters(token: string): Promise<Newsletter[]> {
   const messageList = await get('https://gmail.googleapis.com/gmail/v1/users/me/messages', token, {
-    maxResults: 5,
+    maxResults: NEWSLETTERS_SIZE,
     q: 'category:forums OR category:promotions',
   });
   if (!messageList.messages) return [];
   const messageIds: string[] = messageList.messages.map(m => m.id);
+  console.log(messageIds.length);
   const messages = await getMessages(messageIds, token);
 
   const newsletters: Newsletter[] = [];
@@ -62,7 +64,7 @@ export async function createFilter(token: string, labelId: string, from: string)
 
   // Retroactively move old messages to the filter.
   const retroactiveMessageList = await get('https://gmail.googleapis.com/gmail/v1/users/me/messages', token, {
-    maxResults: 100,
+    maxResults: MOVE_LABELS_SIZE,
     q: 'from:' + from,
   });
   await post('https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify', token, {
@@ -76,11 +78,12 @@ export async function createFilter(token: string, labelId: string, from: string)
 
 async function getMessages(ids: string[], token: string) {
   const allResults = [];
-  const batches = _.chunk(ids, 2);
-  for (const batch of batches) {
+  const batches = _.chunk(ids, MESSAGE_BATCH_SIZE);
+  for (let i = 0; i < batches.length; i++) {
+    const batch = batches[i];
     const results = await Promise.all(batch.map(id => getMessage(id, token)));
     allResults.push(...results);
-    //await sleep(1000);
+    if (i < batches.length - 1) await sleep(MESSAGE_SLEEP_TIME);
   }
   return allResults;
 }
@@ -164,18 +167,6 @@ async function post(url: string, token: string, body) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-export function isNewsletter(message: Message): false | Newsletter {
-  const from = getHeader(message, 'from');
-  if (!from) return false;
-  const { name, email } = parseFrom(from);
-  if (email.endsWith('theinformation.com')) {
-    return { name: name, from: email, selected: true };
-  }
-  const hasListUnsubscribe = getHeader(message, 'list-unsubscribe');
-  if (!hasListUnsubscribe) return false;
-  return { name: name, from: email, selected: false }
 }
 
 const reFrom = /(.*) <(.*)>/

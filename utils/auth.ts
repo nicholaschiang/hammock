@@ -31,6 +31,7 @@ export type TUser = {
   filters?: {
     id: string,
     from: string,
+    name: string,
   }[]
 }
 

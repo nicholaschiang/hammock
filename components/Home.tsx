@@ -5,8 +5,6 @@ import Header from './Header';
 import Onboarding from './Onboarding';
 import Reader from './Reader';
 
-import { isNewsletter, exampleMessage3, exampleMessage2, exampleMessage1 } from '../utils/gmail'
-
 export default function Home() {
   const [user, loading] = useAuthState(firebase.auth());
 

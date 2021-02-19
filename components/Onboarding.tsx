@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import _ from 'lodash';
 import { firebase, loginOrCreateUser, logout, TUser } from '../utils/auth'
-import { createFilter, createLabel, fetchNewsletters, Newsletter } from '../utils/gmail'
+import { createFilter, createLabel, fetchNewsletters } from '../utils/gmail'
+import { Newsletter } from '../utils/newsletter'
 import Divider from './Divider'
 
 export default function Onboarding({ user }: { user: TUser}) {
@@ -26,15 +27,14 @@ export default function Onboarding({ user }: { user: TUser}) {
     if (!labelId) {
       labelId = await createLabel(user.oauth_access_token, 'Return of the Newsletter');
     }
-    const filters: { id: string, from: string }[] = user.filters ?? [];
+    const filters: { id: string, from: string, name: string }[] = user.filters ?? [];
     for (const nl of selectedNewsletters) {
       if (filters.find(f => f.from === nl.from) != null) {
         continue;
       }
       const filterId = await createFilter(user.oauth_access_token, labelId, nl.from);
-      if (filterId) filters.push({id: filterId, from: nl.from});
+      if (filterId) filters.push({id: filterId, from: nl.from, name: nl.name});
     }
-    console.log(filters);
     await firebase.firestore().collection('users_private').doc(user.uid).set({
       is_onboarded: true,
       label_id: labelId,
@@ -44,7 +44,7 @@ export default function Onboarding({ user }: { user: TUser}) {
 
   return (
     <div className="md:container md:mx-auto">
-      <div className="header flex items-center">
+      <div className="header flex items-center pb-1">
         <div className="left flex-grow">
           <div className="text-5xl font-weight-500 pb-2">
             Your Newsletters
@@ -76,7 +76,7 @@ export default function Onboarding({ user }: { user: TUser}) {
         </div>
       </>}
       {newsletters != null && (
-        <table className="w-full my-2 mx-2">
+        <table className="w-full my-2">
           <tbody>
           {newsletters.map(r =>
             <OnboardingRow
@@ -101,12 +101,10 @@ export default function Onboarding({ user }: { user: TUser}) {
 }
 
 function OnboardingRow({ newsletter, onSelected }: { newsletter: Newsletter, onSelected: (boolean) => void }) {
-  const domain = newsletter.from.slice(newsletter.from.indexOf('@') + 1);
-  const googleURL = 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
   return (
     <tr onClick={() => onSelected(!newsletter.selected)}>
       <td className="py-2 w-12">
-        <img className="rounded-full h-8 w-8" src={googleURL} />
+        <img className="rounded-full h-8 w-8" src={newsletter.icon_url} />
       </td>
       <td>{newsletter.name}</td>
       <td className="text-right">
@@ -128,10 +126,10 @@ function OnboardingRow({ newsletter, onSelected }: { newsletter: Newsletter, onS
 }
 
 const rows = [
-  {name: 'Benedict Evans', from: 'peteryang.substack.com', selected: false},
-  {name: 'The Information', from: 'hello@theinformation.com', selected: true},
-  {name: 'New York Times', from: 'hello@nyt.com', selected: false},
-  {name: 'New York Times2', from: 'hello@nyt.com2', selected: true},
-  {name: 'New York Times3', from: 'hello@nyt.com3', selected: false},
-  {name: 'New York Times4', from: 'hello@nyt.com4', selected: false},
+  {name: 'Benedict Evans', from: 'peteryang.substack.com', selected: false, icon_url: ''},
+  {name: 'The Information', from: 'hello@theinformation.com', selected: true, icon_url: ''},
+  {name: 'New York Times', from: 'hello@nyt.com', selected: false, icon_url: ''},
+  {name: 'New York Times2', from: 'hello@nyt.com2', selected: true, icon_url: ''},
+  {name: 'New York Times3', from: 'hello@nyt.com3', selected: false, icon_url: ''},
+  {name: 'New York Times4', from: 'hello@nyt.com4', selected: false, icon_url: ''},
 ]
