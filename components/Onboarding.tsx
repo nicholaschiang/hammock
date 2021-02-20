@@ -94,7 +94,7 @@ export default function Onboarding({ user }: { user: TUser}) {
           </svg>
         </div>
         <div className="text-sm text-center">
-           Creating Your Feed Now
+          Creating your feed now, it takes up to 30 seconds
         </div>
       </>}
       {!isCreating && newsletters == null && <>
