@@ -21,7 +21,13 @@ export function isNewsletter(message: Message): false | Newsletter {
 }
 
 export function iconURLFromEmail(email: string): string {
-  const domain = email.slice(email.indexOf('@') + 1);
+  let domain = email.slice(email.indexOf('@') + 1);
+  if (domain.startsWith('e.')) {
+    domain = domain.slice(2);
+  }
+  if (domain.startsWith('email.')) {
+    domain = domain.slice(6);
+  }
   return 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
 }
 
