@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 const utf8 = require('utf8');
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
+import Content from './Content'
 
 export default function Reader({
   currentMessage,
@@ -12,6 +13,9 @@ export default function Reader({
   useEffect(() => {
     setMessage(currentMessage);
   }, [currentMessage]);
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, []);
 
   const from = getHeader(message, 'from');
   const subject = getHeader(message, 'subject');
@@ -21,7 +25,7 @@ export default function Reader({
   const createdAt = new Date(parseInt(message.internalDate));
 
   return (
-    <div className="md:container md:mx-auto mt-16">
+    <Content>
       <div className="flex">
         <div className="" onClick={() => onClosed()}>
           {'x'}
@@ -42,7 +46,7 @@ export default function Reader({
         {createdAt.toDateString()}
       </div>
       {getBody(message)}
-    </div>
+    </Content>
   )
 }
 

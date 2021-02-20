@@ -4,6 +4,7 @@ import he from 'he'
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
 import Article from './Article'
+import Content from './Content'
 import Divider from './Divider'
 
 type Pagination = {
@@ -49,7 +50,7 @@ export default function Reader({ user }: { user: TUser}) {
   }
 
   return (
-    <div className="md:container md:mx-auto mt-16">
+    <Content>
       <div className="text-5xl font-weight-500 pb-2">
         {displayTitle(user.first_name || user.name)}
       </div>
@@ -69,7 +70,7 @@ export default function Reader({ user }: { user: TUser}) {
           )}
         </div>
       ))}
-    </div>
+    </Content>
   )
 }
 

@@ -6,7 +6,7 @@ export default function Header({ user }: { user: firebase.User }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="w-full p-4 fixed top-0 bg-white">
+    <div className="w-full px-4 pt-4 pb-1 fixed top-0 bg-white">
       <button
         aria-expanded="true"
         aria-haspopup="true"
