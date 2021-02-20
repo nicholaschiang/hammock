@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { firebase, logout } from '../utils/auth'
+import { firebase, logout, resetOnboarding } from '../utils/auth'
 
 
 export default function Header({ user }: { user: firebase.User }) {
@@ -31,6 +31,16 @@ export default function Header({ user }: { user: firebase.User }) {
               }}
             >
               Logout
+            </a>
+            <a
+              href="#"
+              className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" role="menuitem"
+              onClick={async () => {
+                await resetOnboarding(user.uid);
+                setIsExpanded(false);
+              }}
+            >
+              Reset Onboarding
             </a>
           </div>
         </div>

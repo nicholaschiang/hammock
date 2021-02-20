@@ -78,4 +78,10 @@ async function logout() {
   return await firebase.auth().signOut()
 }
 
-export { firebase, loginOrCreateUser, logout };
+async function resetOnboarding(uid: string) {
+  await firebase.firestore().collection('users_private').doc(uid).set({
+    is_onboarded: false,
+  }, { merge: true });
+}
+
+export { firebase, loginOrCreateUser, logout, resetOnboarding };
