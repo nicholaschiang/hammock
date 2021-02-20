@@ -3,10 +3,10 @@ import _ from 'lodash';
 import { Newsletter, isNewsletter } from './newsletter'
 
 const INBOX_SIZE = 30;
-const NEWSLETTERS_SIZE = 200;
+const NEWSLETTERS_SIZE = 400;
 const MOVE_LABELS_SIZE = 100;
 const MESSAGE_BATCH_SIZE = 50;
-const MESSAGE_SLEEP_TIME = 1000;
+const MESSAGE_SLEEP_TIME = 500;
 
 export async function fetchInboxMessages(token: string, labelId: string, pageToken: string | null): Promise<[Message[], string | null]> {
   const query = { maxResults: INBOX_SIZE, labelIds: labelId };
@@ -22,7 +22,6 @@ export async function fetchInboxMessages(token: string, labelId: string, pageTok
 export async function fetchNewsletters(token: string): Promise<Newsletter[]> {
   const messageList = await get('https://gmail.googleapis.com/gmail/v1/users/me/messages', token, {
     maxResults: NEWSLETTERS_SIZE,
-    q: 'category:forums OR category:promotions',
   });
   if (!messageList.messages) return [];
   const messageIds: string[] = messageList.messages.map(m => m.id);
