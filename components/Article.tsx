@@ -102,7 +102,7 @@ type ControlsProps = {
 
 function Controls({ onClose, onNext, onPrevious }: ControlsProps) {
   return (
-    <div className="w-full px-4 pt-4 pb-1 fixed top-0">
+    <div className="px-4 pt-4 pb-1 fixed top-0">
       <div className="flex">
         <div className="rounded-full shadow-sm hover:shadow w-10 h-10 border-2 flex items-center justify-center mr-2 cursor-pointer">
           <svg
