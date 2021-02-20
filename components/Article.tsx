@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+const utf8 = require('utf8');
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
 
@@ -58,9 +59,21 @@ function getBody(message: Message) {
       bodyData = htmlPart.body.data; 
     } else if (textPart) {
       bodyData = textPart.body.data;
+    } else if (message.payload.parts.length > 0) {
+      // Super multipart?
+      const subpart = message.payload.parts[0];
+      const subparts = subpart.parts;
+      const htmlSubart = subparts.find(p => p.mimeType === 'text/html');
+      const textSubpart = subparts.find(p => p.mimeType === 'text/plain');
+      if (htmlSubart) {
+        bodyData = htmlSubart.body.data;
+      } else if (textSubpart) {
+        bodyData = textSubpart.body.data;
+      }
     }
   }
-  const body = atob(bodyData.replace(/-/g, '+').replace(/_/g, '/'));
+  let body = atob(bodyData.replace(/-/g, '+').replace(/_/g, '/'));
+  body = utf8.decode(body); // TODO: Should probably check it's UTF-8 encoded first
   return (
     <div className="full-w" dangerouslySetInnerHTML={{ __html: body }} />
   )
