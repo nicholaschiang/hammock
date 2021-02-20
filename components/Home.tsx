@@ -3,6 +3,7 @@ import { firebase, loginOrCreateUser, TUser } from '../utils/auth'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import Header from './Header';
+import Login from './Login';
 import Onboarding from './Onboarding';
 import Reader from './Reader';
 
@@ -31,21 +32,6 @@ return <>
     {!showOnboarding && <Reader user={userValue} />}
     {showOnboarding && <Onboarding user={userValue} />}
   </>;
-}
-
-function Login() {
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        onClick={async () => {
-          await loginOrCreateUser();
-        }}
-      >
-        Sign In With Google
-      </button>
-    </div>
-  );
 }
 
 function Loading() {
