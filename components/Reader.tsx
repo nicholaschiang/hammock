@@ -1,5 +1,6 @@
 import next from 'next'
 import { useEffect, useState } from 'react'
+import he from 'he'
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
 import Article from './Article'
@@ -22,6 +23,8 @@ export default function Reader({ user }: { user: TUser}) {
   useEffect(() => {
     const fetch = async () => {
       const [messages, nextPageToken] = await fetchInboxMessages(user.oauth_access_token, user.label_id as string, null);
+      // const messages = [exampleMessage1, exampleMessage2, exampleMessage3];
+      // const nextPageToken = null;
       setPagination({
         messageSections: createMessagesSections(pagination.messageSections, messages),
         nextPageToken: nextPageToken,
@@ -87,7 +90,7 @@ function EmailRow({ message, onSelect }: { message: Message, onSelect: () => voi
         {subject}
       </div>
       <div>
-        {message.snippet}
+        {he.decode(message.snippet)}
       </div>
     </div>
   )
