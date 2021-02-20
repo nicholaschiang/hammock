@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import { firebase, loginOrCreateUser, TUser } from '../utils/auth'
 import { useAuthState } from 'react-firebase-hooks/auth'
 import { useDocumentData } from 'react-firebase-hooks/firestore';
@@ -15,16 +16,20 @@ export default function Home() {
 }
 
 function LoggedIn({ user }: { user: firebase.User }) {
+  const router = useRouter();
   const [userValue, loading, error] = useDocumentData<TUser>(firebase.firestore().collection('users_private').doc(user.uid));
 
   if (loading || error) {
     return <Loading />;
   }
 
-  return <>
+  const query = router.query;
+  const showOnboarding = !!query.force_onboarding || !userValue.is_onboarded;
+
+return <>
     <Header user={user} />
-    {userValue.is_onboarded && <Reader user={userValue} />}
-    {!userValue.is_onboarded && <Onboarding user={userValue} />}
+    {!showOnboarding && <Reader user={userValue} />}
+    {showOnboarding && <Onboarding user={userValue} />}
   </>;
 }
 

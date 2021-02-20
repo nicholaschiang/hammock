@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 import _ from 'lodash';
 import { firebase, loginOrCreateUser, logout, TUser } from '../utils/auth'
 import { createFilter, createLabel, fetchNewsletters } from '../utils/gmail'
@@ -12,6 +13,7 @@ type newsletterCategories = {
 }
 
 export default function Onboarding({ user }: { user: TUser}) {
+  const router = useRouter();
   const [newsletters, setNewsletters] = useState<Newsletter[] | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -52,6 +54,10 @@ export default function Onboarding({ user }: { user: TUser}) {
       label_id: labelId,
       filters: filters,
     }, { merge: true });
+
+    if (!!router.query.force_onboarding) {
+      router.push('/');
+    }
   }
 
   const important = (newsletters || []).filter(n => n.category === 'important');
