@@ -59,10 +59,13 @@ export default function Reader({ user }: { user: TUser}) {
     return (
       <Article
         currentMessage={selectedMessage}
-        onClosed={() => setSelectedMessage(null)}
+        onClose={() => setSelectedMessage(null)}
+        onPrevious={() => {
+          const nextMessage = findPrevious(pagination.messageSections, selectedMessage);
+          setSelectedMessage(nextMessage);
+        }}
         onNext={() => {
           const nextMessage = findNext(pagination.messageSections, selectedMessage);
-          console.log('nextMessage', nextMessage);
           setSelectedMessage(nextMessage);
         }}
       />
@@ -170,6 +173,25 @@ function findNext(messageSections: messageSection[], message: Message): Message 
         }
         if (i < messageSections.length - 1) {
           return messageSections[i+1].messages[0];
+        }
+        return null;
+      }
+    }
+  }
+  return null;
+}
+
+function findPrevious(messageSections: messageSection[], message: Message): Message | null {
+  for (let i = 0; i < messageSections.length; i++) {
+    const s = messageSections[i];
+    for (let j = 0; j < s.messages.length; j++) {
+      const m = s.messages[j];
+      if (m.id === message.id) {
+        if (j > 0) {
+          return s.messages[j-1];
+        }
+        if (i > 0) {
+          return messageSections[i-1].messages[0];
         }
         return null;
       }

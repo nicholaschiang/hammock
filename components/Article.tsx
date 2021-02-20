@@ -4,11 +4,14 @@ import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
 import Content from './Content'
 
-export default function Reader({
-  currentMessage,
-  onClosed,
-  onNext,
-}: { currentMessage: Message, onClosed: () => void, onNext: () => void }) {
+type Props = {
+  currentMessage: Message,
+  onClose: () => void,
+  onNext: () => void,
+  onPrevious: () => void,
+}
+
+export default function Reader({ currentMessage, onClose, onNext, onPrevious }: Props) {
   const [message, setMessage] = useState(currentMessage);
   useEffect(() => {
     setMessage(currentMessage);
@@ -24,17 +27,9 @@ export default function Reader({
   const googleURL = 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
   const createdAt = new Date(parseInt(message.internalDate));
 
-  return (
+  return <>
+    <Controls onClose={onClose} onNext={onNext} onPrevious={onPrevious} />
     <Content>
-      <div className="flex">
-        <div className="" onClick={() => onClosed()}>
-          {'x'}
-        </div>
-        <div className="flex-grow"></div>
-        <div className="" onClick={() => onNext()}>
-          {'>'}
-        </div>
-      </div>
       <div className="full-w text-xl text-center pb-2 flex items-center justify-center">
         <img className="rounded-full h-5 w-5 inline-block mr-2" src={googleURL} />
         {name}
@@ -47,7 +42,7 @@ export default function Reader({
       </div>
       <ArticleBody message={message} />
     </Content>
-  )
+  </>
 }
 
 function ArticleBody({ message }: { message: Message }) {
@@ -97,4 +92,51 @@ function ArticleBody({ message }: { message: Message }) {
   // return (
   //   <div className="full-w" dangerouslySetInnerHTML={{ __html: body }} />
   // )
+}
+
+type ControlsProps = {
+  onClose: () => void,
+  onNext: () => void,
+  onPrevious: () => void,
+}
+
+function Controls({ onClose, onNext, onPrevious }: ControlsProps) {
+  return (
+    <div className="w-full px-4 pt-4 pb-1 fixed top-0">
+      <div className="flex">
+        <div className="rounded-full shadow-sm hover:shadow w-10 h-10 border-2 flex items-center justify-center mr-2 cursor-pointer">
+          <svg
+            onClick={() => onClose()}
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-3 h-3 text-gray-600 hover:text-black"
+            viewBox="0 0 24 24"
+          >
+            <path fill="currentcolor" d="M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z"/>
+          </svg>
+        </div>
+        <div className="rounded-3xl shadow-sm hover:shadow w-20 h-10 border-2 flex items-center justify-between px-4">
+          <svg
+            onClick={() => onPrevious()}
+            className="w-3 h-3 text-gray-600 hover:text-black cursor-pointer"
+            xmlns="http://www.w3.org/2000/svg"
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            viewBox="0 0 24 24"
+          >
+            <path fill="currentcolor" d="M20 .755l-14.374 11.245 14.374 11.219-.619.781-15.381-12 15.391-12 .609.755z"/>
+          </svg>
+          <svg
+            onClick={() => onNext()}
+            className="w-3 h-3 text-gray-600 hover:text-blac cursor-pointer"
+            xmlns="http://www.w3.org/2000/svg"
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            viewBox="0 0 24 24"
+          >
+            <path fill="currentcolor" d="M4 .755l14.374 11.245-14.374 11.219.619.781 15.381-12-15.391-12-.609.755z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
 }
