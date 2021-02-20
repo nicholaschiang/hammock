@@ -15,16 +15,21 @@ export function isNewsletter(message: Message): false | Newsletter {
   }
   const { name, email } = parseFrom(from);
   if (whitelistedNewsletters[name.toLowerCase()] || hasWhitelistedDomain(email)) {
-    return { name: name, from: email, selected: true, icon_url: iconURLFromEmail(email), category: 'important' };
+    return { name: name, from: email, selected: true, icon_url: iconURLFromEmail(name, email), category: 'important' };
   }
   const hasListUnsubscribe = getHeader(message, 'list-unsubscribe');
   if (!hasListUnsubscribe) {
     return false;
   }
-  return { name: name, from: email, selected: false, icon_url: iconURLFromEmail(email), category: 'other' };
+  return { name: name, from: email, selected: false, icon_url: iconURLFromEmail(name, email), category: 'other' };
 }
 
-export function iconURLFromEmail(email: string): string {
+export function iconURLFromEmail(name: string, email: string): string {
+  const result = whitelistedNewsletters[name.toLowerCase()];
+  console.log(name, email, result);
+  if (result && result !== true && result.asset_url) {
+    return result.asset_url;
+  }
   let domain = email.slice(email.indexOf('@') + 1);
   if (domain.startsWith('e.')) {
     domain = domain.slice(2);
@@ -91,7 +96,7 @@ const whitelistedNewsletters = {
   'bank on basak': true,
   'beautiful voyager': true,
   'being patient': true,
-  'benedict evans': true,
+  'benedict evans': { asset_url: '/assets/icons/benedictevans.jpeg' },
   'beyond the first order': true,
   'big by matt stoller': true,
   'blackbird spyplane': true,
@@ -276,9 +281,9 @@ const whitelistedNewsletters = {
   'propertyname1': true,
   'public announcement': true,
   'pycoder\'s weekly': true,
-  'quartz africa weekly brief': true,
-  'quartz daily brief': true,
-  'quartz daily obsession': true,
+  'quartz africa weekly brief': { asset_url: '/assets/icons/quartz.jpg '},
+  'quartz daily brief': { asset_url: '/assets/icons/quartz.jpg '},
+  'quartz daily obsession': { asset_url: '/assets/icons/quartz.jpg '},
   'quick brown fox': true,
   'quick wins': true,
   'raceahead': true,
@@ -357,7 +362,7 @@ const whitelistedNewsletters = {
   'the growth newsletter': true,
   'the highlighter': true,
   'the hustle': true,
-  'the information': true,
+  'the information': { asset_url: '/assets/icons/theinformation.png' },
   'the interface': true,
   'the jacuzzi': true,
   'the journal by kevin rose': true,
@@ -432,4 +437,5 @@ const whitelistedNewsletters = {
   'young makers': true,
   'zeihan on geopolitics': true,
   'hugo amsellem': true,
+  'jessica lessin': { asset_url: '/assets/icons/theinformation.png' },
 }

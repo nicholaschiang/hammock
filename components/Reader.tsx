@@ -107,7 +107,7 @@ function EmailRow({ message, onSelect }: { message: Message, onSelect: () => voi
   const from = getHeader(message, 'from');
   const subject = getHeader(message, 'subject');
   const { name, email } = parseFrom(from);
-  const googleURL = iconURLFromEmail(email);
+  const googleURL = iconURLFromEmail(name, email);
 
   return (
     <div className="pt-4 pb-3" onClick={() => onSelect()}>

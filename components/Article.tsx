@@ -24,7 +24,7 @@ export default function Reader({ currentMessage, onClose, onNext, onPrevious }: 
   const from = getHeader(message, 'from');
   const subject = getHeader(message, 'subject');
   const { name, email } = parseFrom(from);
-  const googleURL = iconURLFromEmail(email);
+  const googleURL = iconURLFromEmail(name, email);
   const createdAt = new Date(parseInt(message.internalDate));
 
   return <>
