@@ -2,8 +2,8 @@ import queryString from 'query-string'
 import _ from 'lodash';
 import { Newsletter, isNewsletter } from './newsletter'
 
-const INBOX_SIZE = 25;
-const NEWSLETTERS_SIZE = 100;
+const INBOX_SIZE = 30;
+const NEWSLETTERS_SIZE = 200;
 const MOVE_LABELS_SIZE = 100;
 const MESSAGE_BATCH_SIZE = 50;
 const MESSAGE_SLEEP_TIME = 1000;
