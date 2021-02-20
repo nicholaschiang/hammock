@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState, useRef } from 'react'
 import he from 'he'
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
+import { iconURLFromEmail } from '../utils/newsletter'
 import Article from './Article'
 import Content from './Content'
 import Divider from './Divider'
@@ -106,20 +107,19 @@ function EmailRow({ message, onSelect }: { message: Message, onSelect: () => voi
   const from = getHeader(message, 'from');
   const subject = getHeader(message, 'subject');
   const { name, email } = parseFrom(from);
-  const domain = email.slice(email.indexOf('@') + 1);
-  const googleURL = 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
+  const googleURL = iconURLFromEmail(email);
 
   return (
-    <div className="py-3" onClick={() => onSelect()}>
-      <div className="text-sm">
+    <div className="pt-4 pb-3" onClick={() => onSelect()}>
+      <div className="text-xs pb-1">
         <img className="rounded-full h-4 w-4 inline-block mr-2" src={googleURL} />
         {name}
       </div>
       <div className="font-bold">
         {subject}
       </div>
-      <div>
-        {he.decode(message.snippet)}
+      <div className="text-sm text-gray-700">
+        {formatSnippet(message.snippet)}
       </div>
     </div>
   )
@@ -129,6 +129,12 @@ type messageSection = {
   displayDate: string,
   date: Date,
   messages: Message[],
+}
+
+function formatSnippet(snippet: string) {
+  let cleanedUp: string = he.decode(snippet);
+  if (!cleanedUp.endsWith('.')) cleanedUp = cleanedUp + '...';
+  return cleanedUp;
 }
 
 function createMessagesSections(existingSections: messageSection[], newMessages: Message[]): messageSection[] {

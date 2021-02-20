@@ -32,6 +32,9 @@ export function iconURLFromEmail(email: string): string {
   if (domain.startsWith('email.')) {
     domain = domain.slice(6);
   }
+  if (domain.startsWith('mail.')) {
+    domain = domain.slice(5);
+  }
   return 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
 }
 
