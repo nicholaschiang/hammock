@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 const utf8 = require('utf8');
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
+import { iconURLFromEmail } from '../utils/newsletter'
 import Content from './Content'
 
 type Props = {
@@ -23,8 +24,7 @@ export default function Reader({ currentMessage, onClose, onNext, onPrevious }: 
   const from = getHeader(message, 'from');
   const subject = getHeader(message, 'subject');
   const { name, email } = parseFrom(from);
-  const domain = email.slice(email.indexOf('@') + 1);
-  const googleURL = 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
+  const googleURL = iconURLFromEmail(email);
   const createdAt = new Date(parseInt(message.internalDate));
 
   return <>
