@@ -14,10 +14,9 @@ export async function fetchInboxMessages(token: string, labelId: string, pageTok
   const messageList = await get('https://gmail.googleapis.com/gmail/v1/users/me/messages', token, query);
   if (!messageList.messages) return [[], null]
   const messageIds: string[] = messageList.messages.map(m => m.id);
-  const nextPageToken = messageList.pageToken;
+  const nextPageToken = messageList.nextPageToken;
   const messages = await getMessages(messageIds, token);
-  console.log(messages[0]);
-  return [messages, nextPageToken]
+  return [messages, nextPageToken];
 }
 
 export async function fetchNewsletters(token: string): Promise<Newsletter[]> {

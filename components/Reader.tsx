@@ -1,5 +1,5 @@
 import next from 'next'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useRef } from 'react'
 import he from 'he'
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
@@ -10,7 +10,7 @@ import Divider from './Divider'
 type Pagination = {
   messageSections: messageSection[],
   nextPageToken: string | null,
-  isLoading: boolean,
+  isInitialized: boolean,
 }
 
 export default function Reader({ user }: { user: TUser}) {
@@ -18,22 +18,42 @@ export default function Reader({ user }: { user: TUser}) {
   const [pagination, setPagination] = useState<Pagination>({
     messageSections: [],// createMessagesSections([], [exampleMessage1, exampleMessage2, exampleMessage3]),
     nextPageToken: null,
-    isLoading: true,
+    isInitialized: false,
   })
+  const [isFetching, setIsFetching] = useState(false);
+  const loader = useRef(null);
 
   useEffect(() => {
-    const fetch = async () => {
-      const [messages, nextPageToken] = await fetchInboxMessages(user.oauth_access_token, user.label_id as string, null);
-      // const messages = [exampleMessage1, exampleMessage2, exampleMessage3];
-      // const nextPageToken = null;
-      setPagination({
-        messageSections: createMessagesSections(pagination.messageSections, messages),
-        nextPageToken: nextPageToken,
-        isLoading: false,
-      })
-    }
     fetch();
+    // var options = {root: null, rootMargin: "20px", threshold: 1.0};
+    // const observer = new IntersectionObserver(handleObserver, options);
+    // if (loader.current) {
+    //   observer.observe(loader.current)
+    // }
   }, []);
+
+  const fetch = async () => {
+    if (isFetching) return;
+    if (pagination.isInitialized && !pagination.nextPageToken) return;
+    setIsFetching(true);
+    const [messages, nextPageToken] = await fetchInboxMessages(user.oauth_access_token, user.label_id as string, pagination.nextPageToken);
+    // const messages = [exampleMessage1, exampleMessage2, exampleMessage3];
+    // const nextPageToken = null;
+    setPagination({
+      messageSections: createMessagesSections(pagination.messageSections, messages),
+      nextPageToken: nextPageToken,
+      isInitialized: true,
+    })
+    setIsFetching(false);
+  }
+
+  // const handleObserver = useCallback(entities => {
+  //   const target = entities[0];
+  //   if (target && target.isIntersecting) {
+  //     console.log(pagination);
+  //     fetch();
+  //   }
+  // }, [pagination]);
 
   if (selectedMessage) {
     return (
@@ -70,6 +90,9 @@ export default function Reader({ user }: { user: TUser}) {
           )}
         </div>
       ))}
+      <div ref={loader} onClick={async() => {
+        await fetch();
+      }}>Load More</div>
     </Content>
   )
 }
@@ -109,7 +132,6 @@ function createMessagesSections(existingSections: messageSection[], newMessages:
   for (const message of newMessages) {
     let added = false;
     const createdAt = new Date(parseInt(message.internalDate));
-    console.log(message.id, createdAt);
     for (const section of newSections) {
       if (isSameDay(section.date, createdAt)) {
         section.messages.push(message); // Assuming this is already chronological
@@ -125,7 +147,6 @@ function createMessagesSections(existingSections: messageSection[], newMessages:
       messages: [message],
     });
   }
-  console.log(newSections);
   return newSections;
 }
 
@@ -143,9 +164,7 @@ function findNext(messageSections: messageSection[], message: Message): Message 
     const s = messageSections[i];
     for (let j = 0; j < s.messages.length; j++) {
       const m = s.messages[j];
-      console.log('considering', i, j, m.id);
       if (m.id === message.id) {
-        console.log('HI', j, s.messages.length - 1, i, messageSections.length - 1);
         if (j < s.messages.length - 1) {
           return s.messages[j+1];
         }
