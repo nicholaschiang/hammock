@@ -93,9 +93,11 @@ export default function Reader({ user }: { user: TUser}) {
           )}
         </div>
       ))}
-      <div ref={loader} onClick={async() => {
-        await fetch();
-      }}>Load More</div>
+      {pagination.isInitialized && pagination.nextPageToken && (
+        <div className="text-sm text-gray-600 pb-4 cursor-pointer" ref={loader} onClick={async() => {
+          await fetch();
+        }}>Load More</div>
+      )}
     </Content>
   )
 }
