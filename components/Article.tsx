@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 const utf8 = require('utf8');
 import { TUser } from '../utils/auth'
 import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
@@ -35,7 +35,7 @@ export default function Reader({
           {'>'}
         </div>
       </div>
-      <div className="full-w text-xl text-center pb-2">
+      <div className="full-w text-xl text-center pb-2 flex items-center justify-center">
         <img className="rounded-full h-5 w-5 inline-block mr-2" src={googleURL} />
         {name}
       </div>
@@ -45,12 +45,14 @@ export default function Reader({
       <div className="text-sm text-gray-400 pb-2">
         {createdAt.toDateString()}
       </div>
-      {getBody(message)}
+      <ArticleBody message={message} />
     </Content>
   )
 }
 
-function getBody(message: Message) {
+function ArticleBody({ message }: { message: Message }) {
+  const iframeRef = useRef(null);
+
   let bodyData = '';
   if (message.payload.mimeType === 'text/html') {
     bodyData = message.payload.body.data;
@@ -79,6 +81,20 @@ function getBody(message: Message) {
   let body = atob(bodyData.replace(/-/g, '+').replace(/_/g, '/'));
   body = utf8.decode(body); // TODO: Should probably check it's UTF-8 encoded first
   return (
-    <div className="full-w" dangerouslySetInnerHTML={{ __html: body }} />
-  )
+    <iframe
+      width="100%"
+      height="1px"
+      srcDoc={body}
+      ref={iframeRef}
+      sandbox="allow-same-origin allow-popups"
+      onLoad={() => {
+        const i = iframeRef.current;
+        const height = i.contentWindow.document.documentElement.scrollHeight;
+        i.setAttribute('height', height + 5 + 'px');
+      }}
+    />
+  );
+  // return (
+  //   <div className="full-w" dangerouslySetInnerHTML={{ __html: body }} />
+  // )
 }
