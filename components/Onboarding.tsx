@@ -3,7 +3,13 @@ import _ from 'lodash';
 import { firebase, loginOrCreateUser, logout, TUser } from '../utils/auth'
 import { createFilter, createLabel, fetchNewsletters } from '../utils/gmail'
 import { Newsletter } from '../utils/newsletter'
+import Content from './Content'
 import Divider from './Divider'
+
+type newsletterCategories = {
+  important: Newsletter[],
+  other: Newsletter[],
+}
 
 export default function Onboarding({ user }: { user: TUser}) {
   const [newsletters, setNewsletters] = useState<Newsletter[] | null>(null);
@@ -27,6 +33,7 @@ export default function Onboarding({ user }: { user: TUser}) {
       console.log('No selected newsletters!');
       return;
     }
+    console.log('selectedNewsletters', selectedNewsletters);
     let labelId = user.label_id;
     if (!labelId) {
       labelId = await createLabel(user.oauth_access_token, 'Return of the Newsletter');
@@ -39,6 +46,7 @@ export default function Onboarding({ user }: { user: TUser}) {
       const filterId = await createFilter(user.oauth_access_token, labelId, nl.from);
       if (filterId) filters.push({id: filterId, from: nl.from, name: nl.name});
     }
+    console.log('new filters', filters);
     await firebase.firestore().collection('users_private').doc(user.uid).set({
       is_onboarded: true,
       label_id: labelId,
@@ -46,14 +54,17 @@ export default function Onboarding({ user }: { user: TUser}) {
     }, { merge: true });
   }
 
+  const important = (newsletters || []).filter(n => n.category === 'important');
+  const other = (newsletters || []).filter(n => n.category === 'other');
+
   return (
-    <div className="md:container md:mx-auto">
-      <div className="header flex items-center pb-1">
+    <Content>
+      <div className="header flex items-center pb-2">
         <div className="left flex-grow">
           <div className="text-5xl font-weight-500 pb-2">
             Your Newsletters
           </div>
-          <div className="text-lg font-weight-400 text-gray-700">
+          <div className="text-lg text-gray-500">
             Choose the subscriptions you want to read in your feed
           </div>
         </div>
@@ -90,10 +101,10 @@ export default function Onboarding({ user }: { user: TUser}) {
            Loading Recent Emails <br /> (This might take a minute)
         </div>
       </>}
-      {!isCreating && newsletters != null && (
+      {!isCreating && newsletters != null && (<>
         <table className="w-full my-2">
           <tbody>
-          {newsletters.map(r =>
+          {important.map(r =>
             <OnboardingRow
               key={r.from}
               newsletter={r}
@@ -110,28 +121,51 @@ export default function Onboarding({ user }: { user: TUser}) {
           )}
           </tbody>
         </table>
-      )}
-    </div>
+        <p className="text-lg text-gray-500 pt-10">
+          Other “newsletters” in your inbox that we found less relevant
+        </p>
+        <table className="w-full my-2">
+          <tbody>
+          {other.map(r =>
+            <OnboardingRow
+              key={r.from}
+              newsletter={r}
+              onSelected={(isSelected) => {
+                const newNewsletters = newsletters.map(nl => {
+                  if (nl.from === r.from) {
+                    nl.selected = isSelected
+                  }
+                  return nl;
+                })
+                setNewsletters(newNewsletters);
+              }}
+            />
+          )}
+          </tbody>
+        </table>
+
+      </>)}
+    </Content>
   )
 }
 
 function OnboardingRow({ newsletter, onSelected }: { newsletter: Newsletter, onSelected: (boolean) => void }) {
   return (
     <tr onClick={() => onSelected(!newsletter.selected)}>
-      <td className="py-2 w-12">
+      <td className="py-3 w-12">
         <img className="rounded-full h-8 w-8" src={newsletter.icon_url} />
       </td>
       <td>{newsletter.name}</td>
       <td className="text-right">
         {newsletter.selected && (
-          <svg className="block mr-0 ml-auto fill-current w-5 h-5 text-white pointer-events-none" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg className="block mr-0 ml-auto fill-current w-6 h-6 text-white pointer-events-none" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="17.5" cy="17.5" r="16.5" fill="#6C7176" stroke="#6C7176" strokeWidth="2"/>
             <rect x="12" y="23.3574" width="21" height="4" rx="2" transform="rotate(-46.9964 12 23.3574)" fill="white"/>
             <rect x="14.4854" y="26.3135" width="12" height="4" rx="2" transform="rotate(-135 14.4854 26.3135)" fill="white"/>
           </svg>
         )}
         {!newsletter.selected && (
-          <svg className="block mr-0 ml-auto fill-current w-5 h-5 text-green-500 pointer-events-none" viewBox="0 0 24 24">
+          <svg className="block mr-0 ml-auto fill-current w-6 h-6 text-green-500 pointer-events-none" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="11" stroke="#6C7176" strokeWidth="2" fill="none" />
           </svg>
         )}
@@ -141,10 +175,10 @@ function OnboardingRow({ newsletter, onSelected }: { newsletter: Newsletter, onS
 }
 
 const rows = [
-  {name: 'Benedict Evans', from: 'peteryang.substack.com', selected: false, icon_url: ''},
-  {name: 'The Information', from: 'hello@theinformation.com', selected: true, icon_url: ''},
-  {name: 'New York Times', from: 'hello@nyt.com', selected: false, icon_url: ''},
-  {name: 'New York Times2', from: 'hello@nyt.com2', selected: true, icon_url: ''},
-  {name: 'New York Times3', from: 'hello@nyt.com3', selected: false, icon_url: ''},
-  {name: 'New York Times4', from: 'hello@nyt.com4', selected: false, icon_url: ''},
+  {name: 'Benedict Evans', from: 'peteryang.substack.com', selected: false, icon_url: '', category: 'important'},
+  {name: 'The Information', from: 'hello@theinformation.com', selected: true, icon_url: '', category: 'other'},
+  {name: 'New York Times', from: 'hello@nyt.com', selected: false, icon_url: '', category: 'other'},
+  {name: 'New York Times2', from: 'hello@nyt.com2', selected: true, icon_url: '', category: 'other'},
+  {name: 'New York Times3', from: 'hello@nyt.com3', selected: false, icon_url: '', category: 'other'},
+  {name: 'New York Times4', from: 'hello@nyt.com4', selected: false, icon_url: '', category: 'important'},
 ]

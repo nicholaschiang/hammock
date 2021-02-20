@@ -46,14 +46,14 @@ export default function Reader({ user }: { user: TUser}) {
   }
 
   return (
-    <div className="md:container md:mx-auto">
+    <div className="md:container md:mx-auto mt-16">
       <div className="text-5xl font-weight-500 pb-2">
-        Hello, {user.first_name || user.name}
+        {displayTitle(user.first_name || user.name)}
       </div>
 
       {pagination.messageSections.map(s => (
-        <div className="py-3" key={s.displayDate}>
-          <p className="text-gray-400 text-sm">{s.displayDate}</p>
+        <div className="pt-3 pb-8" key={s.displayDate}>
+          <p className="text-lg text-gray-500 pb-1">{s.displayDate}</p>
           <Divider />
           {s.messages.map(m =>
             <EmailRow
@@ -78,7 +78,7 @@ function EmailRow({ message, onSelect }: { message: Message, onSelect: () => voi
   const googleURL = 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
 
   return (
-    <div className="py-2" onClick={() => onSelect()}>
+    <div className="py-3" onClick={() => onSelect()}>
       <div className="text-sm">
         <img className="rounded-full h-4 w-4 inline-block mr-2" src={googleURL} />
         {name}
@@ -153,4 +153,15 @@ function findNext(messageSections: messageSection[], message: Message): Message 
     }
   }
   return null;
+}
+
+function displayTitle(name: string) {
+  const hourOfDay = new Date().getHours();
+  if (hourOfDay < 12) {
+    return `Good morning, ${name}`;
+  } else if (hourOfDay < 18) {
+    return `Good afternoon, ${name}`;
+  } else {
+    return `Good evening, ${name}`;
+  }
 }

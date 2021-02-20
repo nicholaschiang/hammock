@@ -5,6 +5,7 @@ export type Newsletter = {
   from: string,
   selected: boolean,
   icon_url: string,
+  category: 'important' | 'other',
 }
 
 export function isNewsletter(message: Message): false | Newsletter {
@@ -12,11 +13,11 @@ export function isNewsletter(message: Message): false | Newsletter {
   if (!from) return false;
   const { name, email } = parseFrom(from);
   if (whitelistedNewsletters[from.toLowerCase()] || hasWhitelistedDomain(email)) {
-    return { name: name, from: email, selected: true, icon_url: iconURLFromEmail(email) };
+    return { name: name, from: email, selected: true, icon_url: iconURLFromEmail(email), category: 'important' };
   }
   const hasListUnsubscribe = getHeader(message, 'list-unsubscribe');
   if (!hasListUnsubscribe) return false;
-  return { name: name, from: email, selected: false, icon_url: iconURLFromEmail(email) };
+  return { name: name, from: email, selected: false, icon_url: iconURLFromEmail(email), category: 'other' };
 }
 
 export function iconURLFromEmail(email: string): string {
@@ -38,6 +39,7 @@ const whitelistedDomains = {
   'e.newyorktimes.com': true,
   'atlasobscura.com': true,
   'e.economist.com': true,
+  'getrevue.co': true,
 };
 
 const whitelistedNewsletters = {

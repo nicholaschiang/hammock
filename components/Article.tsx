@@ -20,7 +20,7 @@ export default function Reader({
   const createdAt = new Date(parseInt(message.internalDate));
 
   return (
-    <div className="md:container md:mx-auto">
+    <div className="md:container md:mx-auto mt-16">
       <div className="flex">
         <div className="" onClick={() => onClosed()}>
           {'x'}
