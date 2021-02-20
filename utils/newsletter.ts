@@ -10,13 +10,17 @@ export type Newsletter = {
 
 export function isNewsletter(message: Message): false | Newsletter {
   const from = getHeader(message, 'from');
-  if (!from) return false;
+  if (!from) {
+    return false;
+  }
   const { name, email } = parseFrom(from);
-  if (whitelistedNewsletters[from.toLowerCase()] || hasWhitelistedDomain(email)) {
+  if (whitelistedNewsletters[name.toLowerCase()] || hasWhitelistedDomain(email)) {
     return { name: name, from: email, selected: true, icon_url: iconURLFromEmail(email), category: 'important' };
   }
   const hasListUnsubscribe = getHeader(message, 'list-unsubscribe');
-  if (!hasListUnsubscribe) return false;
+  if (!hasListUnsubscribe) {
+    return false;
+  }
   return { name: name, from: email, selected: false, icon_url: iconURLFromEmail(email), category: 'other' };
 }
 
