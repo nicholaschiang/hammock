@@ -1,34 +1,102 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Newsletter
 
-## Getting Started
+Return of the Newsletter moves your favorite newsletters outside of your
+understandably cluttered inbox, letting you focus on and learn from the content 
+you love in a distraction-free reading space.
 
-First, run the development server:
+#### Languages
 
-```bash
-npm run dev
-# or
-yarn dev
+- [Typescript](https://www.typescriptlang.org) - As our language of choice
+  (mostly for static typing, stronger linting capabilities, etc). Typescript is 
+  also [well supported by Next.js](https://nextjs.org/docs/basic-features/typescript) 
+  and [React](https://reactjs.org/docs/static-type-checking.html#typescript).
+- [CSS-in-JS](https://github.com/vercel/styled-jsx) - Instead of packaging
+  styles separately from our React components, all styles are included alongside 
+  them *in the same files*. This allows for better code-splitting, etc.
+
+#### Frameworks
+
+- [React](https://reactjs.org) - As our front-end framework.
+- [Next.js](https://nextjs.org) - To easily support
+  [SSR](https://nextjs.org/docs/basic-features/pages#server-side-rendering) and
+  other performance [PWA](https://web.dev/progressive-web-apps/) features.
+- [SWR](https://swr.vercel.app) - Used to manage global state. SWR fetches data
+  from our back-end, stores it in a global cache, and allows local mutations of
+  that cache (with or without automatic revalidation).
+
+#### Tooling
+
+- [Yarn](https://yarnpkg.com) - To manage dependencies much faster than NPM (and
+  for better community support, advanced features, etc). This project uses Yarn
+  Berry (v2) and takes advantage of its new plug-n-play functionality.
+- [ESLint](https://github.com/eslint/eslint) - For code linting to avoid
+  common mistakes and to enforce styling. Follow [these
+  instructions](https://eslint.org/docs/user-guide/integrations) to install it
+  in the text editor of your choice (so you won't have to wait until our 
+  pre-commit hooks fail to update your code).
+- [Cypress](https://docs.cypress.io) for integration, UI, and some unit tests.
+  Cypress is like Selenium; but built from the ground-up with the developer in
+  mind. Cypress runs alongside your code in the browser, enabling DOM snapshots,
+  time travel, and overall faster test runs.
+
+#### Database
+
+- [Google's Firebase](https://firebase.google.com/) - For their [NoSQL
+  document-based database](https://firebase.google.com/products/firestore),
+  [authentication](https://firebase.google.com/products/auth), and other
+  useful solutions.
+
+## Commit Message Format
+
+I have very precise rules over how Git commit messages in this repository must 
+be formatted. This format leads to **easier to read commit history**.
+
+Please refer to the following documentation for more info:
+
+- [Conventional Commit Messages](https://www.conventionalcommits.org/en/v1.0.0/)
+- [Angular's Commit Message Format](https://github.com/angular/angular/blob/master/CONTRIBUTING.md#-commit-message-format)
+- [Udacity's Commit Message Style Guide](http://udacity.github.io/git-styleguide/)
+
+### Commit Message Header
+
+Commit messages that do not adhere to the following commit style will not be
+merged into `develop`:
+
+```
+<type>(<scope>): <short summary>
+  │       │             │
+  │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
+  │       │
+  │       └─⫸ Commit Scope: The page, API route, or component modified.
+  │
+  └─⫸ Commit Type: ci|docs|feat|fix|perf|refactor|test|deps|chore
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The `<type>` and `<summary>` fields are mandatory, the `(<scope>)` field is
+optional.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+#### Type
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+Must be one of the following:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+- **ci**: Changes to our CI configuration files and scripts.
+- **docs**: Documentation only changes.
+- **feat**: A new feature.
+- **fix**: A bug fix.
+- **perf**: A code change that improves performance.
+- **refactor**: A code change that neither fixes a bug nor adds a feature.
+- **test**: Adding missing tests or correcting existing tests.
+- **deps**: A change in dependencies.
+- **chore**: A code change in utility scripts, build configurations, etc.
 
-## Learn More
+## Git Flow
 
-To learn more about Next.js, take a look at the following resources:
+This repository follows [the standard git-flow 
+workflow](https://nvie.com/posts/a-successful-git-branching-model/) with a 
+couple of important exceptions:
+- `develop` should always be stable and ready for release.
+- `develop` just has not yet been released (e.g. for marketing purposes, we 
+  release changes in large batches).
+- `master` represents the current production state of the app.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+![Git Flow Diagram](https://nvie.com/img/git-model@2x.png)
