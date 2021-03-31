@@ -1,4 +1,5 @@
-import Home from '../components/Home'
+import Home from 'components/Home';
 
-const Index = () => <Home />;
-export default Index;
+export default function IndexPage(): JSX.Element {
+  return <Home />;
+}

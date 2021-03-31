@@ -1,26 +1,36 @@
-import next from 'next'
-import { useCallback, useEffect, useState, useRef } from 'react'
-import he from 'he'
-import { TUser } from '../utils/auth'
-import { fetchInboxMessages, Message, getHeader, parseFrom, exampleMessage1, exampleMessage2, exampleMessage3 } from '../utils/gmail'
-import { iconURLFromEmail } from '../utils/newsletter'
-import Article from './Article'
-import Content from './Content'
-import Divider from './Divider'
+import { useCallback, useEffect, useState, useRef } from 'react';
+import next from 'next';
+import he from 'he';
+
+import Article from 'components/article';
+import Content from 'components/content';
+import Divider from 'components/divider';
+
+import { TUser } from 'lib/auth';
+import {
+  fetchInboxMessages,
+  Message,
+  getHeader,
+  parseFrom,
+  exampleMessage1,
+  exampleMessage2,
+  exampleMessage3,
+} from 'lib/gmail';
+import { iconURLFromEmail } from 'lib/newsletter';
 
 type Pagination = {
-  messageSections: messageSection[],
-  nextPageToken: string | null,
-  isInitialized: boolean,
-}
+  messageSections: messageSection[];
+  nextPageToken: string | null;
+  isInitialized: boolean;
+};
 
-export default function Reader({ user }: { user: TUser}) {
+export default function Reader({ user }: { user: TUser }) {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [pagination, setPagination] = useState<Pagination>({
-    messageSections: [],// createMessagesSections([], [exampleMessage1, exampleMessage2, exampleMessage3]),
+    messageSections: [], // createMessagesSections([], [exampleMessage1, exampleMessage2, exampleMessage3]),
     nextPageToken: null,
     isInitialized: false,
-  })
+  });
   const [isFetching, setIsFetching] = useState(false);
   const loader = useRef(null);
 
@@ -37,16 +47,23 @@ export default function Reader({ user }: { user: TUser}) {
     if (isFetching) return;
     if (pagination.isInitialized && !pagination.nextPageToken) return;
     setIsFetching(true);
-    const [messages, nextPageToken] = await fetchInboxMessages(user.oauth_access_token, user.label_id as string, pagination.nextPageToken);
+    const [messages, nextPageToken] = await fetchInboxMessages(
+      user.oauth_access_token,
+      user.label_id as string,
+      pagination.nextPageToken
+    );
     // const messages = [exampleMessage1, exampleMessage2, exampleMessage3];
     // const nextPageToken = null;
     setPagination({
-      messageSections: createMessagesSections(pagination.messageSections, messages),
+      messageSections: createMessagesSections(
+        pagination.messageSections,
+        messages
+      ),
       nextPageToken: nextPageToken,
       isInitialized: true,
-    })
+    });
     setIsFetching(false);
-  }
+  };
 
   // const handleObserver = useCallback(entities => {
   //   const target = entities[0];
@@ -62,11 +79,17 @@ export default function Reader({ user }: { user: TUser}) {
         currentMessage={selectedMessage}
         onClose={() => setSelectedMessage(null)}
         onPrevious={() => {
-          const nextMessage = findPrevious(pagination.messageSections, selectedMessage);
+          const nextMessage = findPrevious(
+            pagination.messageSections,
+            selectedMessage
+          );
           setSelectedMessage(nextMessage);
         }}
         onNext={() => {
-          const nextMessage = findNext(pagination.messageSections, selectedMessage);
+          const nextMessage = findNext(
+            pagination.messageSections,
+            selectedMessage
+          );
           setSelectedMessage(nextMessage);
         }}
       />
@@ -75,15 +98,15 @@ export default function Reader({ user }: { user: TUser}) {
 
   return (
     <Content>
-      <div className="text-5xl font-weight-500 pb-2">
+      <div className='text-5xl font-weight-500 pb-2'>
         {displayTitle(user.first_name || user.name)}
       </div>
 
-      {pagination.messageSections.map(s => (
-        <div className="pt-3 pb-8" key={s.displayDate}>
-          <p className="text-lg text-gray-500 pb-1">{s.displayDate}</p>
+      {pagination.messageSections.map((s) => (
+        <div className='pt-3 pb-8' key={s.displayDate}>
+          <p className='text-lg text-gray-500 pb-1'>{s.displayDate}</p>
           <Divider />
-          {s.messages.map(m =>
+          {s.messages.map((m) => (
             <EmailRow
               key={m.id}
               message={m}
@@ -91,45 +114,58 @@ export default function Reader({ user }: { user: TUser}) {
                 setSelectedMessage(m);
               }}
             />
-          )}
+          ))}
         </div>
       ))}
       {pagination.isInitialized && pagination.nextPageToken && (
-        <div className="text-sm text-gray-600 pb-4 cursor-pointer" ref={loader} onClick={async() => {
-          await fetch();
-        }}>Load More</div>
+        <div
+          className='text-sm text-gray-600 pb-4 cursor-pointer'
+          ref={loader}
+          onClick={async () => {
+            await fetch();
+          }}
+        >
+          Load More
+        </div>
       )}
     </Content>
-  )
+  );
 }
 
-function EmailRow({ message, onSelect }: { message: Message, onSelect: () => void }) {
+function EmailRow({
+  message,
+  onSelect,
+}: {
+  message: Message;
+  onSelect: () => void;
+}) {
   const from = getHeader(message, 'from');
   const subject = getHeader(message, 'subject');
   const { name, email } = parseFrom(from);
   const googleURL = iconURLFromEmail(name, email);
 
   return (
-    <div className="pt-4 pb-3" onClick={() => onSelect()}>
-      <div className="text-xs pb-1">
-        <img className="rounded-full h-4 w-4 inline-block mr-2" src={googleURL} />
+    <div className='pt-4 pb-3' onClick={() => onSelect()}>
+      <div className='text-xs pb-1'>
+        <img
+          className='rounded-full h-4 w-4 inline-block mr-2'
+          src={googleURL}
+        />
         {name}
       </div>
-      <div className="font-bold">
-        {subject}
-      </div>
-      <div className="text-sm text-gray-700">
+      <div className='font-bold'>{subject}</div>
+      <div className='text-sm text-gray-700'>
         {formatSnippet(message.snippet)}
       </div>
     </div>
-  )
+  );
 }
 
 type messageSection = {
-  displayDate: string,
-  date: Date,
-  messages: Message[],
-}
+  displayDate: string;
+  date: Date;
+  messages: Message[];
+};
 
 function formatSnippet(snippet: string) {
   let cleanedUp: string = he.decode(snippet);
@@ -137,7 +173,10 @@ function formatSnippet(snippet: string) {
   return cleanedUp;
 }
 
-function createMessagesSections(existingSections: messageSection[], newMessages: Message[]): messageSection[] {
+function createMessagesSections(
+  existingSections: messageSection[],
+  newMessages: Message[]
+): messageSection[] {
   const newSections = [...existingSections];
   const now = new Date();
   for (const message of newMessages) {
@@ -162,25 +201,45 @@ function createMessagesSections(existingSections: messageSection[], newMessages:
 }
 
 function isSameDay(date1: Date, date2: Date): boolean {
-  return date1.getDate() === date2.getDate() && date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth();
+  return (
+    date1.getDate() === date2.getDate() &&
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth()
+  );
 }
 
-const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const monthNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 function formatDate(date: Date): string {
-  return `${monthNames[date.getMonth()]} ${date.getDate()}`
+  return `${monthNames[date.getMonth()]} ${date.getDate()}`;
 }
 
-function findNext(messageSections: messageSection[], message: Message): Message | null {
+function findNext(
+  messageSections: messageSection[],
+  message: Message
+): Message | null {
   for (let i = 0; i < messageSections.length; i++) {
     const s = messageSections[i];
     for (let j = 0; j < s.messages.length; j++) {
       const m = s.messages[j];
       if (m.id === message.id) {
         if (j < s.messages.length - 1) {
-          return s.messages[j+1];
+          return s.messages[j + 1];
         }
         if (i < messageSections.length - 1) {
-          return messageSections[i+1].messages[0];
+          return messageSections[i + 1].messages[0];
         }
         return null;
       }
@@ -189,17 +248,20 @@ function findNext(messageSections: messageSection[], message: Message): Message 
   return null;
 }
 
-function findPrevious(messageSections: messageSection[], message: Message): Message | null {
+function findPrevious(
+  messageSections: messageSection[],
+  message: Message
+): Message | null {
   for (let i = 0; i < messageSections.length; i++) {
     const s = messageSections[i];
     for (let j = 0; j < s.messages.length; j++) {
       const m = s.messages[j];
       if (m.id === message.id) {
         if (j > 0) {
-          return s.messages[j-1];
+          return s.messages[j - 1];
         }
         if (i > 0) {
-          return messageSections[i-1].messages[0];
+          return messageSections[i - 1].messages[0];
         }
         return null;
       }
