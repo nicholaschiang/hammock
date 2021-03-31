@@ -201,7 +201,7 @@ async function post(url: string, token: string, body) {
   return await resp.json();
 }
 
-function sleep(ms) {
+function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -229,8 +229,6 @@ export function getHeader(message: Message, header: string): string | null {
   if (!h) return null;
   return h.value;
 }
-
-const goodDomains = ['substack.com'];
 
 export const exampleMessage2 = {
   id: '1235',

@@ -7,7 +7,7 @@ import Login from 'components/login';
 import Onboarding from 'components/onboarding';
 import Reader from 'components/reader';
 
-import { firebase, loginOrCreateUser, TUser } from 'lib/auth';
+import { firebase, TUser } from 'lib/auth';
 
 export default function Home() {
   const [user, loading] = useAuthState(firebase.auth());

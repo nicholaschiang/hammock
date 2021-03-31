@@ -15,7 +15,7 @@ export default function Header({ user }: { user: firebase.User }) {
         onClick={() => setIsExpanded(!isExpanded)}
         type='button'
       >
-        <img className='rounded-full h-10 w-10' src={user.photoURL} />
+        <img className='rounded-full h-10 w-10' src={user.photoURL || ''} />
       </button>
       {isExpanded && (
         <div className='origin-top-right absolute right-4 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5'>

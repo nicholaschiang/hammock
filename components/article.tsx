@@ -1,33 +1,24 @@
 import { useEffect, useRef, useState } from 'react';
-const utf8 = require('utf8');
+import utf8 from 'utf8';
 
 import Content from 'components/content';
 
-import { TUser } from 'lib/auth';
-import {
-  fetchInboxMessages,
-  Message,
-  getHeader,
-  parseFrom,
-  exampleMessage1,
-  exampleMessage2,
-  exampleMessage3,
-} from 'lib/gmail';
+import { Message, getHeader, parseFrom } from 'lib/gmail';
 import { iconURLFromEmail } from 'lib/newsletter';
 
-type Props = {
+interface ReaderProps {
   currentMessage: Message;
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
-};
+}
 
 export default function Reader({
   currentMessage,
   onClose,
   onNext,
   onPrevious,
-}: Props) {
+}: ReaderProps) {
   const [message, setMessage] = useState(currentMessage);
   useEffect(() => {
     setMessage(currentMessage);
@@ -107,9 +98,6 @@ function ArticleBody({ message }: { message: Message }) {
       }}
     />
   );
-  // return (
-  //   <div className="full-w" dangerouslySetInnerHTML={{ __html: body }} />
-  // )
 }
 
 type ControlsProps = {

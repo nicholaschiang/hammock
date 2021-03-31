@@ -637,6 +637,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/he@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@types/he@npm:1.1.1"
+  checksum: 9271bf8ded840b8d30ba1d9475b432c4cb408cbf2fe931fa3f02599a9bf4378f5b2fcfa437339e7c0eee6e66804073a62c39cd0c377276938f53b94a110b28e8
+  languageName: node
+  linkType: hard
+
 "@types/json-schema@npm:^7.0.3":
   version: 7.0.7
   resolution: "@types/json-schema@npm:7.0.7"
@@ -707,6 +714,13 @@ __metadata:
     "@types/prop-types": "*"
     csstype: ^3.0.2
   checksum: de1cd27ce57a961379978f83676d60d88bf729337683d1d4cb22dd8f285ed4200db19f7243052dc67c80133fe6798da1497456fe6f67a5bba5f5e30ce2544bfa
+  languageName: node
+  linkType: hard
+
+"@types/utf8@npm:^2.1.6":
+  version: 2.1.6
+  resolution: "@types/utf8@npm:2.1.6"
+  checksum: aa03477b681e9afda291b43994dac81d134383ac189496355507bf8bb8641402661a820ae65bedff982623e0d5d7569845a03a81cfa8a02e5b214c10ae5acc41
   languageName: node
   linkType: hard
 
@@ -4077,9 +4091,11 @@ fsevents@~2.3.1:
   resolution: "newsletter@workspace:."
   dependencies:
     "@types/gapi": ^0.0.39
+    "@types/he": ^1.1.1
     "@types/lodash": ^4.14.168
     "@types/node": ^14.14.29
     "@types/react": ^17.0.2
+    "@types/utf8": ^2.1.6
     "@typescript-eslint/eslint-plugin": ^4.20.0
     "@typescript-eslint/parser": ^4.20.0
     autoprefixer: ^10.2.4

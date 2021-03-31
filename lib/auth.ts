@@ -13,9 +13,7 @@ const firebaseConfig = {
   measurementId: 'G-L5GRDP7849',
 };
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
 if (typeof window !== 'undefined') {
   firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 }
@@ -42,13 +40,13 @@ async function loginOrCreateUser() {
   provider.addScope('https://www.googleapis.com/auth/gmail.labels');
   try {
     const user = await firebase.auth().signInWithPopup(provider);
-    const uid = user.user.uid;
+    const uid = user.user?.uid;
     const userRecord = await firebase
       .firestore()
       .collection('users_private')
       .doc(uid)
       .get();
-    console.log(user.credential.toJSON());
+    console.log(user.credential?.toJSON());
     if (userRecord.exists) {
       await firebase
         .firestore()

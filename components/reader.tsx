@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
-import next from 'next';
+import { useEffect, useState, useRef } from 'react';
 import he from 'he';
 
 import Article from 'components/article';
@@ -7,15 +6,7 @@ import Content from 'components/content';
 import Divider from 'components/divider';
 
 import { TUser } from 'lib/auth';
-import {
-  fetchInboxMessages,
-  Message,
-  getHeader,
-  parseFrom,
-  exampleMessage1,
-  exampleMessage2,
-  exampleMessage3,
-} from 'lib/gmail';
+import { Message, fetchInboxMessages, getHeader, parseFrom } from 'lib/gmail';
 import { iconURLFromEmail } from 'lib/newsletter';
 
 type Pagination = {

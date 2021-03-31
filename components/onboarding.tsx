@@ -5,14 +5,9 @@ import _ from 'lodash';
 import Content from 'components/content';
 import Divider from 'components/divider';
 
-import { firebase, loginOrCreateUser, logout, TUser } from 'lib/auth';
 import { createFilter, createLabel, fetchNewsletters } from 'lib/gmail';
+import { firebase, TUser } from 'lib/auth';
 import { Newsletter } from 'lib/newsletter';
-
-type newsletterCategories = {
-  important: Newsletter[];
-  other: Newsletter[];
-};
 
 export default function Onboarding({ user }: { user: TUser }) {
   const router = useRouter();
@@ -32,7 +27,7 @@ export default function Onboarding({ user }: { user: TUser }) {
     if (isCreating) return;
     setIsCreating(true);
 
-    const selectedNewsletters = newsletters.filter((n) => n.selected);
+    const selectedNewsletters = newsletters?.filter((n) => n.selected) || [];
     if (selectedNewsletters.length === 0) {
       console.log('No selected newsletters!');
       return;
@@ -187,7 +182,7 @@ function OnboardingRow({
   onSelected,
 }: {
   newsletter: Newsletter;
-  onSelected: (boolean) => void;
+  onSelected: (selected: boolean) => void;
 }) {
   return (
     <tr onClick={() => onSelected(!newsletter.selected)}>
@@ -250,48 +245,3 @@ function OnboardingRow({
     </tr>
   );
 }
-
-const rows = [
-  {
-    name: 'Benedict Evans',
-    from: 'peteryang.substack.com',
-    selected: false,
-    icon_url: '',
-    category: 'important',
-  },
-  {
-    name: 'The Information',
-    from: 'hello@theinformation.com',
-    selected: true,
-    icon_url: '',
-    category: 'other',
-  },
-  {
-    name: 'New York Times',
-    from: 'hello@nyt.com',
-    selected: false,
-    icon_url: '',
-    category: 'other',
-  },
-  {
-    name: 'New York Times2',
-    from: 'hello@nyt.com2',
-    selected: true,
-    icon_url: '',
-    category: 'other',
-  },
-  {
-    name: 'New York Times3',
-    from: 'hello@nyt.com3',
-    selected: false,
-    icon_url: '',
-    category: 'other',
-  },
-  {
-    name: 'New York Times4',
-    from: 'hello@nyt.com4',
-    selected: false,
-    icon_url: '',
-    category: 'important',
-  },
-];
