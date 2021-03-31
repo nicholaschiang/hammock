@@ -1,18 +1,18 @@
 # Newsletter
 
 Return of the Newsletter moves your favorite newsletters outside of your
-understandably cluttered inbox, letting you focus on and learn from the content 
+understandably cluttered inbox, letting you focus on and learn from the content
 you love in a distraction-free reading space.
 
 #### Languages
 
 - [Typescript](https://www.typescriptlang.org) - As our language of choice
-  (mostly for static typing, stronger linting capabilities, etc). Typescript is 
-  also [well supported by Next.js](https://nextjs.org/docs/basic-features/typescript) 
+  (mostly for static typing, stronger linting capabilities, etc). Typescript is
+  also [well supported by Next.js](https://nextjs.org/docs/basic-features/typescript)
   and [React](https://reactjs.org/docs/static-type-checking.html#typescript).
 - [CSS-in-JS](https://github.com/vercel/styled-jsx) - Instead of packaging
-  styles separately from our React components, all styles are included alongside 
-  them *in the same files*. This allows for better code-splitting, etc.
+  styles separately from our React components, all styles are included alongside
+  them _in the same files_. This allows for better code-splitting, etc.
 
 #### Frameworks
 
@@ -32,7 +32,7 @@ you love in a distraction-free reading space.
 - [ESLint](https://github.com/eslint/eslint) - For code linting to avoid
   common mistakes and to enforce styling. Follow [these
   instructions](https://eslint.org/docs/user-guide/integrations) to install it
-  in the text editor of your choice (so you won't have to wait until our 
+  in the text editor of your choice (so you won't have to wait until our
   pre-commit hooks fail to update your code).
 - [Cypress](https://docs.cypress.io) for integration, UI, and some unit tests.
   Cypress is like Selenium; but built from the ground-up with the developer in
@@ -48,7 +48,7 @@ you love in a distraction-free reading space.
 
 ## Commit Message Format
 
-I have very precise rules over how Git commit messages in this repository must 
+I have very precise rules over how Git commit messages in this repository must
 be formatted. This format leads to **easier to read commit history**.
 
 Please refer to the following documentation for more info:
@@ -91,11 +91,12 @@ Must be one of the following:
 
 ## Git Flow
 
-This repository follows [the standard git-flow 
-workflow](https://nvie.com/posts/a-successful-git-branching-model/) with a 
+This repository follows [the standard git-flow
+workflow](https://nvie.com/posts/a-successful-git-branching-model/) with a
 couple of important exceptions:
+
 - `develop` should always be stable and ready for release.
-- `develop` just has not yet been released (e.g. for marketing purposes, we 
+- `develop` just has not yet been released (e.g. for marketing purposes, we
   release changes in large batches).
 - `master` represents the current production state of the app.
 
