@@ -1,24 +1,6 @@
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
+import firebase from 'lib/firebase';
 
-const firebaseConfig = {
-  apiKey: 'AIzaSyDWSLdvNqDBZT0fu5sK-527j8Nr-yzEmNI',
-  authDomain: 'on-deck-bw.firebaseapp.com',
-  databaseURL: 'on-deck-bw.firebaseapp.com',
-  projectId: 'on-deck-bw',
-  storageBucket: 'on-deck-bw.appspot.com',
-  messagingSenderId: '775004992146',
-  appId: '1:775004992146:web:60d88b3d0b96fc98526c4b',
-  measurementId: 'G-L5GRDP7849',
-};
-
-if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-if (typeof window !== 'undefined') {
-  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-}
-
-export type TUser = {
+export interface TUser {
   uid: string;
   is_onboarded: boolean;
   oauth_access_token: string;
@@ -31,9 +13,9 @@ export type TUser = {
     from: string;
     name: string;
   }[];
-};
+}
 
-async function loginOrCreateUser() {
+export async function loginOrCreateUser() {
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/gmail.modify');
   provider.addScope('https://www.googleapis.com/auth/gmail.settings.basic');
@@ -54,13 +36,17 @@ async function loginOrCreateUser() {
         .doc(uid)
         .set(
           {
-            oauth_access_token: user.credential.toJSON()['oauthAccessToken'],
-            oauth_id_token: user.credential.toJSON()['oauthIdToken'],
-            first_name: user.additionalUserInfo.profile['given_name'] as
-              | string
-              | null,
-            name: user.user.displayName,
-            granted_scopes: user.additionalUserInfo.profile['granted_scopes'],
+            oauth_access_token: (user.credential?.toJSON() as any)[
+              'oauthAccessToken'
+            ],
+            oauth_id_token: (user.credential?.toJSON() as any)['oauthIdToken'],
+            first_name: (user.additionalUserInfo?.profile as any)[
+              'given_name'
+            ] as string | null,
+            name: user.user?.displayName,
+            granted_scopes: (user.additionalUserInfo?.profile as any)[
+              'granted_scopes'
+            ],
           },
           { merge: true }
         );
@@ -73,15 +59,19 @@ async function loginOrCreateUser() {
       .set({
         uid: uid,
         is_onboarded: false,
-        oauth_access_token: user.credential.toJSON()['oauthAccessToken'],
-        oauth_id_token: user.credential.toJSON()['oauthIdToken'],
-        first_name: user.additionalUserInfo.profile['given_name'] as
+        oauth_access_token: (user.credential?.toJSON() as any)[
+          'oauthAccessToken'
+        ],
+        oauth_id_token: (user.credential?.toJSON() as any)['oauthIdToken'],
+        first_name: (user.additionalUserInfo?.profile as any)['given_name'] as
           | string
           | null,
-        name: user.user.displayName,
-        granted_scopes: user.additionalUserInfo.profile['granted_scopes'],
-        email: user.additionalUserInfo.profile['email'],
-        google_id: user.additionalUserInfo.profile['id'],
+        name: user.user?.displayName,
+        granted_scopes: (user.additionalUserInfo?.profile as any)[
+          'granted_scopes'
+        ],
+        email: (user.additionalUserInfo?.profile as any)['email'],
+        google_id: (user.additionalUserInfo?.profile as any)['id'],
       });
     return true;
   } catch (e) {
@@ -91,11 +81,11 @@ async function loginOrCreateUser() {
   }
 }
 
-async function logout() {
+export async function logout() {
   return await firebase.auth().signOut();
 }
 
-async function resetOnboarding(uid: string) {
+export async function resetOnboarding(uid: string) {
   await firebase.firestore().collection('users_private').doc(uid).set(
     {
       is_onboarded: false,
@@ -103,5 +93,3 @@ async function resetOnboarding(uid: string) {
     { merge: true }
   );
 }
-
-export { firebase, loginOrCreateUser, logout, resetOnboarding };

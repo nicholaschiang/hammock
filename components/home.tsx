@@ -7,7 +7,8 @@ import Login from 'components/login';
 import Onboarding from 'components/onboarding';
 import Reader from 'components/reader';
 
-import { firebase, TUser } from 'lib/auth';
+import { TUser } from 'lib/auth';
+import firebase from 'lib/firebase';
 
 export default function Home() {
   const [user, loading] = useAuthState(firebase.auth());
@@ -29,13 +30,13 @@ function LoggedIn({ user }: { user: firebase.User }) {
   }
 
   const query = router.query;
-  const showOnboarding = !!query.force_onboarding || !userValue.is_onboarded;
+  const showOnboarding = !!query.force_onboarding || !userValue?.is_onboarded;
 
   return (
     <>
       <Header user={user} />
-      {!showOnboarding && <Reader user={userValue} />}
-      {showOnboarding && <Onboarding user={userValue} />}
+      {userValue && !showOnboarding && <Reader user={userValue} />}
+      {userValue && showOnboarding && <Onboarding user={userValue} />}
     </>
   );
 }
@@ -48,7 +49,7 @@ function Loading() {
           className='opacity-75'
           fill='black'
           d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-        ></path>
+        />
       </svg>
     </div>
   );

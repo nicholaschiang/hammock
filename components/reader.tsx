@@ -5,8 +5,8 @@ import Article from 'components/article';
 import Content from 'components/content';
 import Divider from 'components/divider';
 
-import { TUser } from 'lib/auth';
 import { Message, fetchInboxMessages, getHeader, parseFrom } from 'lib/gmail';
+import { TUser } from 'lib/auth';
 import { iconURLFromEmail } from 'lib/newsletter';
 
 type Pagination = {

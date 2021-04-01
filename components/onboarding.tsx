@@ -6,8 +6,9 @@ import Content from 'components/content';
 import Divider from 'components/divider';
 
 import { createFilter, createLabel, fetchNewsletters } from 'lib/gmail';
-import { firebase, TUser } from 'lib/auth';
 import { Newsletter } from 'lib/newsletter';
+import { TUser } from 'lib/auth';
+import firebase from 'lib/firebase';
 
 export default function Onboarding({ user }: { user: TUser }) {
   const router = useRouter();
