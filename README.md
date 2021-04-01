@@ -4,6 +4,33 @@ Return of the Newsletter moves your favorite newsletters outside of your
 understandably cluttered inbox, letting you focus on and learn from the content
 you love in a distraction-free reading space.
 
+## Implementation
+
+Included below are some high-level descriptions of how Return of the Newsletter
+is implemented. The purpose of this writing is not so much to act as
+documentation but rather to encourage better README-driven development.
+
+#### Authentication
+
+Return of the Newsletter uses Firebase Authentication via a service worker that
+intercepts same-origin API requests and appends an authentication JWT header.
+
+This is advantageous as the front-end doesn't have to include the entire
+Firebase SDK on every page. Instead, we can determine login state by calling the
+specialized `/api/account` API route.
+
+#### Newsletters
+
+Return of the Newsletter currently fetches emails from your Google account
+on-demand from the client. This results in very slow loading times and thus
+**needs to be rectified**.
+
+## Development
+
+Return of the Newsletter aims to use the most cutting-edge, performant, and
+production-ready solutions available. Included below is our current selection
+and the reasoning behind it, but we're always open to improvements!
+
 #### Languages
 
 - [Typescript](https://www.typescriptlang.org) - As our language of choice
