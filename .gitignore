@@ -20,6 +20,7 @@
 
 # Production
 /build
+/public/sw.js
 
 # Misc
 .DS_Store

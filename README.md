@@ -4,6 +4,20 @@ Return of the Newsletter moves your favorite newsletters outside of your
 understandably cluttered inbox, letting you focus on and learn from the content
 you love in a distraction-free reading space.
 
+## Terminology and Data Model
+
+### `User`
+
+A user is a person; someone who uses the app.
+
+### `Letter`
+
+A letter is a recurring newsletter from a specific email address.
+
+### `Message`
+
+A message is an email from a recurring newsletter.
+
 ## Implementation
 
 Included below are some high-level descriptions of how Return of the Newsletter

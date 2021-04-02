@@ -1,79 +1,55 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import _ from 'lodash';
+import { useCallback, useMemo, useState } from 'react';
+import Router from 'next/router';
+import useSWR from 'swr';
 
 import Content from 'components/content';
 import Divider from 'components/divider';
 
-import { createFilter, createLabel, fetchNewsletters } from 'lib/gmail';
-import { Newsletter } from 'lib/newsletter';
-import { TUser } from 'lib/auth';
-import firebase from 'lib/firebase';
+import { Filter, User } from 'lib/model/user';
+import { Letter, LetterJSON } from 'lib/model/letter';
+import { useUser } from 'lib/context/user';
+import { fetcher } from 'lib/fetch';
+import clone from 'lib/utils/clone';
 
-export default function Onboarding({ user }: { user: TUser }) {
-  const router = useRouter();
-  const [newsletters, setNewsletters] = useState<Newsletter[] | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+export default function Onboarding() {
+  const [mutated, setMutated] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const f = async () => {
-      let nl = await fetchNewsletters(user.oauth_access_token);
-      nl = _.sortBy(nl, (n) => !n.selected);
-      setNewsletters(nl);
-    };
-    f();
-  }, []);
+  const isPaused = useCallback(() => mutated, [mutated]);
 
-  const onSave = async () => {
-    if (isCreating) return;
-    setIsCreating(true);
+  const { user, setUser } = useUser();
+  const { data, mutate } = useSWR<LetterJSON[]>('/api/letters', { isPaused });
 
-    const selectedNewsletters = newsletters?.filter((n) => n.selected) || [];
-    if (selectedNewsletters.length === 0) {
-      console.log('No selected newsletters!');
-      return;
-    }
-    console.log('selectedNewsletters', selectedNewsletters);
-    let labelId = user.label_id;
-    if (!labelId) {
-      labelId = await createLabel(
-        user.oauth_access_token,
-        'Return of the Newsletter'
-      );
-    }
-    const filters: { id: string; from: string; name: string }[] =
-      user.filters ?? [];
-    for (const nl of selectedNewsletters) {
-      if (filters.find((f) => f.from === nl.from) != null) {
-        continue;
-      }
-      const filterId = await createFilter(
-        user.oauth_access_token,
-        labelId,
-        nl.from
-      );
-      if (filterId)
-        filters.push({ id: filterId, from: nl.from, name: nl.name });
-    }
-    console.log('new filters', filters);
-    await firebase.firestore().collection('users_private').doc(user.uid).set(
-      {
-        is_onboarded: true,
-        label_id: labelId,
-        filters: filters,
-      },
-      { merge: true }
+  const onSave = useCallback(async () => {
+    setLoading(true);
+
+    const selected = data?.filter((l) => l.selected);
+    if (!selected || selected.length === 0) return;
+
+    const filters: Filter[] = clone(user.filters);
+    await Promise.all(
+      selected.map(async (nl) => {
+        if (filters.some((f) => f.from === nl.from)) return;
+        filters.push(await fetcher('/api/filters', 'post', nl.from));
+      })
     );
 
-    if (!!router.query.force_onboarding) {
-      router.push('/');
-    }
-  };
+    const updated = new User({ ...user, filters, onboarded: true });
+    await fetcher('/api/account', 'put', updated.toJSON());
+    await setUser(updated);
+    setMutated(false);
 
-  const important = (newsletters || []).filter(
-    (n) => n.category === 'important'
+    return Router.push('/');
+  }, [data, user, setUser]);
+
+  const important = useMemo(
+    () => (data || []).filter((n) => n.category === 'important'),
+    [data]
   );
-  const other = (newsletters || []).filter((n) => n.category === 'other');
+  const other = useMemo(
+    () => (data || []).filter((n) => n.category === 'other'),
+    [data]
+  );
 
   return (
     <Content>
@@ -87,17 +63,15 @@ export default function Onboarding({ user }: { user: TUser }) {
         <div className='right flex-none'>
           <button
             className='bg-blue-500 hover:bg-blue-700 text-white py-2 px-3 rounded'
-            disabled={isCreating}
-            onClick={() => onSave()}
+            disabled={loading}
+            onClick={onSave}
           >
             Go to your feed
           </button>
         </div>
       </div>
-
       <Divider />
-
-      {isCreating && (
+      {loading && (
         <>
           <div className='text-center pb-4 pt-12'>
             <svg className='animate-spin h-8 w-8 mx-auto' viewBox='0 0 24 24'>
@@ -113,7 +87,7 @@ export default function Onboarding({ user }: { user: TUser }) {
           </div>
         </>
       )}
-      {!isCreating && newsletters == null && (
+      {!loading && !data && (
         <>
           <div className='text-center pb-4 pt-12'>
             <svg className='animate-spin h-8 w-8 mx-auto' viewBox='0 0 24 24'>
@@ -129,22 +103,21 @@ export default function Onboarding({ user }: { user: TUser }) {
           </div>
         </>
       )}
-      {!isCreating && newsletters != null && (
+      {!loading && data && (
         <>
           <table className='w-full my-2'>
             <tbody>
               {important.map((r) => (
                 <OnboardingRow
                   key={r.from}
-                  newsletter={r}
-                  onSelected={(isSelected) => {
-                    const newNewsletters = newsletters.map((nl) => {
-                      if (nl.from === r.from) {
-                        nl.selected = isSelected;
-                      }
-                      return nl;
+                  letter={Letter.fromJSON(r)}
+                  onSelected={(selected: boolean) => {
+                    const newNewsletters = data.map((nl) => {
+                      if (nl.from !== r.from) return nl;
+                      return { ...nl, selected };
                     });
-                    setNewsletters(newNewsletters);
+                    setMutated(true);
+                    return mutate(newNewsletters, false);
                   }}
                 />
               ))}
@@ -158,15 +131,14 @@ export default function Onboarding({ user }: { user: TUser }) {
               {other.map((r) => (
                 <OnboardingRow
                   key={r.from}
-                  newsletter={r}
-                  onSelected={(isSelected) => {
-                    const newNewsletters = newsletters.map((nl) => {
-                      if (nl.from === r.from) {
-                        nl.selected = isSelected;
-                      }
-                      return nl;
+                  letter={Letter.fromJSON(r)}
+                  onSelected={(selected: boolean) => {
+                    const newNewsletters = data.map((nl) => {
+                      if (nl.from !== r.from) return nl;
+                      return { ...nl, selected };
                     });
-                    setNewsletters(newNewsletters);
+                    setMutated(true);
+                    return mutate(newNewsletters, false);
                   }}
                 />
               ))}
@@ -178,21 +150,20 @@ export default function Onboarding({ user }: { user: TUser }) {
   );
 }
 
-function OnboardingRow({
-  newsletter,
-  onSelected,
-}: {
-  newsletter: Newsletter;
+interface OnboardingRowProps {
+  letter: Letter;
   onSelected: (selected: boolean) => void;
-}) {
+}
+
+function OnboardingRow({ letter, onSelected }: OnboardingRowProps) {
   return (
-    <tr onClick={() => onSelected(!newsletter.selected)}>
+    <tr onClick={() => onSelected(!letter.selected)}>
       <td className='py-3 w-12'>
-        <img className='rounded-full h-8 w-8' src={newsletter.icon_url} />
+        <img className='rounded-full h-8 w-8' src={letter.icon} />
       </td>
-      <td>{newsletter.name}</td>
+      <td>{letter.name}</td>
       <td className='text-right'>
-        {newsletter.selected && (
+        {letter.selected && (
           <svg
             className='block mr-0 ml-auto fill-current w-6 h-6 text-white pointer-events-none'
             viewBox='0 0 35 35'
@@ -227,7 +198,7 @@ function OnboardingRow({
             />
           </svg>
         )}
-        {!newsletter.selected && (
+        {!letter.selected && (
           <svg
             className='block mr-0 ml-auto fill-current w-6 h-6 text-green-500 pointer-events-none'
             viewBox='0 0 24 24'

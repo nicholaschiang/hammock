@@ -3,7 +3,7 @@ import utf8 from 'utf8';
 
 import Content from 'components/content';
 
-import { Message, getHeader, parseFrom } from 'lib/gmail';
+import { parseFrom } from 'lib/gmail';
 import { iconURLFromEmail } from 'lib/newsletter';
 
 interface ReaderProps {
@@ -27,8 +27,8 @@ export default function Reader({
     window.scrollTo(0, 0);
   }, []);
 
-  const from = getHeader(message, 'from');
-  const subject = getHeader(message, 'subject');
+  const from = message.getHeader('from');
+  const subject = message.getHeader('subject');
   const { name, email } = parseFrom(from);
   const googleURL = iconURLFromEmail(name, email);
   const createdAt = new Date(parseInt(message.internalDate));

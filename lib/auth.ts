@@ -1,95 +1,39 @@
-import firebase from 'lib/firebase';
+import { dequal } from 'dequal';
+import { mutate } from 'swr';
 
-export interface TUser {
-  uid: string;
-  is_onboarded: boolean;
-  oauth_access_token: string;
-  oauth_id_token: string;
-  name: string;
-  first_name: string | null;
-  label_id?: string;
-  filters?: {
-    id: string;
-    from: string;
-    name: string;
-  }[];
+import { User } from 'lib/model/user';
+import { fetcher } from 'lib/fetch';
+
+export async function logout(): Promise<void> {
+  const { default: firebase } = await import('lib/firebase');
+  await import('firebase/auth');
+  await firebase.auth().signOut();
+  await mutate('/api/account', new User());
 }
 
-export async function loginOrCreateUser() {
+export async function login(): Promise<void> {
+  const { default: firebase } = await import('lib/firebase');
+  await import('firebase/auth');
+
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.addScope('https://www.googleapis.com/auth/gmail.modify');
   provider.addScope('https://www.googleapis.com/auth/gmail.settings.basic');
   provider.addScope('https://www.googleapis.com/auth/gmail.labels');
-  try {
-    const user = await firebase.auth().signInWithPopup(provider);
-    const uid = user.user?.uid;
-    const userRecord = await firebase
-      .firestore()
-      .collection('users_private')
-      .doc(uid)
-      .get();
-    console.log(user.credential?.toJSON());
-    if (userRecord.exists) {
-      await firebase
-        .firestore()
-        .collection('users_private')
-        .doc(uid)
-        .set(
-          {
-            oauth_access_token: (user.credential?.toJSON() as any)[
-              'oauthAccessToken'
-            ],
-            oauth_id_token: (user.credential?.toJSON() as any)['oauthIdToken'],
-            first_name: (user.additionalUserInfo?.profile as any)[
-              'given_name'
-            ] as string | null,
-            name: user.user?.displayName,
-            granted_scopes: (user.additionalUserInfo?.profile as any)[
-              'granted_scopes'
-            ],
-          },
-          { merge: true }
-        );
-      return true;
-    }
-    await firebase
-      .firestore()
-      .collection('users_private')
-      .doc(uid)
-      .set({
-        uid: uid,
-        is_onboarded: false,
-        oauth_access_token: (user.credential?.toJSON() as any)[
-          'oauthAccessToken'
-        ],
-        oauth_id_token: (user.credential?.toJSON() as any)['oauthIdToken'],
-        first_name: (user.additionalUserInfo?.profile as any)['given_name'] as
-          | string
-          | null,
-        name: user.user?.displayName,
-        granted_scopes: (user.additionalUserInfo?.profile as any)[
-          'granted_scopes'
-        ],
-        email: (user.additionalUserInfo?.profile as any)['email'],
-        google_id: (user.additionalUserInfo?.profile as any)['id'],
-      });
-    return true;
-  } catch (e) {
-    // TODO: Handle Error.
-    console.log('Error Logging In', e);
-    return false;
-  }
-}
+  const cred = await firebase.auth().signInWithPopup(provider);
 
-export async function logout() {
-  return await firebase.auth().signOut();
-}
+  if (!cred.user) throw new Error('Did not receive user information');
 
-export async function resetOnboarding(uid: string) {
-  await firebase.firestore().collection('users_private').doc(uid).set(
-    {
-      is_onboarded: false,
-    },
-    { merge: true }
-  );
+  const user = new User({
+    id: cred.user.uid,
+    name: cred.user.displayName || '',
+    photo: cred.user.photoURL || '',
+    email: cred.user.email || '',
+    phone: cred.user.phoneNumber || '',
+    token: (cred.credential as any)?.accessToken,
+  });
+
+  await mutate('/api/account', user.toJSON(), false);
+
+  const data = await fetcher('/api/account', 'put', user.toJSON());
+  if (!dequal(data, user.toJSON())) await mutate('/api/account', data, false);
 }

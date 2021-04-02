@@ -1,0 +1,19 @@
+{
+  "id": "1234",
+  "labelIds": [],
+  "snippet": "If you&#39;re a creator, you might have heard that NFTs are selling for tens of thousands of dollars. In this post, I&#39;ll explain what NFTs are and how you can create one to let your fans own your",
+  "payload": {
+    "headers": [
+      {
+        "name": "Subject",
+        "value": "A Step by Step Guide to NFTs for Creators"
+      },
+      {
+        "name": "From",
+        "value": "Peter <peteryang@substack.com>"
+      }
+    ],
+    "parts": []
+  },
+  "internalDate": "1613682180000"
+}
