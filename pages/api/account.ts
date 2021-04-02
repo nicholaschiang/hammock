@@ -2,6 +2,7 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
 import { APIErrorJSON } from 'lib/api/error';
 import { User, UserJSON, isUserJSON } from 'lib/model/user';
+import createLabel from 'lib/api/create/label';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import updateAuthUser from 'lib/api/update/auth-user';
@@ -25,6 +26,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     const body = verifyBody<User, UserJSON>(req.body, isUserJSON, User);
     await verifyAuth(req.headers, { userId: body.id });
     const account = await updateAuthUser(await updatePhoto(body));
+    account.label = await createLabel(account);
     await updateUserDoc(account);
     res.status(200).json(account.toJSON());
   } catch (e) {

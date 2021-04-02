@@ -1,51 +1,27 @@
-import axios from 'axios';
-import to from 'await-to-js';
-import url from 'url';
+import Bottleneck from 'bottleneck';
 
-import { NEWSLETTERS_SIZE } from 'lib/api/config';
-import { APIError } from 'lib/api/error';
 import { Letter } from 'lib/model/letter';
+import { User } from 'lib/model/user';
 import getMessage from 'lib/api/get/message';
-import getUser from 'lib/api/get/user';
+import gmail from 'lib/api/gmail';
 
-interface MessageList {
-  messages: { id: string }[];
-}
-
-export default async function getLetters(uid: string): Promise<Letter[]> {
-  const user = await getUser(uid);
-  const endpoint = url.format({
-    pathname: 'https://gmail.googleapis.com/gmail/v1/users/me/messages',
-    query: {
-      key: 'AIzaSyAPPb6uJ1hFBethuSZtX9MuVyFViuXAcd8',
-      maxResults: NEWSLETTERS_SIZE,
-    },
+export default async function getLetters(user: User): Promise<Letter[]> {
+  const client = gmail(user.token);
+  const { data } = await client.users.messages.list({
+    maxResults: 500,
+    userId: 'me',
   });
-  const headers = { authorization: `Bearer ${user.token}` };
-  const [err, messageList] = await to(
-    axios.get<MessageList>(endpoint, { headers })
-  );
-  if (err) {
-    const msg = `${err.name} fetching message list for ${user.toString()}`;
-    throw new APIError(`${msg}: ${err.message}`, 500);
-  }
-  if (!messageList?.data.messages) return [];
-
-  // TODO: Kunal included a rate limit here. Perhaps I should as well using
-  // something like `tiny-async-pool` or another pre-built solution.
-  const messageIds = messageList.data.messages.map((m) => m.id);
+  const messageIds = (data.messages || []).map((m) => m.id as string);
+  const limiter = new Bottleneck({ maxConcurrent: 50, minTime: 500 });
   const messages = await Promise.all(
-    messageIds.map((id) => getMessage(id, user.token))
+    messageIds.map((id) => limiter.schedule(getMessage, id, user.token))
   );
-
   const letters: Letter[] = [];
   messages.forEach((m) => {
-    const letter = m.letter;
-    if (
-      letter &&
-      !letters.find((l) => l.from.toLowerCase() === letter.from.toLowerCase())
-    )
-      letters.push(letter);
+    const ltr = m.letter;
+    if (!ltr) return;
+    if (!letters.some((l) => l.from.toLowerCase() === ltr.from.toLowerCase()))
+      letters.push(ltr);
   });
   return letters;
 }

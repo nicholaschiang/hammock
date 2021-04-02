@@ -3,6 +3,7 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { APIErrorJSON } from 'lib/api/error';
 import { LetterJSON } from 'lib/model/letter';
 import getLetters from 'lib/api/get/letters';
+import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import verifyAuth from 'lib/api/verify/auth';
 
@@ -21,7 +22,7 @@ export default async function letters(
   } else {
     try {
       const { uid } = await verifyAuth(req.headers);
-      const letters = await getLetters(uid);
+      const letters = await getLetters(await getUser(uid));
       res.status(200).json(letters.map((l) => l.toJSON()));
     } catch (e) {
       handle(e, res);
