@@ -13,7 +13,7 @@ import { period } from 'lib/utils';
 import { useUser } from 'lib/context/user';
 import clone from 'lib/utils/clone';
 
-export default function Onboarding() {
+export default function Letters() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
@@ -110,7 +110,7 @@ export default function Onboarding() {
           <table className='w-full my-2'>
             <tbody>
               {important.map((r) => (
-                <OnboardingRow
+                <LetterRow
                   key={r.from}
                   letter={Letter.fromJSON(r)}
                   selected={selected.has(r.from)}
@@ -133,7 +133,7 @@ export default function Onboarding() {
           <table className='w-full my-2'>
             <tbody>
               {other.map((r) => (
-                <OnboardingRow
+                <LetterRow
                   key={r.from}
                   letter={Letter.fromJSON(r)}
                   selected={selected.has(r.from)}
@@ -156,13 +156,13 @@ export default function Onboarding() {
   );
 }
 
-interface OnboardingRowProps {
+interface LetterRowProps {
   letter: Letter;
   selected: boolean;
   onSelected: (selected: boolean) => void;
 }
 
-function OnboardingRow({ letter, selected, onSelected }: OnboardingRowProps) {
+function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
   return (
     <tr onClick={() => onSelected(!selected)}>
       <td className='py-3 w-12'>

@@ -31,7 +31,7 @@ export default function LoginPage(): JSX.Element {
     setLoading(true);
     const [err] = await to(login());
     if (err) return setError(period(err.message));
-    return Router.push('/');
+    return Router.push('/letters');
   }, []);
 
   return (
