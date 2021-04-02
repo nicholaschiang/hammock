@@ -3,11 +3,13 @@ import to from 'await-to-js';
 import phone from 'phone';
 
 import { FirebaseError, UserRecord, auth } from 'lib/api/firebase';
-import { APIError } from 'lib/api/error';
+import { APIError } from 'lib/model/error';
 import { User } from 'lib/model/user';
 import clone from 'lib/utils/clone';
+import logger from 'lib/api/logger';
 
 export default async function createAuthUser(user: User): Promise<User> {
+  logger.verbose(`Creating ${user}...`);
   const [err, userRecord] = await to<UserRecord, FirebaseError>(
     auth.createUser({
       disabled: false,

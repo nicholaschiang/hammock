@@ -1,6 +1,8 @@
 import { google, gmail_v1 } from 'googleapis';
 
-export default function gmail(token: string): gmail_v1.Gmail {
+export type Gmail = gmail_v1.Gmail;
+
+export default function gmail(token: string): Gmail {
   const oauth2Client = new google.auth.OAuth2(
     process.env.OAUTH_CLIENT_ID,
     process.env.OAUTH_CLIENT_SECRET,

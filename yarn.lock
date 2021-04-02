@@ -1134,6 +1134,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sharp@npm:^0.27.3":
+  version: 0.27.3
+  resolution: "@types/sharp@npm:0.27.3"
+  dependencies:
+    "@types/node": "*"
+  checksum: 2036e32edb0ef9b84787a7977e7e15f04dd8a43268a4473150779df4670090678c2b87c1b7429a9331ad378c8aa7864fab05f15444e355dd9c50d47a0a3b4290
+  languageName: node
+  linkType: hard
+
 "@types/utf8@npm:^2.1.6":
   version: 2.1.6
   resolution: "@types/utf8@npm:2.1.6"
@@ -7473,6 +7482,7 @@ fsevents@~2.3.1:
     "@types/nprogress": ^0.2.0
     "@types/phone": ^2.4.0
     "@types/react": ^17.0.2
+    "@types/sharp": ^0.27.3
     "@types/utf8": ^2.1.6
     "@typescript-eslint/eslint-plugin": ^4.20.0
     "@typescript-eslint/parser": ^4.20.0

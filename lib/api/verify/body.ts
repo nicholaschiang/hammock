@@ -1,4 +1,5 @@
-import { APIError } from 'lib/api/error';
+import { APIError } from 'lib/model/error';
+import logger from 'lib/api/logger';
 
 interface ModelConstructor<Model, ModelJSON> {
   fromJSON: (json: ModelJSON) => Model;
@@ -22,6 +23,7 @@ export default function verifyBody<
   MJ = M,
   MC extends ModelConstructor<M, MJ> = ModelConstructor<M, MJ>
 >(body: unknown, isModelJSON: (body: unknown) => body is MJ, Model?: MC): M {
+  logger.verbose('Verifying request body...');
   if (!isModelJSON(body)) throw new APIError('Invalid request body', 400);
   return Model ? Model.fromJSON(body) : ((body as unknown) as M);
 }

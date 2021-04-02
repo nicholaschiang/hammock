@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import to from 'await-to-js';
 
-import { APIError, APIErrorJSON } from 'lib/api/error';
+import { APIError, APIErrorJSON } from 'lib/model/error';
 
 export async function fetcher<T, D = T>(
   url: string,

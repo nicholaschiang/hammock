@@ -7,9 +7,10 @@ import to from 'await-to-js';
 import { nanoid } from 'nanoid';
 
 import { User } from 'lib/model/user';
-import { APIError } from 'lib/api/error';
+import { APIError } from 'lib/model/error';
 import { bucket } from 'lib/api/firebase';
 import clone from 'lib/utils/clone';
+import logger from 'lib/api/logger';
 
 /**
  * Checks if a given URL is a valid GCP Storage item and, if so, returns the
@@ -80,6 +81,8 @@ export default async function updatePhoto(user: User): Promise<User> {
   if (/test-tutorbook\.appspot\.com/.exec(user.photo)) return user;
   if (/assets\.tutorbook\.org/.exec(user.photo)) return user;
   if (!user.photo) return user;
+
+  logger.verbose(`Updating photo for ${user}...`);
 
   // Download the image, crop and/or resize it to 500x500 pixels, and upload the
   // final result to a completely new location in our GCP Storage bucket.

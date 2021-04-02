@@ -5,7 +5,7 @@ import { AppProps } from 'next/app';
 import NProgress from 'components/nprogress';
 
 import { User, UserJSON } from 'lib/model/user';
-import { APIError } from 'lib/api/error';
+import { APIError } from 'lib/model/error';
 import { CallbackParam } from 'lib/model/callback';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';

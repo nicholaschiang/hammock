@@ -7,7 +7,7 @@ import Divider from 'components/divider';
 
 import { Message, MessageJSON } from 'lib/model/message';
 import { parseFrom } from 'lib/utils';
-import { APIError } from 'lib/api/error';
+import { APIError } from 'lib/model/error';
 import { useUser } from 'lib/context/user';
 
 interface EmailRowProps {

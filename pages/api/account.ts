@@ -1,8 +1,8 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { APIErrorJSON } from 'lib/api/error';
+import { APIErrorJSON } from 'lib/model/error';
 import { User, UserJSON, isUserJSON } from 'lib/model/user';
-import createLabel from 'lib/api/create/label';
+import getOrCreateLabel from 'lib/api/get/label';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import updateAuthUser from 'lib/api/update/auth-user';
@@ -10,12 +10,14 @@ import updatePhoto from 'lib/api/update/photo';
 import updateUserDoc from 'lib/api/update/user-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
+import logger from 'lib/api/logger';
 
 async function fetchAccount(req: Req, res: Res<UserJSON>): Promise<void> {
   try {
     const { uid } = await verifyAuth(req.headers);
     const account = await getUser(uid);
     res.status(200).json(account.toJSON());
+    logger.info(`Fetched ${account}.`);
   } catch (e) {
     handle(e, res);
   }
@@ -26,9 +28,10 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     const body = verifyBody<User, UserJSON>(req.body, isUserJSON, User);
     await verifyAuth(req.headers, { userId: body.id });
     const account = await updateAuthUser(await updatePhoto(body));
-    account.label = await createLabel(account);
+    account.label = await getOrCreateLabel(account);
     await updateUserDoc(account);
     res.status(200).json(account.toJSON());
+    logger.info(`Updated ${account}.`);
   } catch (e) {
     handle(e, res);
   }

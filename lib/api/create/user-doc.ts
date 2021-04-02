@@ -1,8 +1,9 @@
 import to from 'await-to-js';
 
-import { APIError } from 'lib/api/error';
+import { APIError } from 'lib/model/error';
 import { User } from 'lib/model/user';
 import { db } from 'lib/api/firebase';
+import logger from 'lib/api/logger';
 
 /**
  * Creates the Firestore database document for the given user.
@@ -11,6 +12,7 @@ import { db } from 'lib/api/firebase';
  * were unable to create the Firestore document.
  */
 export default async function createUserDoc(user: User): Promise<void> {
+  logger.verbose(`Creating ${user} document...`);
   const doc = await db.collection('users').doc(user.id).get();
   if (doc.exists) {
     const msg = `User (${user.toString()}) already exists in database`;

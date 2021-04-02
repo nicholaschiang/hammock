@@ -1,11 +1,12 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { APIErrorJSON } from 'lib/api/error';
+import { APIErrorJSON } from 'lib/model/error';
 import { LetterJSON } from 'lib/model/letter';
 import getLetters from 'lib/api/get/letters';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import verifyAuth from 'lib/api/verify/auth';
+import logger from 'lib/api/logger';
 
 /**
  * GET - Lists the letters for the given user.
@@ -22,8 +23,10 @@ export default async function letters(
   } else {
     try {
       const { uid } = await verifyAuth(req.headers);
-      const letters = await getLetters(await getUser(uid));
+      const user = await getUser(uid);
+      const letters = await getLetters(user);
       res.status(200).json(letters.map((l) => l.toJSON()));
+      logger.info(`Fetched ${letters.length} letters for ${user}.`);
     } catch (e) {
       handle(e, res);
     }

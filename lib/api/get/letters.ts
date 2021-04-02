@@ -1,23 +1,19 @@
-import Bottleneck from 'bottleneck';
-
 import { Letter } from 'lib/model/letter';
 import { User } from 'lib/model/user';
-import getMessage from 'lib/api/get/message';
+import getGmailMessages from 'lib/api/get/gmail-messages';
 import gmail from 'lib/api/gmail';
+import logger from 'lib/api/logger';
 
 export default async function getLetters(user: User): Promise<Letter[]> {
+  logger.verbose(`Fetching letters for ${user}...`);
   const client = gmail(user.token);
   const { data } = await client.users.messages.list({
     maxResults: 500,
     userId: 'me',
   });
   const messageIds = (data.messages || []).map((m) => m.id as string);
-  const limiter = new Bottleneck({ maxConcurrent: 50, minTime: 500 });
-  const messages = await Promise.all(
-    messageIds.map((id) => limiter.schedule(getMessage, id, user.token))
-  );
   const letters: Letter[] = [];
-  messages.forEach((m) => {
+  (await getGmailMessages(messageIds, client)).forEach((m) => {
     const ltr = m.letter;
     if (!ltr) return;
     if (!letters.some((l) => l.from.toLowerCase() === ltr.from.toLowerCase()))

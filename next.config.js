@@ -1,7 +1,7 @@
 module.exports = {
   future: { webpack5: true },
   reactStrictMode: true,
-  webpack(config, { isServer, defaultLoaders }) {
+  webpack(config, { isServer }) {
     if (!isServer && process.env.ANALYZE === 'true') {
       // Only run the bundle analyzer for the client-side chunks.
       // @see {@link https://github.com/vercel/next.js/issues/15481}

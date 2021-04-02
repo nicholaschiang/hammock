@@ -102,7 +102,7 @@ self.addEventListener('fetch', (event: FetchEvent) => {
       } catch (err) {
         // This will fail for CORS requests. We just continue with the fetch
         // caching logic below and do not pass the ID token.
-        console.warn('[WARNING] Error while fetching request:', err);
+        console.warn(`${err.name} while fetching request:`, err);
       }
     }
     return fetch(req);

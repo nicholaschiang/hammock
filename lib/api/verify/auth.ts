@@ -3,7 +3,8 @@ import { IncomingHttpHeaders } from 'http';
 import to from 'await-to-js';
 
 import { DecodedIdToken, auth } from 'lib/api/firebase';
-import { APIError } from 'lib/api/error';
+import { APIError } from 'lib/model/error';
+import logger from 'lib/api/logger';
 
 /**
  * Verifies the authorization header by:
@@ -28,6 +29,8 @@ export default async function verifyAuth(
   headers: IncomingHttpHeaders,
   options?: { userId?: string; userIds?: string[] }
 ): Promise<{ uid: string }> {
+  logger.verbose('Verifying authentication headers...');
+
   if (typeof headers.authorization !== 'string')
     throw new APIError('You must provide a valid authorization header', 401);
   if (!headers.authorization.startsWith('Bearer '))

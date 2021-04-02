@@ -18,10 +18,7 @@ export function caps(str: string): string {
 const reFrom = /(.*) <(.*)>/;
 export function parseFrom(from: string): { name: string; email: string } {
   const matches = from.match(reFrom);
-  if (!matches) {
-    console.log('Parse From - No Matches for: ', from);
-    return { name: from, email: from };
-  }
+  if (!matches) return { name: from, email: from };
   let name = matches[1].trim();
   if (name.startsWith('"')) {
     name = name.substr(1);
