@@ -8,8 +8,10 @@ export async function fetcher<T, D = T>(
   method: 'get' | 'put' | 'post' | 'delete' = 'get',
   data?: D
 ): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (typeof data === 'string') headers['Content-Type'] = 'text/plain';
   const [err, res] = await to<AxiosResponse<T>, AxiosError<APIErrorJSON>>(
-    axios({ method, url, data })
+    axios({ method, url, data, headers })
   );
   if (err && err.response) {
     const msg = `API (${url}) responded with error: ${err.response.data.message}`;

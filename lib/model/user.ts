@@ -15,14 +15,12 @@ import definedVals from 'lib/model/defined-vals';
 export interface Filter {
   id: string;
   from: string;
-  name: string;
 }
 
 export function isFilter(filter: unknown): filter is Filter {
   if (!isJSON(filter)) return false;
   if (typeof filter.id !== 'string') return false;
   if (typeof filter.from !== 'string') return false;
-  if (typeof filter.name !== 'string') return false;
   return true;
 }
 
@@ -34,8 +32,6 @@ export function isFilter(filter: unknown): filter is Filter {
  * @property photo - The user's avatar photo URL.
  * @property email - The user's email address.
  * @property phone - The user's phone number.
- * @property onboarded - Whether or not the user has been onboarded already
- * (i.e. whether or not they have configured their desired newsletter labels).
  * @property token - The user's OAuth token that we use to access Gmail's API.
  * @property label - The Gmail label ID for the "Return of the Newsletter" label
  * that we create when the user is onboarded.
@@ -49,7 +45,6 @@ export interface UserInterface extends ResourceInterface {
   photo: string;
   email: string;
   phone: string;
-  onboarded: boolean;
   token: string;
   label: string;
   filters: Filter[];
@@ -65,7 +60,6 @@ export function isUserJSON(json: unknown): json is UserJSON {
   if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (typeof json.onboarded !== 'boolean') return false;
   if (typeof json.label !== 'string') return false;
   if (!isArray(json.filters, isFilter)) return false;
   return true;
@@ -81,8 +75,6 @@ export class User extends Resource implements UserInterface {
   public email = '';
 
   public phone = '';
-
-  public onboarded = false;
 
   public token = '';
 

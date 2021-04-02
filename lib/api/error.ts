@@ -16,6 +16,7 @@ function send(e: APIError, res: ServerResponse): void {
 export function handle(e: unknown, res: ServerResponse): void {
   if (!(e instanceof APIError) || e.code !== 401)
     logger.error(`API encountered: ${(e as any)?.stack}`);
+  debugger;
   if (e instanceof GaxiosError)
     return send(new APIError(e.message, Number(e.code || 500)), res);
   if (e instanceof APIError) return send(e, res);

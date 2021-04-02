@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import Router from 'next/router';
 import NProgress from 'nprogress';
+import Router from 'next/router';
 import to from 'await-to-js';
 
 import Page from 'components/page';

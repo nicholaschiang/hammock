@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import NProgress from 'nprogress';
 import Router from 'next/router';
 import useSWR from 'swr';
 
@@ -7,40 +8,57 @@ import Divider from 'components/divider';
 
 import { Filter, User } from 'lib/model/user';
 import { Letter, LetterJSON } from 'lib/model/letter';
-import { useUser } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
+import { period } from 'lib/utils';
+import { useUser } from 'lib/context/user';
 import clone from 'lib/utils/clone';
 
 export default function Onboarding() {
-  const [mutated, setMutated] = useState<boolean>(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
 
-  const isPaused = useCallback(() => mutated, [mutated]);
+  useEffect(() => {
+    if (!loading) {
+      NProgress.done();
+    } else {
+      NProgress.start();
+      setError('');
+    }
+  }, [loading]);
+  useEffect(() => {
+    if (error) setLoading(false);
+  }, [error]);
 
+  const { data } = useSWR<LetterJSON[]>('/api/letters');
   const { user, setUser } = useUser();
-  const { data, mutate } = useSWR<LetterJSON[]>('/api/letters', { isPaused });
+
+  useEffect(() => {
+    setSelected(new Set(user.filters.map((f) => f.from)));
+  }, [user.filters]);
 
   const onSave = useCallback(async () => {
     setLoading(true);
+    try {
+      const selectedLetters = data?.filter((l) => selected.has(l.from));
+      if (!selectedLetters || selectedLetters.length === 0) return;
 
-    const selected = data?.filter((l) => l.selected);
-    if (!selected || selected.length === 0) return;
+      const filters: Filter[] = clone(user.filters);
+      await Promise.all(
+        selectedLetters.map(async (nl) => {
+          if (filters.some((f) => f.from === nl.from)) return;
+          filters.push(await fetcher('/api/filters', 'post', nl.from));
+        })
+      );
 
-    const filters: Filter[] = clone(user.filters);
-    await Promise.all(
-      selected.map(async (nl) => {
-        if (filters.some((f) => f.from === nl.from)) return;
-        filters.push(await fetcher('/api/filters', 'post', nl.from));
-      })
-    );
-
-    const updated = new User({ ...user, filters, onboarded: true });
-    await fetcher('/api/account', 'put', updated.toJSON());
-    await setUser(updated);
-    setMutated(false);
-
-    return Router.push('/');
-  }, [data, user, setUser]);
+      const updated = new User({ ...user, filters });
+      await fetcher('/api/account', 'put', updated.toJSON());
+      await setUser(updated);
+      await Router.push('/');
+    } catch (e) {
+      setError(period(e.message));
+    }
+  }, [selected, data, user, setUser]);
 
   const important = useMemo(
     () => (data || []).filter((n) => n.category === 'important'),
@@ -71,23 +89,7 @@ export default function Onboarding() {
         </div>
       </div>
       <Divider />
-      {loading && (
-        <>
-          <div className='text-center pb-4 pt-12'>
-            <svg className='animate-spin h-8 w-8 mx-auto' viewBox='0 0 24 24'>
-              <path
-                className='opacity-75'
-                fill='black'
-                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-              ></path>
-            </svg>
-          </div>
-          <div className='text-sm text-center'>
-            Creating your feed now, it takes up to 30 seconds
-          </div>
-        </>
-      )}
-      {!loading && !data && (
+      {!data && (
         <>
           <div className='text-center pb-4 pt-12'>
             <svg className='animate-spin h-8 w-8 mx-auto' viewBox='0 0 24 24'>
@@ -103,7 +105,7 @@ export default function Onboarding() {
           </div>
         </>
       )}
-      {!loading && data && (
+      {data && (
         <>
           <table className='w-full my-2'>
             <tbody>
@@ -111,13 +113,15 @@ export default function Onboarding() {
                 <OnboardingRow
                   key={r.from}
                   letter={Letter.fromJSON(r)}
+                  selected={selected.has(r.from)}
                   onSelected={(selected: boolean) => {
-                    const newNewsletters = data.map((nl) => {
-                      if (nl.from !== r.from) return nl;
-                      return { ...nl, selected };
+                    setSelected((prev) => {
+                      const next = clone(prev);
+                      console.log(`Is ${r.from} selected?`, selected);
+                      if (!selected) next.delete(r.from);
+                      if (selected) next.add(r.from);
+                      return next;
                     });
-                    setMutated(true);
-                    return mutate(newNewsletters, false);
                   }}
                 />
               ))}
@@ -132,13 +136,15 @@ export default function Onboarding() {
                 <OnboardingRow
                   key={r.from}
                   letter={Letter.fromJSON(r)}
+                  selected={selected.has(r.from)}
                   onSelected={(selected: boolean) => {
-                    const newNewsletters = data.map((nl) => {
-                      if (nl.from !== r.from) return nl;
-                      return { ...nl, selected };
+                    setSelected((prev) => {
+                      const next = clone(prev);
+                      console.log(`Is ${r.from} selected?`, selected);
+                      if (!selected) next.delete(r.from);
+                      if (selected) next.add(r.from);
+                      return next;
                     });
-                    setMutated(true);
-                    return mutate(newNewsletters, false);
                   }}
                 />
               ))}
@@ -152,18 +158,19 @@ export default function Onboarding() {
 
 interface OnboardingRowProps {
   letter: Letter;
+  selected: boolean;
   onSelected: (selected: boolean) => void;
 }
 
-function OnboardingRow({ letter, onSelected }: OnboardingRowProps) {
+function OnboardingRow({ letter, selected, onSelected }: OnboardingRowProps) {
   return (
-    <tr onClick={() => onSelected(!letter.selected)}>
+    <tr onClick={() => onSelected(!selected)}>
       <td className='py-3 w-12'>
         <img className='rounded-full h-8 w-8' src={letter.icon} />
       </td>
       <td>{letter.name}</td>
       <td className='text-right'>
-        {letter.selected && (
+        {selected && (
           <svg
             className='block mr-0 ml-auto fill-current w-6 h-6 text-white pointer-events-none'
             viewBox='0 0 35 35'
@@ -198,7 +205,7 @@ function OnboardingRow({ letter, onSelected }: OnboardingRowProps) {
             />
           </svg>
         )}
-        {!letter.selected && (
+        {!selected && (
           <svg
             className='block mr-0 ml-auto fill-current w-6 h-6 text-green-500 pointer-events-none'
             viewBox='0 0 24 24'

@@ -9,7 +9,7 @@ export default async function getMessages(user: User): Promise<Message[]> {
   const client = gmail(user.token);
   const { data } = await client.users.messages.list({
     labelIds: [user.label],
-    maxResults: 30,
+    maxResults: 50,
     userId: 'me',
   });
   const messageIds = (data.messages || []).map((m) => m.id as string);

@@ -23,7 +23,6 @@ export function isCategory(category: unknown): category is Category {
 export interface LetterInterface extends ResourceInterface {
   name: string;
   from: string;
-  selected: boolean;
   category: Category;
 }
 
@@ -36,7 +35,6 @@ export function isLetterJSON(json: unknown): json is LetterJSON {
   if (!isJSON(json)) return false;
   if (typeof json.name !== 'string') return false;
   if (typeof json.from !== 'string') return false;
-  if (typeof json.selected !== 'boolean') return false;
   if (!isCategory(json.category)) return false;
   return true;
 }
@@ -45,8 +43,6 @@ export class Letter extends Resource implements LetterInterface {
   public name: string = '';
 
   public from: string = '';
-
-  public selected: boolean = false;
 
   public category: Category = 'other';
 
