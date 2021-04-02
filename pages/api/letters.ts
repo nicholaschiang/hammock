@@ -1,7 +1,10 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import listLetters, { ListLettersRes } from 'lib/api/routes/letters/list';
-import { APIError } from 'lib/api/error';
+import { APIErrorJSON } from 'lib/api/error';
+import { LetterJSON } from 'lib/model/letter';
+import getLetters from 'lib/api/get/letters';
+import { handle } from 'lib/api/error';
+import verifyAuth from 'lib/api/verify/auth';
 
 /**
  * GET - Lists the letters for the given user.
@@ -10,14 +13,18 @@ import { APIError } from 'lib/api/error';
  */
 export default async function letters(
   req: Req,
-  res: Res<ListLettersRes | APIError>
+  res: Res<LetterJSON[] | APIErrorJSON>
 ): Promise<void> {
-  switch (req.method) {
-    case 'GET':
-      await listLetters(req, res);
-      break;
-    default:
-      res.setHeader('Allow', ['GET']);
-      res.status(405).end(`Method ${req.method as string} Not Allowed`);
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method as string} Not Allowed`);
+  } else {
+    try {
+      const { uid } = await verifyAuth(req.headers);
+      const letters = await getLetters(uid);
+      res.status(200).json(letters.map((l) => l.toJSON()));
+    } catch (e) {
+      handle(e, res);
+    }
   }
 }
