@@ -69,11 +69,11 @@ export class Message extends Resource implements MessageInterface {
     parts: [],
   };
 
-  public constructor(letter: Partial<MessageInterface> = {}) {
-    super(letter);
+  public constructor(message: Partial<MessageInterface> = {}) {
+    super(message);
     construct<MessageInterface, ResourceInterface>(
       this,
-      letter,
+      message,
       new Resource()
     );
   }
@@ -147,7 +147,7 @@ export class Message extends Resource implements MessageInterface {
       updated: snapshot.updateTime?.toDate(),
       id: snapshot.id,
     });
-    const letter = Message.fromFirestore(snapshot.data() as MessageFirestore);
-    return new Message({ ...letter, ...overrides });
+    const message = Message.fromFirestore(snapshot.data() as MessageFirestore);
+    return new Message({ ...message, ...overrides });
   }
 }
