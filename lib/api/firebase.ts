@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 export type FirebaseError = admin.FirebaseError & Error;
 
 export type Firestore = admin.firestore.Firestore;
+export type Timestamp = admin.firestore.Timestamp;
 export type DocumentSnapshot = admin.firestore.DocumentSnapshot;
 export type DocumentReference = admin.firestore.DocumentReference;
 export type CollectionReference = admin.firestore.CollectionReference;
