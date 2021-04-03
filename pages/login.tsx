@@ -55,12 +55,12 @@ export default function LoginPage(): JSX.Element {
         token: (cred.credential as any)?.accessToken,
       });
 
+      console.time('patch-account');
       const url = '/api/account';
       await mutate(url, user.toJSON(), false);
-      await Router.push('/letters');
-      console.time('patch-account');
       await mutate(url, fetcher(url, 'patch', user.toJSON()));
       console.timeEnd('patch-account');
+      await Router.push('/letters');
     } catch (e) {
       setError(period(e.message));
     }

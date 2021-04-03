@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import useSWR, { mutate } from 'swr';
+import { mutate, useSWRInfinite } from 'swr';
 import NProgress from 'nprogress';
 import Router from 'next/router';
 
 import Content from 'components/content';
 import Divider from 'components/divider';
+
+import { LettersRes } from 'pages/api/letters';
 
 import { Filter, User } from 'lib/model/user';
 import { Letter, LetterJSON } from 'lib/model/letter';
@@ -30,9 +32,28 @@ export default function Letters() {
     if (error) setLoading(false);
   }, [error]);
 
-  const { data } = useSWR<LetterJSON[]>('/api/letters');
+  const getKey = useCallback((pageIdx: number, prev: LettersRes | null) => {
+    if (prev && !prev.letters.length) return null;
+    if (!prev || pageIdx === 0) return '/api/letters';
+    return `/api/letters?pageToken=${prev.nextPageToken}`;
+  }, []);
+
+  const { data, setSize } = useSWRInfinite<LettersRes>(getKey);
   const { user } = useUser();
 
+  const letters = useMemo(() => {
+    const noDuplicates: LetterJSON[] = [];
+    data?.forEach((d) => {
+      d.letters.forEach((l) => {
+        if (!noDuplicates.some((n) => n.from === l.from)) noDuplicates.push(l);
+      });
+    });
+    return noDuplicates;
+  }, [data]);
+
+  useEffect(() => {
+    if (data) setSize((prev) => (prev >= 10 ? prev : prev + 1));
+  }, [data, setSize]);
   useEffect(() => {
     setSelected(new Set(user.filter.senders));
   }, [user.filter.senders]);
@@ -40,7 +61,7 @@ export default function Letters() {
   const onSave = useCallback(async () => {
     setLoading(true);
     try {
-      const selectedLetters = data?.filter((l) => selected.has(l.from));
+      const selectedLetters = letters.filter((l) => selected.has(l.from));
       if (!selectedLetters || selectedLetters.length === 0) return;
 
       const filter: Filter = { id: user.filter.id, senders: [] };
@@ -55,16 +76,15 @@ export default function Letters() {
     } catch (e) {
       setError(period(e.message));
     }
-  }, [selected, data, user]);
+  }, [selected, letters, user]);
 
   const important = useMemo(
-    () => (data || []).filter((n) => n.category === 'important'),
-    [data]
+    () => letters.filter((l) => l.category === 'important'),
+    [letters]
   );
-  const other = useMemo(
-    () => (data || []).filter((n) => n.category === 'other'),
-    [data]
-  );
+  const other = useMemo(() => letters.filter((l) => l.category === 'other'), [
+    letters,
+  ]);
 
   return (
     <Content>
@@ -163,7 +183,7 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
       <td className='py-3 w-12'>
         <img className='rounded-full h-8 w-8' src={letter.icon} />
       </td>
-      <td>{letter.name}</td>
+      <td>{`${letter.name} (${letter.from})`}</td>
       <td className='text-right'>
         {selected && (
           <svg

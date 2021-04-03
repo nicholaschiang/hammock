@@ -1,13 +1,14 @@
-import { useEffect, useMemo, useState } from 'react';
-import useSWR from 'swr';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSWRInfinite } from 'swr';
 import he from 'he';
 
 import Content from 'components/content';
 import Divider from 'components/divider';
 
-import { Message, MessageJSON } from 'lib/model/message';
+import { MessagesRes } from 'pages/api/messages';
+
+import { Message } from 'lib/model/message';
 import { parseFrom } from 'lib/utils';
-import { APIError } from 'lib/model/error';
 import { useUser } from 'lib/context/user';
 
 interface EmailRowProps {
@@ -67,8 +68,14 @@ function formatDate(date: Date): string {
 }
 
 export default function Reader() {
+  const getKey = useCallback((pageIdx: number, prev: MessagesRes | null) => {
+    if (prev && !prev.messages.length) return null;
+    if (!prev || pageIdx === 0) return '/api/messages';
+    return `/api/messages?pageToken=${prev.nextPageToken}`;
+  }, []);
+
+  const { data, setSize } = useSWRInfinite<MessagesRes>(getKey);
   const { user } = useUser();
-  const { data } = useSWR<MessageJSON[], APIError>('/api/messages');
 
   const [now, setNow] = useState<Date>(new Date());
   useEffect(() => {
@@ -92,7 +99,7 @@ export default function Reader() {
     if (!data) return [];
     const newSections = [];
     const now = new Date();
-    for (const message of data) {
+    for (const message of data.map((l) => l.messages).flat()) {
       let added = false;
       const createdAt = new Date(parseInt(message.internalDate));
       for (const section of newSections) {
@@ -126,6 +133,12 @@ export default function Reader() {
           ))}
         </div>
       ))}
+      <div
+        className='text-sm text-gray-600 pb-4 cursor-pointer'
+        onClick={() => setSize((prev) => prev + 1)}
+      >
+        Load More
+      </div>
     </Content>
   );
 }
