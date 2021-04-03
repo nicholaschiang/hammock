@@ -3525,7 +3525,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dequal@npm:2.0.2":
+"dequal@npm:2.0.2, dequal@npm:^2.0.2":
   version: 2.0.2
   resolution: "dequal@npm:2.0.2"
   checksum: 3b5b019a873da282a25512c632c077e5e8e2a019e71c5b6968836443b861e44176ee3934facfecdc14994d553c1ff4a6c7232278d6aef87baf65e2413d41760c
@@ -7526,6 +7526,7 @@ fsevents@~2.3.1:
     bottleneck: ^2.19.5
     concurrently: ^6.0.0
     cross-env: ^7.0.3
+    dequal: ^2.0.2
     dotenv-webpack: ^7.0.2
     eslint: ^7.23.0
     eslint-config-airbnb: ^18.2.1

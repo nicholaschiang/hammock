@@ -4,17 +4,17 @@ import to from 'await-to-js';
 
 import { APIErrorJSON } from 'lib/model/error';
 import { User, UserInterface, UserJSON, isUserJSON } from 'lib/model/user';
+import clone from 'lib/utils/clone';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import updateAuthUser from 'lib/api/update/auth-user';
+import updateGmailMessages from 'lib/api/update/gmail-messages';
 import updateUserDoc from 'lib/api/update/user-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
-import retroactivelyFilterMessages from 'lib/api/update/filter-messages';
 import logger from 'lib/api/logger';
-import clone from 'lib/utils/clone';
 
 async function fetchAccount(req: Req, res: Res<UserJSON>): Promise<void> {
   console.time('get-account');
@@ -101,7 +101,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     res.status(200).json(account.toJSON());
     logger.info(`Updated ${account}.`);
 
-    await retroactivelyFilterMessages(account);
+    await updateGmailMessages(account);
     logger.info(`Retroactively filtered messages for ${account}.`);
   } catch (e) {
     handle(e, res);

@@ -20,6 +20,7 @@ export default function Page({
         {description && <meta name='description' content={description} />}
         <meta charSet='UTF-8' />
         <meta name='viewport' content='width=device-width,initial-scale=1.0' />
+        <link rel='preload' href='/api/account' as='fetch' />
         <link
           href='https://uploads-ssl.webflow.com/5fd7d136cd029b7af8bdca15/5ff7c15e2096043b6eee8132_newsletter-favicon.png'
           rel='shortcut icon'

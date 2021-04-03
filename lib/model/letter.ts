@@ -10,7 +10,6 @@ import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
 import { isJSON } from 'lib/model/json';
-
 import { whitelist } from 'lib/whitelist';
 
 export type Category = 'important' | 'other';
@@ -40,9 +39,9 @@ export function isLetterJSON(json: unknown): json is LetterJSON {
 }
 
 export class Letter extends Resource implements LetterInterface {
-  public name: string = '';
+  public name = '';
 
-  public from: string = '';
+  public from = '';
 
   public category: Category = 'other';
 
@@ -64,11 +63,15 @@ export class Letter extends Resource implements LetterInterface {
     if (domain.startsWith('mail.')) {
       domain = domain.slice(5);
     }
-    return 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
+    return `https://www.google.com/s2/favicons?sz=64&domain_url=${domain}`;
   }
 
   public get clone(): Letter {
     return new Letter(clone(this));
+  }
+
+  public toString(): string {
+    return `Letter from ${this.name} (${this.from})`;
   }
 
   public toJSON(): LetterJSON {

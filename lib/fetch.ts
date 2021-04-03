@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
+import { mutate } from 'swr';
 import to from 'await-to-js';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
@@ -22,4 +23,11 @@ export async function fetcher<T, D = T>(
     throw new APIError(`${err.name} calling API (${url}): ${err.message}`);
   }
   return (res as AxiosResponse<T>).data;
+}
+
+export async function prefetch(url: string): Promise<void> {
+  if (url) {
+    console.log('Prefetching:', url);
+    await mutate(url, fetcher(url));
+  }
 }

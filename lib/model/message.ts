@@ -5,14 +5,13 @@ import {
   ResourceJSON,
   isResourceJSON,
 } from 'lib/model/resource';
-import { Letter } from 'lib/model/letter';
+import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
 import { DocumentSnapshot } from 'lib/api/firebase';
+import { Letter } from 'lib/model/letter';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
 import { isJSON } from 'lib/model/json';
-
-import { whitelist, hasWhitelistDomain } from 'lib/whitelist';
 import { parseFrom } from 'lib/utils';
 
 interface Part {
@@ -54,13 +53,13 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
 }
 
 export class Message extends Resource implements MessageInterface {
-  public id: string = '';
+  public id = '';
 
   public labelIds: string[] = [];
 
-  public snippet: string = '';
+  public snippet = '';
 
-  public internalDate: string = '';
+  public internalDate = '';
 
   public payload: Payload = {
     mimeType: '',
@@ -85,7 +84,7 @@ export class Message extends Resource implements MessageInterface {
 
   public get letter(): Letter | void {
     const from = this.getHeader('from');
-    const { name, email } = parseFrom(from as string);
+    const { name, email } = parseFrom(from || '');
     if (whitelist[name.toLowerCase()] || hasWhitelistDomain(email))
       return new Letter({ name, from: email, category: 'important' });
     if (this.getHeader('list-unsubscribe'))
@@ -94,7 +93,7 @@ export class Message extends Resource implements MessageInterface {
 
   public get icon(): string {
     const from = this.getHeader('from');
-    const { name, email } = parseFrom(from as string);
+    const { name, email } = parseFrom(from || '');
     const result = whitelist[name.toLowerCase()];
     if (result && result !== true && result.asset_url) return result.asset_url;
     let domain = email.slice(email.indexOf('@') + 1);
@@ -112,6 +111,10 @@ export class Message extends Resource implements MessageInterface {
 
   public get clone(): Message {
     return new Message(clone(this));
+  }
+
+  public toString(): string {
+    return `Message (${this.id})`;
   }
 
   public toJSON(): MessageJSON {

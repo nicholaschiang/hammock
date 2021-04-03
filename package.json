@@ -27,6 +27,7 @@
     "await-to-js": "^3.0.0",
     "axios": "^0.21.1",
     "bottleneck": "^2.19.5",
+    "dequal": "^2.0.2",
     "firebase": "^8.3.2",
     "firebase-admin": "^9.6.0",
     "googleapis": "^70.0.0",
