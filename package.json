@@ -11,7 +11,8 @@
     "build:analyze": "cross-env ANALYZE=true next build",
     "build": "concurrently yarn:build:sw yarn:build:next",
     "start": "next start",
-    "style": "pretty-quick"
+    "style": "pretty-quick",
+    "lint": "eslint . --ext .ts,.tsx"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
     "url": "https://github.com/newsletterreader/newsletter/issues"
   },
   "dependencies": {
+    "atob": "^2.1.2",
     "autoprefixer": "^10.2.4",
     "await-to-js": "^3.0.0",
     "axios": "^0.21.1",
@@ -29,6 +31,7 @@
     "firebase-admin": "^9.6.0",
     "googleapis": "^70.0.0",
     "he": "^1.2.0",
+    "nanoid": "^3.1.22",
     "next": "^10.1.2",
     "next-google-fonts": "^2.2.0",
     "nprogress": "^0.2.0",
@@ -43,9 +46,11 @@
     "smartcrop-sharp": "^2.0.3",
     "swr": "^0.5.5",
     "tailwindcss": "^2.0.3",
-    "utf8": "^3.0.0"
+    "utf8": "^3.0.0",
+    "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@types/atob": "^2.1.2",
     "@types/gapi": "^0.0.39",
     "@types/he": "^1.1.1",
     "@types/node": "^14.14.29",
@@ -66,6 +71,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-react": "^7.23.1",
     "eslint-plugin-react-hooks": "^4.2.0",
     "firebase-tools": "^9.8.0",

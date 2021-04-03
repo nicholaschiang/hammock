@@ -948,6 +948,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/atob@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "@types/atob@npm:2.1.2"
+  checksum: df8e9efd3c4f842a5183b9a11877adb96d78b1d1559280afa87bc2c77c04ef1abd0004ab1947de0265292ab032497c679b6c1b954efce5eb6b455fb2404ab348
+  languageName: node
+  linkType: hard
+
 "@types/duplexify@npm:^3.6.0":
   version: 3.6.0
   resolution: "@types/duplexify@npm:3.6.0"
@@ -1968,6 +1975,15 @@ __metadata:
   version: 1.0.0
   resolution: "at-least-node@npm:1.0.0"
   checksum: 8f33efc16287ed39766065c718a2d36a469f702c66c6eb41fa460c0c62bca395301a6a02946e315ae4a84c9cc7f44c94ec73a556bc2a1049350da98d0b013afe
+  languageName: node
+  linkType: hard
+
+"atob@npm:^2.1.2":
+  version: 2.1.2
+  resolution: "atob@npm:2.1.2"
+  bin:
+    atob: bin/atob.js
+  checksum: 597c0d1a740bb6522c98bea8fe362ae9420b4203af588d2bd470326d9abd4504264956b8355923d7019a21527ef5e6526a7b4455862ec5178ccd81e0ea289d5f
   languageName: node
   linkType: hard
 
@@ -4175,6 +4191,13 @@ __metadata:
     eslint-config-prettier:
       optional: true
   checksum: cf35b0f0e9ef30782fe82913db92f6874181723d77f0c4613f9d69c87069f73d0dc420ef850ebc844613c00a8e87eb9762a36b7d028334c5c7b091763118347b
+  languageName: node
+  linkType: hard
+
+"eslint-plugin-promise@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "eslint-plugin-promise@npm:4.3.1"
+  checksum: 01aa61c2bea6cfd2e612cda9aaaf079c7652503dd613248a251c99b58414245ee999a8f5ca0a15f62c6b1605aca4dcbace272d67f22d79aac3f698547eb75d9a
   languageName: node
   linkType: hard
 
@@ -7416,6 +7439,15 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
+"nanoid@npm:^3.1.22":
+  version: 3.1.22
+  resolution: "nanoid@npm:3.1.22"
+  bin:
+    nanoid: bin/nanoid.cjs
+  checksum: 6a38c799816de388cd67233a9fad6216e0ad2abda3ce5b34eb126afbef6905924507223dc65797e2bcbc513f9cd7e078ea7e69448d59f434a6206b491278ae24
+  languageName: node
+  linkType: hard
+
 "napi-build-utils@npm:^1.0.1":
   version: 1.0.2
   resolution: "napi-build-utils@npm:1.0.2"
@@ -7476,6 +7508,7 @@ fsevents@~2.3.1:
   version: 0.0.0-use.local
   resolution: "newsletter@workspace:."
   dependencies:
+    "@types/atob": ^2.1.2
     "@types/gapi": ^0.0.39
     "@types/he": ^1.1.1
     "@types/node": ^14.14.29
@@ -7486,6 +7519,7 @@ fsevents@~2.3.1:
     "@types/utf8": ^2.1.6
     "@typescript-eslint/eslint-plugin": ^4.20.0
     "@typescript-eslint/parser": ^4.20.0
+    atob: ^2.1.2
     autoprefixer: ^10.2.4
     await-to-js: ^3.0.0
     axios: ^0.21.1
@@ -7500,6 +7534,7 @@ fsevents@~2.3.1:
     eslint-plugin-import: ^2.22.1
     eslint-plugin-jsx-a11y: ^6.4.1
     eslint-plugin-prettier: ^3.3.1
+    eslint-plugin-promise: ^4.3.1
     eslint-plugin-react: ^7.23.1
     eslint-plugin-react-hooks: ^4.2.0
     firebase: ^8.3.2
@@ -7508,6 +7543,7 @@ fsevents@~2.3.1:
     googleapis: ^70.0.0
     he: ^1.2.0
     husky: ^6.0.0
+    nanoid: ^3.1.22
     next: ^10.1.2
     next-google-fonts: ^2.2.0
     nprogress: ^0.2.0
@@ -7531,6 +7567,7 @@ fsevents@~2.3.1:
     webpack: ^5.30.0
     webpack-bundle-analyzer: ^4.4.0
     webpack-cli: ^4.6.0
+    winston: ^3.3.3
   languageName: unknown
   linkType: soft
 
@@ -11421,7 +11458,7 @@ typescript@^4.1.5:
   languageName: node
   linkType: hard
 
-"winston@npm:^3.0.0":
+"winston@npm:^3.0.0, winston@npm:^3.3.3":
   version: 3.3.3
   resolution: "winston@npm:3.3.3"
   dependencies:
