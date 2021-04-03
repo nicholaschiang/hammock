@@ -2,11 +2,9 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
 import { APIErrorJSON } from 'lib/model/error';
 import { MessageJSON } from 'lib/model/message';
-import getOrCreateLabel from 'lib/api/get/label';
 import getMessages from 'lib/api/get/messages';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
-import updateUserDoc from 'lib/api/update/user-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import logger from 'lib/api/logger';
 
@@ -26,10 +24,8 @@ export default async function messages(
     try {
       const { uid } = await verifyAuth(req.headers);
       const user = await getUser(uid);
-      if (!user.label) user.label = await getOrCreateLabel(user);
       const messages = await getMessages(user);
       res.status(200).json(messages.map((m) => m.toJSON()));
-      await updateUserDoc(user);
       logger.info(`Fetched ${messages.length} messages for ${user}.`);
     } catch (e) {
       handle(e, res);

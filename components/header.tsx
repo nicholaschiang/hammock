@@ -1,12 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { mutate } from 'swr';
 
-import { logout } from 'lib/auth';
+import { User } from 'lib/model/user';
 import { useUser } from 'lib/context/user';
 
 export default function Header() {
   const { user } = useUser();
 
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const logout = useCallback(async () => {
+    const { default: firebase } = await import('lib/firebase');
+    await import('firebase/auth');
+    await firebase.auth().signOut();
+    await mutate('/api/account', new User());
+  }, []);
 
   return (
     <div className='w-full px-4 pt-4 pb-1 fixed top-0 bg-white'>

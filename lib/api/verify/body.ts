@@ -20,10 +20,10 @@ interface ModelConstructor<Model, ModelJSON> {
  */
 export default function verifyBody<
   M,
-  MJ,
+  MJ = M,
   MC extends ModelConstructor<M, MJ> = ModelConstructor<M, MJ>
->(body: unknown, isModelJSON: (body: unknown) => body is MJ, Model: MC): M {
+>(body: unknown, isModelJSON: (body: unknown) => body is MJ, Model?: MC): M {
   logger.verbose('Verifying request body...');
   if (!isModelJSON(body)) throw new APIError('Invalid request body', 400);
-  return Model.fromJSON(body);
+  return Model ? Model.fromJSON(body) : ((body as unknown) as M);
 }

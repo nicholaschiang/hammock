@@ -34,8 +34,8 @@ export default function Letters() {
   const { user, setUser } = useUser();
 
   useEffect(() => {
-    setSelected(new Set(user.filters.map((f) => f.from)));
-  }, [user.filters]);
+    setSelected(new Set(user.filter.senders));
+  }, [user.filter.senders]);
 
   const onSave = useCallback(async () => {
     setLoading(true);
@@ -43,15 +43,12 @@ export default function Letters() {
       const selectedLetters = data?.filter((l) => selected.has(l.from));
       if (!selectedLetters || selectedLetters.length === 0) return;
 
-      const filters: Filter[] = clone(user.filters);
-      await Promise.all(
-        selectedLetters.map(async (nl) => {
-          if (filters.some((f) => f.from === nl.from)) return;
-          filters.push(await fetcher('/api/filters', 'post', nl.from));
-        })
-      );
+      const filter: Filter = { id: user.filter.id, senders: [] };
+      selectedLetters.forEach((l) => {
+        if (!filter.senders.includes(l.from)) filter.senders.push(l.from);
+      });
 
-      const updated = new User({ ...user, filters });
+      const updated = new User({ ...user, filter });
       await fetcher('/api/account', 'put', updated.toJSON());
       await setUser(updated);
       await Router.push('/');
@@ -117,7 +114,6 @@ export default function Letters() {
                   onSelected={(selected: boolean) => {
                     setSelected((prev) => {
                       const next = clone(prev);
-                      console.log(`Is ${r.from} selected?`, selected);
                       if (!selected) next.delete(r.from);
                       if (selected) next.add(r.from);
                       return next;
@@ -140,7 +136,6 @@ export default function Letters() {
                   onSelected={(selected: boolean) => {
                     setSelected((prev) => {
                       const next = clone(prev);
-                      console.log(`Is ${r.from} selected?`, selected);
                       if (!selected) next.delete(r.from);
                       if (selected) next.add(r.from);
                       return next;

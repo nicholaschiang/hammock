@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import NProgress from 'nprogress';
 import Router from 'next/router';
-import to from 'await-to-js';
+import { mutate } from 'swr';
 
 import Page from 'components/page';
 
+import { User } from 'lib/model/user';
+import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
-import { login } from 'lib/auth';
 import usePage from 'lib/hooks/page';
 
 export default function LoginPage(): JSX.Element {
@@ -29,9 +30,34 @@ export default function LoginPage(): JSX.Element {
 
   const onClick = useCallback(async () => {
     setLoading(true);
-    const [err] = await to(login());
-    if (err) return setError(period(err.message));
-    return Router.push('/letters');
+    try {
+      const { default: firebase } = await import('lib/firebase');
+      await import('firebase/auth');
+
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('https://www.googleapis.com/auth/gmail.modify');
+      provider.addScope('https://www.googleapis.com/auth/gmail.settings.basic');
+      provider.addScope('https://www.googleapis.com/auth/gmail.labels');
+      const cred = await firebase.auth().signInWithPopup(provider);
+
+      if (!cred.user) throw new Error('Did not receive user information');
+
+      const user = new User({
+        id: cred.user.uid,
+        name: cred.user.displayName || '',
+        photo: cred.user.photoURL || '',
+        email: cred.user.email || '',
+        phone: cred.user.phoneNumber || '',
+        token: (cred.credential as any)?.accessToken,
+      });
+
+      const url = '/api/account';
+      await mutate(url, user.toJSON(), false);
+      await mutate(url, fetcher(url, 'patch', user.toJSON()));
+      await Router.push('/letters');
+    } catch (e) {
+      setError(period(e.message));
+    }
   }, []);
 
   return (

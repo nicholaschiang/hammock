@@ -5,7 +5,7 @@ import { APIError, APIErrorJSON } from 'lib/model/error';
 
 export async function fetcher<T, D = T>(
   url: string,
-  method: 'get' | 'put' | 'post' | 'delete' = 'get',
+  method: 'get' | 'put' | 'post' | 'patch' | 'delete' = 'get',
   data?: D
 ): Promise<T> {
   const headers: Record<string, string> = {};

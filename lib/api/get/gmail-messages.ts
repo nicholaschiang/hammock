@@ -32,8 +32,8 @@ export default async function getGmailMessages(
   messageIds: string[],
   client: Gmail
 ): Promise<Message[]> {
+  console.time('get-gmail-messages');
   logger.verbose(`Fetching ${messageIds.length} messages from Gmail...`);
-  console.time('messages');
   const limiter = new Bottleneck({
     reservoir: 250 / 5,
     reservoirRefreshAmount: 250 / 5,
@@ -44,6 +44,6 @@ export default async function getGmailMessages(
   const messages = await Promise.all(
     messageIds.map((id) => limiter.schedule(getMessage, id, client))
   );
-  console.timeEnd('messages');
+  console.timeEnd('get-gmail-messages');
   return messages;
 }

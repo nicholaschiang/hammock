@@ -5,7 +5,7 @@ import {
   ResourceJSON,
   isResourceJSON,
 } from 'lib/model/resource';
-import { isArray, isJSON } from 'lib/model/json';
+import { isJSON, isStringArray } from 'lib/model/json';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';
@@ -13,14 +13,14 @@ import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
 
 export interface Filter {
+  senders: string[];
   id: string;
-  from: string;
 }
 
 export function isFilter(filter: unknown): filter is Filter {
   if (!isJSON(filter)) return false;
   if (typeof filter.id !== 'string') return false;
-  if (typeof filter.from !== 'string') return false;
+  if (!isStringArray(filter.senders)) return false;
   return true;
 }
 
@@ -35,9 +35,7 @@ export function isFilter(filter: unknown): filter is Filter {
  * @property token - The user's OAuth token that we use to access Gmail's API.
  * @property label - The Gmail label ID for the "Return of the Newsletter" label
  * that we create when the user is onboarded.
- * @property filters - The Gmail filters that we create when the user is
- * onboarded. We create one for each newsletter selected (to filter messages for
- * that newsletter into the "Return of the Newsletter" label).
+ * @property filter - The Gmail filter that we create when the user signs up.
  */
 export interface UserInterface extends ResourceInterface {
   id: string;
@@ -47,7 +45,7 @@ export interface UserInterface extends ResourceInterface {
   phone: string;
   token: string;
   label: string;
-  filters: Filter[];
+  filter: Filter;
 }
 
 export type UserJSON = Omit<UserInterface, keyof Resource> & ResourceJSON;
@@ -61,7 +59,7 @@ export function isUserJSON(json: unknown): json is UserJSON {
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
   if (typeof json.label !== 'string') return false;
-  if (!isArray(json.filters, isFilter)) return false;
+  if (!isFilter(json.filter)) return false;
   return true;
 }
 
@@ -80,7 +78,7 @@ export class User extends Resource implements UserInterface {
 
   public label = '';
 
-  public filters: Filter[] = [];
+  public filter: Filter = { id: '', senders: [] };
 
   public constructor(user: Partial<UserInterface> = {}) {
     super(user);
