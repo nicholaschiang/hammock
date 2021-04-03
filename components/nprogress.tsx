@@ -1,6 +1,8 @@
 import NProgress from 'nprogress';
 import Router from 'next/router';
 
+import nprogress from 'styles/nprogress';
+
 let timeout: ReturnType<typeof setTimeout>;
 
 Router.events.on('routeChangeStart', (url, { shallow }) => {
@@ -18,6 +20,10 @@ Router.events.on('routeChangeError', (err, url, { shallow }) => {
   NProgress.done();
 });
 
-export default function Progress(): null {
-  return null;
+export default function Progress(): JSX.Element {
+  return (
+    <style jsx global>
+      {nprogress}
+    </style>
+  );
 }

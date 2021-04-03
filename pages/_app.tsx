@@ -9,8 +9,7 @@ import { APIError } from 'lib/model/error';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
-import 'styles/globals.css';
-import 'styles/nprogress.css';
+import theme from 'styles/theme';
 
 /**
  * Installs a service worker and triggers an `/api/account` re-validation once
@@ -64,6 +63,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <NProgress />
         <Component {...pageProps} />
       </SWRConfig>
+      <style jsx global>
+        {theme}
+      </style>
     </UserContext.Provider>
   );
 }
