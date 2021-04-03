@@ -83,23 +83,13 @@ export class Message extends Resource implements MessageInterface {
       ?.value;
   }
 
-  public get letter(): Letter | undefined {
+  public get letter(): Letter | void {
     const from = this.getHeader('from');
     const { name, email } = parseFrom(from as string);
     if (whitelist[name.toLowerCase()] || hasWhitelistDomain(email))
-      return new Letter({
-        name,
-        from: email,
-        selected: true,
-        category: 'important',
-      });
-    if (!this.getHeader('list-unsubscribe')) return;
-    return new Letter({
-      name,
-      from: email,
-      selected: false,
-      category: 'other',
-    });
+      return new Letter({ name, from: email, category: 'important' });
+    if (this.getHeader('list-unsubscribe'))
+      return new Letter({ name, from: email, category: 'other' });
   }
 
   public get icon(): string {

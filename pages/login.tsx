@@ -31,14 +31,18 @@ export default function LoginPage(): JSX.Element {
   const onClick = useCallback(async () => {
     setLoading(true);
     try {
+      console.time('import-firebase');
       const { default: firebase } = await import('lib/firebase');
       await import('firebase/auth');
+      console.timeEnd('import-firebase');
 
+      console.time('login');
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.addScope('https://www.googleapis.com/auth/gmail.modify');
       provider.addScope('https://www.googleapis.com/auth/gmail.settings.basic');
       provider.addScope('https://www.googleapis.com/auth/gmail.labels');
       const cred = await firebase.auth().signInWithPopup(provider);
+      console.timeEnd('login');
 
       if (!cred.user) throw new Error('Did not receive user information');
 
@@ -53,8 +57,10 @@ export default function LoginPage(): JSX.Element {
 
       const url = '/api/account';
       await mutate(url, user.toJSON(), false);
-      await mutate(url, fetcher(url, 'patch', user.toJSON()));
       await Router.push('/letters');
+      console.time('patch-account');
+      await mutate(url, fetcher(url, 'patch', user.toJSON()));
+      console.timeEnd('patch-account');
     } catch (e) {
       setError(period(e.message));
     }

@@ -10,9 +10,13 @@ export default function Header() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const logout = useCallback(async () => {
+    console.time('import-firebase');
     const { default: firebase } = await import('lib/firebase');
     await import('firebase/auth');
+    console.timeEnd('import-firebase');
+    console.time('logout');
     await firebase.auth().signOut();
+    console.timeEnd('logout');
     await mutate('/api/account', new User());
   }, []);
 

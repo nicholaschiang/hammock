@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import useSWR, { SWRConfig, mutate } from 'swr';
 import { AppProps } from 'next/app';
 
@@ -6,17 +6,18 @@ import NProgress from 'components/nprogress';
 
 import { User, UserJSON } from 'lib/model/user';
 import { APIError } from 'lib/model/error';
-import { CallbackParam } from 'lib/model/callback';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
 import 'styles/globals.css';
 import 'styles/nprogress.css';
 
-// Installs a service worker and triggers an `/api/account` re-validation once
-// the service worker has been activated and is control of this page (i.e. once
-// the service worker can intercept our fetch requests and append the auth JWT).
-// @see {@link https://bit.ly/3gnChWt}
+/**
+ * Installs a service worker and triggers an `/api/account` re-validation once
+ * the service worker has been activated and is control of this page (i.e. once
+ * the service worker can intercept our fetch requests and append the auth JWT).
+ * @see {@link https://bit.ly/3gnChWt}
+ */
 async function installServiceWorker(): Promise<void> {
   if ('serviceWorker' in navigator) {
     await navigator.serviceWorker
@@ -52,24 +53,13 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     if (!userLoaded.current) return undefined;
     return false;
   }, [user, error]);
-  const setUser = useCallback(
-    (param: CallbackParam<User>) => {
-      let updated: User = user;
-      if (typeof param === 'object') updated = new User(param);
-      if (typeof param === 'function') updated = new User(param(user));
-      return mutate('/api/account', updated.toJSON(), loggedIn === undefined);
-    },
-    [user, loggedIn]
-  );
 
-  // This service worker appends the Firebase Authentication JWT to all of our
-  // same-origin fetch requests. In the future, it'll handle caching as well.
   useEffect(() => {
     void installServiceWorker();
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, loggedIn }}>
+    <UserContext.Provider value={{ user, loggedIn }}>
       <SWRConfig value={{ fetcher }}>
         <NProgress />
         <Component {...pageProps} />

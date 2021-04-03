@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import useSWR, { mutate } from 'swr';
 import NProgress from 'nprogress';
 import Router from 'next/router';
-import useSWR from 'swr';
 
 import Content from 'components/content';
 import Divider from 'components/divider';
@@ -31,7 +31,7 @@ export default function Letters() {
   }, [error]);
 
   const { data } = useSWR<LetterJSON[]>('/api/letters');
-  const { user, setUser } = useUser();
+  const { user } = useUser();
 
   useEffect(() => {
     setSelected(new Set(user.filter.senders));
@@ -48,14 +48,14 @@ export default function Letters() {
         if (!filter.senders.includes(l.from)) filter.senders.push(l.from);
       });
 
+      const url = '/api/account';
       const updated = new User({ ...user, filter });
-      await fetcher('/api/account', 'put', updated.toJSON());
-      await setUser(updated);
+      await mutate(url, fetcher(url, 'put', updated.toJSON()));
       await Router.push('/');
     } catch (e) {
       setError(period(e.message));
     }
-  }, [selected, data, user, setUser]);
+  }, [selected, data, user]);
 
   const important = useMemo(
     () => (data || []).filter((n) => n.category === 'important'),
