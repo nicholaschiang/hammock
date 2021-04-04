@@ -1,17 +1,17 @@
 <h1 align='center'>Return of the Newsletter</h1>
 
 <p align='center'>
-  <a aria-label='Release version' href='https://github.com/newsletterreader/newsletter/releases'>
-    <img src='https://img.shields.io/github/v/release/newsletterreader/newsletter?style=flat-square&labelColor=000000'>
+  <a aria-label='Release version' href='https://github.com/nicholaschiang/newsletter/releases'>
+    <img src='https://img.shields.io/github/v/release/nicholaschiang/newsletter?style=flat-square&labelColor=000000'>
   </a>
   <a aria-label='Website status' href='https://returnofthenewsletter.com'>
     <img src='https://img.shields.io/website?down_color=lightgrey&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Freturnofthenewsletter.com&style=flat-square&labelColor=000000'>
   </a>
-  <a aria-label='Dependencies' href='https://david-dm.org/newsletterreader/newsletter'>
-    <img src='https://img.shields.io/david/newsletterreader/newsletter?style=flat-square&labelColor=000000'>
+  <a aria-label='Dependencies' href='https://david-dm.org/nicholaschiang/newsletter'>
+    <img src='https://img.shields.io/david/nicholaschiang/newsletter?style=flat-square&labelColor=000000'>
   </a>
-  <a aria-label='Maintainability' href='https://codeclimate.com/github/newsletterreader/newsletter'>
-    <img src='https://img.shields.io/codeclimate/maintainability/newsletterreader/newsletter?style=flat-square&labelColor=000000'>
+  <a aria-label='Maintainability' href='https://codeclimate.com/github/nicholaschiang/newsletter'>
+    <img src='https://img.shields.io/codeclimate/maintainability/nicholaschiang/newsletter?style=flat-square&labelColor=000000'>
   </a>
 </p>
 
