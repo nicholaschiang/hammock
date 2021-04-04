@@ -47,7 +47,7 @@ function EmailRow({ message }: EmailRowProps): JSX.Element {
           }
 
           .row:hover {
-            box-shadow: var(--shadow-large);
+            box-shadow: var(--shadow-medium);
           }
 
           .row > div {

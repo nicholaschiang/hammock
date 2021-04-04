@@ -106,21 +106,26 @@ export default function NavBar(): JSX.Element {
 
   return (
     <div className='wrapper'>
-      <Avatar src={user.photo} size={48} />
-      <nav>
-        <NavLink href='/'>Feed</NavLink>
-        <NavLink href='/trending'>Trending</NavLink>
-        <NavLink href='/discovery'>Discover</NavLink>
-        <NavLink href='/highlights'>Highlights</NavLink>
-        <NavButton onClick={logout}>
-          {loggingOut ? 'Logging out...' : 'Logout'}
-        </NavButton>
-      </nav>
+      <div className='content'>
+        <Avatar src={user.photo} size={48} />
+        <nav>
+          <NavLink href='/'>Feed</NavLink>
+          <NavLink href='/letters'>Letters</NavLink>
+          <NavButton onClick={logout}>
+            {loggingOut ? 'Logging out...' : 'Logout'}
+          </NavButton>
+        </nav>
+      </div>
       <style jsx>{`
         .wrapper {
           flex: none;
           width: 120px;
           margin-right: 24px;
+        }
+
+        .content {
+          position: sticky;
+          top: 96px;
         }
 
         nav {

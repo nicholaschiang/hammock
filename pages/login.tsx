@@ -3,7 +3,7 @@ import NProgress from 'nprogress';
 import Router from 'next/router';
 import { mutate } from 'swr';
 
-import GoogleIcon from 'components/icons/google';
+import Button from 'components/button';
 import LockIcon from 'components/icons/lock';
 import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
@@ -69,84 +69,6 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
   );
 }
 
-interface ButtonProps {
-  disabled?: boolean;
-  onClick?: () => void;
-  children: string;
-}
-
-function Button({ disabled, onClick, children }: ButtonProps): JSX.Element {
-  return (
-    <button type='button' onClick={onClick} disabled={disabled}>
-      <div className='google'>
-        <GoogleIcon />
-      </div>
-      {children}
-      <style jsx>{`
-        button {
-          --border-color: var(--primary);
-          width: 100%;
-          border: 2px solid var(--border-color);
-          background: var(--primary);
-          color: var(--on-primary);
-          border-radius: 6px;
-          position: relative;
-          height: 50px;
-          text-align: center;
-          font-size: 16px;
-          font-weight: 600;
-          font-family: var(--font-sans);
-          transition: all 0.2s ease 0s;
-          cursor: pointer;
-          display: block;
-          padding: 0;
-          margin: 0;
-        }
-
-        button:disabled {
-          --border-color: var(--accents-2);
-          cursor: not-allowed;
-          background: var(--accents-1);
-          border-color: var(--border-color);
-          color: var(--accents-4);
-          filter: grayscale(1);
-          transform: translateZ(0px);
-          backface-visibility: hidden;
-        }
-
-        button:not(:disabled):hover,
-        button:not(:disabled):focus,
-        button:not(:disabled):active,
-        button:not(:disabled):focus-within {
-          --border-color: var(--primary);
-          color: var(--primary);
-          background: var(--on-primary);
-          border-color: var(--border-color);
-        }
-
-        button > .google {
-          position: absolute;
-          background: #fff;
-          border-top-left-radius: 4px;
-          border-bottom-left-radius: 4px;
-          border-right: 2px solid var(--border-color);
-          transition: all 0.2s ease 0s;
-          padding: 3px;
-          height: 46px;
-          width: 48px;
-          left: 0;
-          top: 0;
-        }
-
-        @media (max-width: 450px) {
-          button {
-            padding-left: 46px;
-          }
-        }
-      `}</style>
-    </button>
-  );
-}
 export default function LoginPage(): JSX.Element {
   usePage({ name: 'Login' });
 
@@ -219,7 +141,7 @@ export default function LoginPage(): JSX.Element {
             offended.
           </Section>
           <div className='actions'>
-            <Button disabled={loading} onClick={onClick}>
+            <Button disabled={loading} onClick={onClick} google>
               Continue signing in
             </Button>
             {error && <p className='error'>{error}</p>}
@@ -242,6 +164,10 @@ export default function LoginPage(): JSX.Element {
 
           .actions {
             margin: 48px 0;
+          }
+
+          .actions > :global(button) {
+            width: 100%;
           }
 
           .error {
