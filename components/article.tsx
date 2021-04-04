@@ -58,7 +58,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       <style jsx>{`
         iframe {
           border: 2px solid var(--accents-2);
-          border-radius: 12px;
+          border-radius: 10px;
         }
       `}</style>
     </>

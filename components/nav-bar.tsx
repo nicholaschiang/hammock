@@ -98,10 +98,10 @@ export default function NavBar(): JSX.Element {
   const [loggingOut, setLoggingOut] = useState<boolean>(false);
   const logout = useCallback(async () => {
     setLoggingOut(true);
+    await mutate('/api/account', new User(), false);
     const { default: firebase } = await import('lib/firebase');
     await import('firebase/auth');
     await firebase.auth().signOut();
-    await mutate('/api/account', new User());
   }, []);
 
   return (

@@ -46,7 +46,7 @@ function EmailRow({ message, loading }: EmailRowProps): JSX.Element {
             text-decoration: none;
             transition: box-shadow 0.2s ease 0s;
             padding: 12px 24px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 0;
           }
 

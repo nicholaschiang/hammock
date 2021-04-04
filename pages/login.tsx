@@ -159,11 +159,11 @@ export default function LoginPage(): JSX.Element {
 
           .line {
             border-top: 2px solid var(--accents-2);
-            margin: 24px 0;
+            margin: 24px 0 60px;
           }
 
           .actions {
-            margin: 48px 0;
+            margin: 72px 0 48px;
           }
 
           .actions > :global(button) {
@@ -194,7 +194,7 @@ export default function LoginPage(): JSX.Element {
             max-width: 540px;
             max-height: calc(100% - 32px);
             background: var(--background);
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: var(--shadow-large);
             overflow: auto;
             padding: 0 48px;
