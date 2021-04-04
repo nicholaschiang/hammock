@@ -8,6 +8,7 @@ import { LettersRes } from 'pages/api/letters';
 
 import Avatar from 'components/avatar';
 import Button from 'components/button';
+import Empty from 'components/empty';
 
 import { Filter, User } from 'lib/model/user';
 import { Letter, LetterJSON } from 'lib/model/letter';
@@ -17,114 +18,111 @@ import { period } from 'lib/utils';
 import { useUser } from 'lib/context/user';
 
 interface LetterRowProps {
-  letter: Letter;
-  selected: boolean;
-  onSelected: (selected: boolean) => void;
+  letter?: Letter;
+  selected?: boolean;
+  onSelected?: (selected: boolean) => void;
 }
 
 function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
   return (
-    <tr onClick={() => onSelected(!selected)}>
-      <td className='avatar'>
-        <div className='border'>
-          <Avatar src={letter.icon} size={40} />
-        </div>
-      </td>
-      <td className='title'>
-        <div className='name'>{letter.name}</div>
-        <div className='email'>{letter.from}</div>
-      </td>
-      <td className='checkbox'>
-        {selected && (
-          <svg viewBox='0 0 35 35' fill='none'>
-            <circle
-              cx='17.5'
-              cy='17.5'
-              r='16.5'
-              fill='#6C7176'
-              stroke='#6C7176'
-              strokeWidth='2'
-            />
-            <rect
-              x='12'
-              y='23.3574'
-              width='21'
-              height='4'
-              rx='2'
-              transform='rotate(-46.9964 12 23.3574)'
-              fill='white'
-            />
-            <rect
-              x='14.4854'
-              y='26.3135'
-              width='12'
-              height='4'
-              rx='2'
-              transform='rotate(-135 14.4854 26.3135)'
-              fill='white'
-            />
+    <li onClick={() => onSelected && onSelected(!selected)}>
+      <span className='check'>
+        <input type='checkbox' checked={selected || false} />
+        <span className='icon' aria-hidden='true'>
+          <svg viewBox='0 0 20 20' height='16' width='16' fill='none'>
+            {selected && (
+              <path
+                d='M14 7L8.5 12.5L6 10'
+                stroke='var(--on-primary)'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+              />
+            )}
           </svg>
-        )}
-        {!selected && (
-          <svg viewBox='0 0 24 24'>
-            <circle
-              cx='12'
-              cy='12'
-              r='11'
-              stroke='#6C7176'
-              strokeWidth='2'
-              fill='none'
-            />
-          </svg>
-        )}
-      </td>
+        </span>
+      </span>
+      <Avatar src={letter?.icon} loading={!letter} size={24} />
+      {!letter && <span className='name loading' />}
+      {letter && (
+        <span className='name nowrap'>
+          {letter.name}
+          <span className='dot'>·</span>
+          <span className='email'>{letter.from}</span>
+        </span>
+      )}
       <style jsx>{`
-        tr {
-          border-radius: 8px;
-          transition: box-shadow 0.2s ease 0s;
+        li {
+          display: flex;
+          align-items: center;
+          margin: 16px 0;
         }
 
-        tr:hover {
-          box-shadow: var(--shadow-small);
+        li:first-child {
+          margin-top: 0;
         }
 
-        td {
-          padding: 12px 0;
-          cursor: pointer;
-          vertical-align: middle;
+        li > :global(div) {
+          margin: 0 12px;
+          flex: none;
         }
 
-        td.avatar {
-          width: 40px;
-          padding: 12px;
-        }
-
-        td.avatar > .border {
-          border-radius: 100%;
-          border: 2px solid var(--accents-2);
-        }
-
-        td.title {
-          font-size: 14px;
+        .name {
+          flex: 1 1 auto;
+          width: 0;
+          font-size: 16px;
           font-weight: 400;
+          line-height: 18px;
+          height: 18px;
         }
 
-        td.title > .email {
+        .name.loading {
+          border-radius: 6px;
+        }
+
+        .dot {
+          margin: 0 8px;
+        }
+
+        .email {
           color: var(--accents-5);
         }
 
-        td.checkbox {
-          width: 24px;
-          padding: 22px;
+        .check {
+          flex: none;
+          display: flex;
+          align-items: center;
+          cursor: pointer;
         }
 
-        svg {
-          width: 24px;
-          height: 24px;
-          display: block;
+        .check input {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0,0,0,0);
+          white-space: nowrap;
+          border-width: 0;
+        }
+
+        .check input:checked + .icon {
+          background: var(--primary);
+        }
+
+        .check .icon {
+          border: 2px solid var(--primary);
+          background: var(--background);
+          border-radius: 4px;
+          height: 20px;
+          width: 20px;
+          position: relative;
+          transition: border-color 0.15s ease 0s;
+          transform: transform: rotate(0.000001deg);
         }
       `}</style>
-    </tr>
+    </li>
   );
 }
 
@@ -191,6 +189,14 @@ export default function Letters() {
     }
   }, [selected, letters, user]);
 
+  const { other, important } = useMemo(
+    () => ({
+      other: letters.filter((l) => l.category === 'other'),
+      important: letters.filter((l) => l.category === 'important'),
+    }),
+    [letters]
+  );
+
   return (
     <div className='wrapper'>
       <Head>
@@ -206,97 +212,115 @@ export default function Letters() {
         </Button>
       </header>
       <div className='line' />
-      {data && (
-        <table>
-          <tbody>
-            {letters
-              .filter((l) => l.category === 'important')
-              .map((r) => (
-                <LetterRow
-                  key={r.from}
-                  letter={Letter.fromJSON(r)}
-                  selected={selected.has(r.from)}
-                  onSelected={(isSelected: boolean) => {
-                    setSelected((prev) => {
-                      const next = clone(prev);
-                      if (!isSelected) next.delete(r.from);
-                      if (isSelected) next.add(r.from);
-                      return next;
-                    });
-                  }}
-                />
-              ))}
-          </tbody>
-        </table>
+      {false && !!important.length && (
+        <ul>
+          {important.map((r) => (
+            <LetterRow
+              key={r.from}
+              letter={Letter.fromJSON(r)}
+              selected={selected.has(r.from)}
+              onSelected={(isSelected: boolean) => {
+                setSelected((prev) => {
+                  const next = clone(prev);
+                  if (!isSelected) next.delete(r.from);
+                  if (isSelected) next.add(r.from);
+                  return next;
+                });
+              }}
+            />
+          ))}
+        </ul>
       )}
+      {!data && (
+        <ul>
+          {Array(5)
+            .fill(null)
+            .map((_, idx) => (
+              <LetterRow key={idx} />
+            ))}
+        </ul>
+      )}
+      {data && !important.length && <Empty>NO SUBSCRIPTIONS TO SHOW</Empty>}
       <h2>Other “newsletters” in your inbox that we found less relevant</h2>
       <div className='line' />
-      {data && (
-        <table>
-          <tbody>
-            {letters
-              .filter((l) => l.category === 'other')
-              .map((r) => (
-                <LetterRow
-                  key={r.from}
-                  letter={Letter.fromJSON(r)}
-                  selected={selected.has(r.from)}
-                  onSelected={(isSelected: boolean) => {
-                    setSelected((prev) => {
-                      const next = clone(prev);
-                      if (!isSelected) next.delete(r.from);
-                      if (isSelected) next.add(r.from);
-                      return next;
-                    });
-                  }}
-                />
-              ))}
-          </tbody>
-        </table>
+      {!!other.length && (
+        <ul>
+          {other.map((r) => (
+            <LetterRow
+              key={r.from}
+              letter={Letter.fromJSON(r)}
+              selected={selected.has(r.from)}
+              onSelected={(isSelected: boolean) => {
+                setSelected((prev) => {
+                  const next = clone(prev);
+                  if (!isSelected) next.delete(r.from);
+                  if (isSelected) next.add(r.from);
+                  return next;
+                });
+              }}
+            />
+          ))}
+        </ul>
       )}
+      {!data && (
+        <ul>
+          {Array(5)
+            .fill(null)
+            .map((_, idx) => (
+              <LetterRow key={idx} />
+            ))}
+        </ul>
+      )}
+      {data && !other.length && <Empty>NO NEWSLETTERS TO SHOW</Empty>}
       <style jsx>{`
         .wrapper {
           flex: 1 1 auto;
           max-width: 768px;
+          padding: 0 24px;
           width: 0;
+        }
+
+        .wrapper :global(.empty) {
+          margin-bottom: 72px;
+          height: 300px;
         }
 
         .line {
           border-top: 2px solid var(--accents-2);
-          margin: 24px;
+          margin: 24px 0 36px;
         }
 
         header {
           display: flex;
           justify-content: space-between;
           align-items: flex-end;
-          margin: 0 24px;
         }
 
         header h1 {
           font-size: 48px;
           font-weight: 400;
-          line-height: 48px;
-          margin: 0 0 12px;
-        }
-
-        header h2 {
-          margin: 0;
+          line-height: 64px;
+          margin: 0 0 48px;
+          height: 64px;
         }
 
         h2 {
-          font-size: 16px;
-          font-weight: 400;
-          line-height: 24px;
           color: var(--accents-5);
-          margin: 72px 24px 12px;
+          font-size: 18px;
+          font-weight: 700;
+          line-height: 24px;
+          height: 24px;
+          margin: 0;
         }
 
-        table {
-          width: 100%;
-          padding: 0 12px;
-          border-spacing: 0px;
-          border-collapse: separate;
+        ul {
+          list-style: none;
+          margin: 0 0 72px;
+          padding: 0;
+        }
+
+        ul:last-child {
+          margin-bottom: 0;
         }
       `}</style>
     </div>

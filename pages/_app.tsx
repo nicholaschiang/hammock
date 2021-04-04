@@ -106,6 +106,12 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
           cursor: pointer;
         }
 
+        .nowrap {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
+
         .loading {
           background-image: linear-gradient(
             270deg,

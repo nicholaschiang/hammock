@@ -109,11 +109,11 @@ export default function Reader(): JSX.Element {
         <link rel='preload' href='/api/messages' as='fetch' />
       </Head>
       <header>
-        <h1 className={cn({ loading: !title })}>{title}</h1>
+        <h1 className={cn('nowrap', { loading: !title })}>{title}</h1>
       </header>
       {!data && (
         <div className='section'>
-          <h2 className='date loading' />
+          <h2 className='nowrap date loading' />
           <div className='line' />
           {Array(2)
             .fill(null)
@@ -124,7 +124,7 @@ export default function Reader(): JSX.Element {
       )}
       {!data && (
         <div className='section'>
-          <h2 className='date loading' />
+          <h2 className='nowrap date loading' />
           <div className='line' />
           {Array(5)
             .fill(null)
@@ -169,9 +169,6 @@ export default function Reader(): JSX.Element {
           font-weight: 400;
           line-height: 64px;
           height: 64px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
           margin: 0 0 -24px;
         }
 
@@ -186,9 +183,6 @@ export default function Reader(): JSX.Element {
           font-weight: 700;
           line-height: 24px;
           height: 24px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
           margin: 72px 24px 24px;
         }
 
