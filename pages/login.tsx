@@ -89,7 +89,7 @@ function Button({ disabled, onClick, children }: ButtonProps): JSX.Element {
           border: 2px solid var(--border-color);
           background: var(--primary);
           color: var(--on-primary);
-          border-radius: 4px;
+          border-radius: 6px;
           position: relative;
           height: 50px;
           text-align: center;
@@ -127,8 +127,8 @@ function Button({ disabled, onClick, children }: ButtonProps): JSX.Element {
         button > .google {
           position: absolute;
           background: #fff;
-          border-top-left-radius: 2px;
-          border-bottom-left-radius: 2px;
+          border-top-left-radius: 4px;
+          border-bottom-left-radius: 4px;
           border-right: 2px solid var(--border-color);
           transition: all 0.2s ease 0s;
           padding: 3px;
@@ -136,6 +136,12 @@ function Button({ disabled, onClick, children }: ButtonProps): JSX.Element {
           width: 48px;
           left: 0;
           top: 0;
+        }
+
+        @media (max-width: 450px) {
+          button {
+            padding-left: 46px;
+          }
         }
       `}</style>
     </button>
@@ -262,7 +268,7 @@ export default function LoginPage(): JSX.Element {
             max-width: 500px;
             max-height: calc(100% - 32px);
             background: var(--background);
-            border-radius: 5px;
+            border-radius: 12px;
             box-shadow: var(--shadow-large);
             overflow: auto;
             padding: 0 48px;
@@ -277,6 +283,22 @@ export default function LoginPage(): JSX.Element {
             z-index: -1;
             background: rgba(0, 0, 0, 0.32);
             opacity: 1;
+          }
+
+          @media (max-width: 500px) {
+            .dialog {
+              box-shadow: none;
+            }
+
+            .scrim {
+              display: none;
+            }
+          }
+
+          @media (max-width: 450px) {
+            .dialog {
+              padding: 0 24px;
+            }
           }
         `}</style>
       </div>
