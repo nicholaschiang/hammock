@@ -6,7 +6,7 @@ export default css.global`
   }
 
   #nprogress .bar {
-    background: black;
+    background: var(--primary);
     position: fixed;
     z-index: 1031;
     top: 0;
@@ -21,7 +21,7 @@ export default css.global`
     right: 0px;
     width: 100px;
     height: 100%;
-    box-shadow: 0 0 10px black, 0 0 5px black;
+    box-shadow: 0 0 10px var(--primary), 0 0 5px var(--primary);
     opacity: 1;
 
     -webkit-transform: rotate(3deg) translate(0px, -4px);
@@ -50,8 +50,8 @@ export default css.global`
     box-sizing: border-box;
 
     border: solid 2px transparent;
-    border-top-color: black;
-    border-left-color: black;
+    border-top-color: var(--primary);
+    border-left-color: var(--primary);
     border-radius: 50%;
 
     -webkit-animation: nprogress-spinner 400ms linear infinite;
