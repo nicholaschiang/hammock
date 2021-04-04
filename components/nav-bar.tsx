@@ -1,7 +1,7 @@
-import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import cn from 'classnames';
 import { mutate } from 'swr';
+import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 
 import Avatar from 'components/avatar';
@@ -95,9 +95,7 @@ function NavLink({ href, children }: NavLinkProps): JSX.Element {
 export default function NavBar(): JSX.Element {
   const { loggedIn, user } = useUser();
 
-  const [loggingOut, setLoggingOut] = useState<boolean>(false);
   const logout = useCallback(async () => {
-    setLoggingOut(true);
     await mutate('/api/account', new User(), false);
     const { default: firebase } = await import('lib/firebase');
     await import('firebase/auth');
@@ -111,9 +109,7 @@ export default function NavBar(): JSX.Element {
         <nav>
           <NavLink href='/'>Feed</NavLink>
           <NavLink href='/letters'>Letters</NavLink>
-          <NavButton onClick={logout}>
-            {loggingOut ? 'Logging out...' : 'Logout'}
-          </NavButton>
+          <NavButton onClick={logout}>Logout</NavButton>
         </nav>
       </div>
       <style jsx>{`

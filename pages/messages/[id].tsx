@@ -111,7 +111,7 @@ export default function MessagePage(): JSX.Element {
           transition: color 0.1s ease 0s;
         }
 
-        .author .from.loading {
+        .author span.loading {
           width: 240px;
           border-radius: 6px;
         }

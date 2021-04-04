@@ -59,10 +59,7 @@ export default function Button({
           backface-visibility: hidden;
         }
 
-        button:not(:disabled):hover,
-        button:not(:disabled):focus,
-        button:not(:disabled):active,
-        button:not(:disabled):focus-within {
+        button:not(:disabled):hover {
           --border-color: var(--primary);
           color: var(--primary);
           background: var(--on-primary);

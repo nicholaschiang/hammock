@@ -158,7 +158,7 @@ export default function Reader(): JSX.Element {
     return `/api/messages?pageToken=${prev.nextPageToken}`;
   }, []);
 
-  const { data, setSize } = useSWRInfinite<MessagesRes>(getKey);
+  const { data, isValidating, setSize } = useSWRInfinite<MessagesRes>(getKey);
   const { user } = useUser();
 
   useEffect(() => {
@@ -250,7 +250,10 @@ export default function Reader(): JSX.Element {
           ))}
         </div>
       ))}
-      <Button disabled={!data} onClick={() => setSize((prev) => prev + 1)}>
+      <Button
+        disabled={isValidating}
+        onClick={() => setSize((prev) => prev + 1)}
+      >
         Load more messages
       </Button>
       <style jsx>{`

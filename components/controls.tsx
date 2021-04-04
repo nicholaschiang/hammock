@@ -33,7 +33,6 @@ export default function Controls(): JSX.Element {
     nextId: '',
   });
   useEffect(() => {
-    console.log(`Resetting position b/c of query ID (${query.id}) change...`);
     setPos((prev) => ({
       prevId: prev.nextId === query.id ? prev.currId : '',
       nextId: prev.prevId === query.id ? prev.currId : '',
@@ -41,33 +40,21 @@ export default function Controls(): JSX.Element {
     }));
   }, [query.id]);
   useEffect(() => {
-    if (!data) console.log('No data yet, skipping position query...');
-    if (!query.id) console.log('No query ID yet, skipping position query...');
     if (!data || !query.id) return;
-    data
-      .map((l) => l.messages)
-      .flat()
-      .forEach((message, idx, messages) => {
-        if (message.id !== query.id) return;
-        const prevId = messages[idx - 1]?.id || '';
-        const nextId = messages[idx + 1]?.id || '';
-        if (!prevId) {
-          console.log('Could not find prev message.');
-        } else {
-          console.log(`Found prev message (${prevId}).`);
-        }
-        if (!nextId) {
-          console.log(`Could not find next message, fetching more...`);
-          void setSize((prev) => prev + 1);
-        } else {
-          console.log(`Found next message (${nextId}).`);
-        }
-        setPos((prev) => {
-          const updated = { ...prev, prevId, nextId };
-          if (dequal(prev, updated)) return prev;
-          return updated;
-        });
+    const messages = data.map((l) => l.messages).flat();
+    messages.forEach((message, idx, messages) => {
+      if (message.id !== query.id) return;
+      const prevId = messages[idx - 1]?.id || '';
+      const nextId = messages[idx + 1]?.id || '';
+      if (!nextId) {
+        void setSize((prev) => prev + 1);
+      }
+      setPos((prev) => {
+        const updated = { ...prev, prevId, nextId };
+        if (dequal(prev, updated)) return prev;
+        return updated;
       });
+    });
   }, [data, query.id, setSize]);
   useEffect(() => {
     void prefetch(pos.prevId && `/api/messages/${pos.prevId}`);
@@ -98,11 +85,11 @@ export default function Controls(): JSX.Element {
           left: 48px;
           background: var(--background);
           border: 2px solid var(--accents-2);
-          border-radius: 30px;
-          height: 60px;
+          border-radius: 32px;
+          height: 64px;
           display: flex;
           flex-direction: row;
-          padding: 4px;
+          padding: 6px;
         }
 
         .button {
