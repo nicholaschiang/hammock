@@ -6,9 +6,6 @@ import Router from 'next/router';
 
 import { LettersRes } from 'pages/api/letters';
 
-import Content from 'components/content';
-import Divider from 'components/divider';
-
 import { Filter, User } from 'lib/model/user';
 import { Letter, LetterJSON } from 'lib/model/letter';
 import clone from 'lib/utils/clone';
@@ -149,7 +146,7 @@ export default function Letters() {
   }, [selected, letters, user]);
 
   return (
-    <Content>
+    <div className='wrapper'>
       <Head>
         <link rel='preload' href='/api/letters' as='fetch' />
       </Head>
@@ -171,7 +168,7 @@ export default function Letters() {
           </button>
         </div>
       </div>
-      <Divider />
+      <div className='line' />
       {!data && (
         <>
           <div className='text-center pb-4 pt-12'>
@@ -237,6 +234,6 @@ export default function Letters() {
           </table>
         </>
       )}
-    </Content>
+    </div>
   );
 }

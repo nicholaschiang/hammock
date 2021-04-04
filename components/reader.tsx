@@ -6,8 +6,7 @@ import he from 'he';
 
 import { MessagesRes } from 'pages/api/messages';
 
-import Content from 'components/content';
-import Divider from 'components/divider';
+import Avatar from 'components/avatar';
 
 import { Message, MessageJSON } from 'lib/model/message';
 import { parseFrom } from 'lib/utils';
@@ -30,22 +29,70 @@ function EmailRow({ message }: EmailRowProps): JSX.Element {
 
   return (
     <Link href={`/messages/${message.id}`}>
-      <div className='row'>
-        <div className='name'>
-          <img
-            className='rounded-full h-4 w-4 inline-block mr-2'
-            src={message.icon}
-            alt=''
-          />
-          {name}
+      <a className='row'>
+        <div className='header'>
+          <Avatar src={message.icon} size={24} />
+          <span className='name'>{name}</span>
         </div>
         <div className='subject'>{subject}</div>
         <div className='snippet'>{snippet}</div>
         <style jsx>{`
           .row {
+            display: block;
+            text-decoration: none;
+            transition: box-shadow 0.2s ease 0s;
+            padding: 12px 24px;
+            border-radius: 8px;
+            margin: 0;
+          }
 
+          .row:hover {
+            box-shadow: var(--shadow-large);
+          }
+
+          .row > div {
+            margin: 8px 0;
+          }
+
+          .header,
+          .subject {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+
+          .header {
+            display: flex;
+            height: 24px;
+          }
+
+          .header > span.name {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 24px;
+            color: var(--accents-5);
+          }
+
+          .header > :global(div) {
+            margin-right: 8px;
+          }
+
+          .subject {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 24px;
+            height: 24px;
+            color: var(--accents-6);
+          }
+
+          .snippet {
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 24px;
+            color: var(--accents-6);
+          }
         `}</style>
-      </div>
+      </a>
     </Link>
   );
 }
@@ -142,26 +189,65 @@ export default function Reader(): JSX.Element {
   }, [now, data]);
 
   return (
-    <Content>
+    <div className='wrapper'>
       <Head>
         <link rel='preload' href='/api/messages' as='fetch' />
       </Head>
-      <div className='text-5xl font-weight-500 pb-2'>{title}</div>
+      <header>
+        <h1>{title}</h1>
+      </header>
       {sections.map((s) => (
-        <div className='pt-3 pb-8' key={s.displayDate}>
-          <p className='text-lg text-gray-500 pb-1'>{s.displayDate}</p>
-          <Divider />
+        <div className='section' key={s.displayDate}>
+          <h2 className='date'>{s.displayDate}</h2>
+          <div className='line' />
           {s.messages.map((m) => (
             <EmailRow key={m.id} message={Message.fromJSON(m)} />
           ))}
         </div>
       ))}
-      <div
-        className='text-sm text-gray-600 pb-4 cursor-pointer'
-        onClick={() => setSize((prev) => prev + 1)}
-      >
+      <button onClick={() => setSize((prev) => prev + 1)} type='button'>
         Load More
-      </div>
-    </Content>
+      </button>
+      <style jsx>{`
+        .wrapper {
+          flex: 1 1 auto;
+          max-width: 768px;
+          width: 0;
+        }
+
+        header {
+          margin: 0 24px;
+        }
+
+        header > h1 {
+          font-size: 48px;
+          font-weight: 400;
+          line-height: 48px;
+          margin: 0 0 -24px;
+        }
+
+        .section > h2.date {
+          color: var(--accents-5);
+          font-size: 18px;
+          font-weight: 700;
+          line-height: 24px;
+          height: 24px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          margin: 72px 24px 24px;
+        }
+
+        .line {
+          border-bottom: 2px solid var(--accents-2);
+          margin: 24px;
+        }
+
+        button {
+          margin-top: 48px;
+          width: 100%;
+        }
+      `}</style>
+    </div>
   );
 }

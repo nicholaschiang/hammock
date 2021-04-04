@@ -25,6 +25,12 @@ export default css.global`
     --selection: #79ffe1;
     --header-background: rgba(255, 255, 255, 0.8);
     --triangle-stroke: var(--background);
+
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+      'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+      'Helvetica Neue', sans-serif;
+    --font-mono: Menlo, Monaco, Lucida Console, Liberation Mono,
+      DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
   }
 
   .dark {

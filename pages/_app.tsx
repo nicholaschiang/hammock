@@ -9,7 +9,6 @@ import { APIError } from 'lib/model/error';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
-import config from 'styles/config';
 import globals from 'styles/globals';
 import theme from 'styles/theme';
 
@@ -66,9 +65,6 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
       </SWRConfig>
       <style jsx global>
         {globals}
-      </style>
-      <style jsx global>
-        {config}
       </style>
       <style jsx global>
         {theme}

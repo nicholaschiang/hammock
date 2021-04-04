@@ -16,7 +16,7 @@ export default function Avatar({
 }: AvatarProps): JSX.Element {
   const img = src || 'https://assets.tutorbook.org/pngs/profile.png';
   return (
-    <div className={cn('wrapper', { loading })}>
+    <div className={cn('avatar', { loading })}>
       {!loading && (
         <Image
           priority={priority}
@@ -28,9 +28,9 @@ export default function Avatar({
         />
       )}
       <style jsx>{`
-        .wrapper {
-          width: 100%;
-          height: 100%;
+        .avatar {
+          width: ${size}px;
+          height ${size}px;
           overflow: hidden;
           border-radius: 100%;
           background-color: var(--accents-2);

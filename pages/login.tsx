@@ -33,7 +33,7 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
           display: flex;
           flex-direction: row;
           align-items: center;
-          margin: 32px 0;
+          margin: 36px 0;
         }
 
         .icon {
@@ -54,7 +54,7 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
           line-height: 20px;
           font-size: 16px;
           font-weight: 700;
-          margin: 0 0 8px;
+          margin: 0 0 6px;
         }
 
         p {
@@ -211,11 +211,11 @@ export default function LoginPage(): JSX.Element {
             icon={<LockIcon />}
             header='We don’t read your email, promise'
           >
-            We’ll request a few Gmail permissions next to help us organize your
+            We’ll request a few Gmail permissions to help us organize your
             newsletters. Nothing else.
           </Section>
           <Section icon={<UndoIcon />} header='Your newsletters are yours'>
-            You can always go back to reading them in your inbox, we won’t be
+            You can always go back to reading them in your inbox; we won’t be
             offended.
           </Section>
           <div className='actions'>
@@ -236,8 +236,8 @@ export default function LoginPage(): JSX.Element {
           }
 
           .line {
-            border-top: 1px solid var(--accents-2);
-            margin: 24px 0 48px;
+            border-top: 2px solid var(--accents-2);
+            margin: 24px 0;
           }
 
           .actions {
@@ -249,7 +249,7 @@ export default function LoginPage(): JSX.Element {
             line-height: 14px;
             font-size: 12px;
             font-weight: 500;
-            margin: 12px 0 48px;
+            margin-top: 12px;
           }
 
           .wrapper {
@@ -265,10 +265,10 @@ export default function LoginPage(): JSX.Element {
           }
 
           .dialog {
-            max-width: 500px;
+            max-width: 540px;
             max-height: calc(100% - 32px);
             background: var(--background);
-            border-radius: 12px;
+            border-radius: 8px;
             box-shadow: var(--shadow-large);
             overflow: auto;
             padding: 0 48px;
@@ -285,9 +285,10 @@ export default function LoginPage(): JSX.Element {
             opacity: 1;
           }
 
-          @media (max-width: 500px) {
+          @media (max-width: 540px) {
             .dialog {
               box-shadow: none;
+              max-height: 100%;
             }
 
             .scrim {
@@ -298,6 +299,14 @@ export default function LoginPage(): JSX.Element {
           @media (max-width: 450px) {
             .dialog {
               padding: 0 24px;
+            }
+
+            h1 {
+              margin-top: 24px;
+            }
+
+            .actions {
+              margin-bottom: 24px;
             }
           }
         `}</style>
