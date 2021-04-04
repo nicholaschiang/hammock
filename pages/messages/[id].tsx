@@ -49,7 +49,7 @@ export default function MessagePage(): JSX.Element {
                 {data && from && parseFrom(from).name}
               </span>
               {data && <span className='on'>on</span>}
-              {createdAt.toDateString() !== 'Invalid Date' && (
+              {data && createdAt.toDateString() !== 'Invalid Date' && (
                 <span className='date'>{createdAt.toDateString()}</span>
               )}
             </a>
