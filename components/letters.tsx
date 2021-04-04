@@ -6,8 +6,8 @@ import Router from 'next/router';
 
 import { LettersRes } from 'pages/api/letters';
 
-import Content from 'components/content';
-import Divider from 'components/divider';
+import Avatar from 'components/avatar';
+import Button from 'components/button';
 
 import { Filter, User } from 'lib/model/user';
 import { Letter, LetterJSON } from 'lib/model/letter';
@@ -25,18 +25,18 @@ interface LetterRowProps {
 function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
   return (
     <tr onClick={() => onSelected(!selected)}>
-      <td className='py-3 w-12'>
-        <img className='rounded-full h-8 w-8' alt='' src={letter.icon} />
+      <td className='avatar'>
+        <div className='border'>
+          <Avatar src={letter.icon} size={40} />
+        </div>
       </td>
-      <td>{`${letter.name} (${letter.from})`}</td>
-      <td className='text-right'>
+      <td className='title'>
+        <div className='name'>{letter.name}</div>
+        <div className='email'>{letter.from}</div>
+      </td>
+      <td className='checkbox'>
         {selected && (
-          <svg
-            className='block mr-0 ml-auto fill-current w-6 h-6 text-white pointer-events-none'
-            viewBox='0 0 35 35'
-            fill='none'
-            xmlns='http://www.w3.org/2000/svg'
-          >
+          <svg viewBox='0 0 35 35' fill='none'>
             <circle
               cx='17.5'
               cy='17.5'
@@ -66,10 +66,7 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           </svg>
         )}
         {!selected && (
-          <svg
-            className='block mr-0 ml-auto fill-current w-6 h-6 text-green-500 pointer-events-none'
-            viewBox='0 0 24 24'
-          >
+          <svg viewBox='0 0 24 24'>
             <circle
               cx='12'
               cy='12'
@@ -81,6 +78,52 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           </svg>
         )}
       </td>
+      <style jsx>{`
+        tr {
+          border-radius: 8px;
+          transition: box-shadow 0.2s ease 0s;
+        }
+
+        tr:hover {
+          box-shadow: var(--shadow-small);
+        }
+
+        td {
+          padding: 12px 0;
+          cursor: pointer;
+          vertical-align: middle;
+        }
+
+        td.avatar {
+          width: 40px;
+          padding: 12px;
+        }
+
+        td.avatar > .border {
+          border-radius: 100%;
+          border: 2px solid var(--accents-2);
+        }
+
+        td.title {
+          font-size: 14px;
+          font-weight: 400;
+        }
+
+        td.title > .email {
+          color: var(--accents-5);
+        }
+
+        td.checkbox {
+          width: 24px;
+          padding: 22px;
+        }
+
+        svg {
+          width: 24px;
+          height: 24px;
+          display: block;
+        }
+      `}</style>
     </tr>
   );
 }
@@ -149,94 +192,113 @@ export default function Letters() {
   }, [selected, letters, user]);
 
   return (
-    <Content>
+    <div className='wrapper'>
       <Head>
         <link rel='preload' href='/api/letters' as='fetch' />
       </Head>
-      <div className='header flex items-center pb-2'>
-        <div className='left flex-grow'>
-          <div className='text-5xl font-weight-500 pb-2'>Your Newsletters</div>
-          <div className='text-lg text-gray-500'>
-            Choose the subscriptions you want to read in your feed
-          </div>
+      <header>
+        <div className='content'>
+          <h1>Your newsletters</h1>
+          <h2>Choose the subscriptions you want to read in your feed</h2>
         </div>
-        <div className='right flex-none'>
-          <button
-            className='bg-blue-500 hover:bg-blue-700 text-white py-2 px-3 rounded'
-            disabled={loading}
-            onClick={onSave}
-            type='button'
-          >
-            Go to your feed
-          </button>
-        </div>
-      </div>
-      <Divider />
-      {!data && (
-        <>
-          <div className='text-center pb-4 pt-12'>
-            <svg className='animate-spin h-8 w-8 mx-auto' viewBox='0 0 24 24'>
-              <path
-                className='opacity-75'
-                fill='black'
-                d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-              />
-            </svg>
-          </div>
-          <div className='text-sm text-center'>
-            Loading Recent Emails <br /> (This might take a minute)
-          </div>
-        </>
-      )}
+        <Button disabled={loading} onClick={onSave}>
+          Go to your feed
+        </Button>
+      </header>
+      <div className='line' />
       {data && (
-        <>
-          <table className='w-full my-2'>
-            <tbody>
-              {letters
-                .filter((l) => l.category === 'important')
-                .map((r) => (
-                  <LetterRow
-                    key={r.from}
-                    letter={Letter.fromJSON(r)}
-                    selected={selected.has(r.from)}
-                    onSelected={(isSelected: boolean) => {
-                      setSelected((prev) => {
-                        const next = clone(prev);
-                        if (!isSelected) next.delete(r.from);
-                        if (isSelected) next.add(r.from);
-                        return next;
-                      });
-                    }}
-                  />
-                ))}
-            </tbody>
-          </table>
-          <p className='text-lg text-gray-500 pt-10'>
-            Other “newsletters” in your inbox that we found less relevant
-          </p>
-          <table className='w-full my-2'>
-            <tbody>
-              {letters
-                .filter((l) => l.category === 'other')
-                .map((r) => (
-                  <LetterRow
-                    key={r.from}
-                    letter={Letter.fromJSON(r)}
-                    selected={selected.has(r.from)}
-                    onSelected={(isSelected: boolean) => {
-                      setSelected((prev) => {
-                        const next = clone(prev);
-                        if (!isSelected) next.delete(r.from);
-                        if (isSelected) next.add(r.from);
-                        return next;
-                      });
-                    }}
-                  />
-                ))}
-            </tbody>
-          </table>
-        </>
+        <table>
+          <tbody>
+            {letters
+              .filter((l) => l.category === 'important')
+              .map((r) => (
+                <LetterRow
+                  key={r.from}
+                  letter={Letter.fromJSON(r)}
+                  selected={selected.has(r.from)}
+                  onSelected={(isSelected: boolean) => {
+                    setSelected((prev) => {
+                      const next = clone(prev);
+                      if (!isSelected) next.delete(r.from);
+                      if (isSelected) next.add(r.from);
+                      return next;
+                    });
+                  }}
+                />
+              ))}
+          </tbody>
+        </table>
       )}
-    </Content>
+      <h2>Other “newsletters” in your inbox that we found less relevant</h2>
+      <div className='line' />
+      {data && (
+        <table>
+          <tbody>
+            {letters
+              .filter((l) => l.category === 'other')
+              .map((r) => (
+                <LetterRow
+                  key={r.from}
+                  letter={Letter.fromJSON(r)}
+                  selected={selected.has(r.from)}
+                  onSelected={(isSelected: boolean) => {
+                    setSelected((prev) => {
+                      const next = clone(prev);
+                      if (!isSelected) next.delete(r.from);
+                      if (isSelected) next.add(r.from);
+                      return next;
+                    });
+                  }}
+                />
+              ))}
+          </tbody>
+        </table>
+      )}
+      <style jsx>{`
+        .wrapper {
+          flex: 1 1 auto;
+          max-width: 768px;
+          width: 0;
+        }
+
+        .line {
+          border-top: 2px solid var(--accents-2);
+          margin: 24px;
+        }
+
+        header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin: 0 24px;
+        }
+
+        header h1 {
+          font-size: 48px;
+          font-weight: 400;
+          line-height: 48px;
+          margin: 0 0 12px;
+        }
+
+        header h2 {
+          margin: 0;
+        }
+
+        h2 {
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 24px;
+          color: var(--accents-5);
+          margin: 72px 24px 12px;
+        }
+
+        table {
+          width: 100%;
+          padding: 0 12px;
+          border-spacing: 0px;
+          border-collapse: separate;
+        }
+      `}</style>
+    </div>
   );
 }

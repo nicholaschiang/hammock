@@ -1,6 +1,6 @@
 import { GoogleFonts } from 'next-google-fonts';
-import { ReactNode } from 'react';
 import Head from 'next/head';
+import { ReactNode } from 'react';
 
 export interface PageProps {
   title: string;

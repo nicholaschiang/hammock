@@ -26,8 +26,5 @@ export async function fetcher<T, D = T>(
 }
 
 export async function prefetch(url: string): Promise<void> {
-  if (url) {
-    console.log('Prefetching:', url);
-    await mutate(url, fetcher(url));
-  }
+  if (url) await mutate(url, fetcher(url));
 }
