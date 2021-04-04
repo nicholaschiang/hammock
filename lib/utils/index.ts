@@ -15,6 +15,11 @@ export function caps(str: string): string {
   return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
 }
 
+/**
+ * Parses the given from header (from Gmail's API) into a name and email.
+ * @param The from header from Gmail's API.
+ * @return The from header parsed into name and email strings.
+ */
 const reFrom = /(.*) <(.*)>/;
 export function parseFrom(from: string): { name: string; email: string } {
   const matches = from.match(reFrom);

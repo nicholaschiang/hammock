@@ -30,8 +30,8 @@ function EmailRow({ message }: EmailRowProps): JSX.Element {
 
   return (
     <Link href={`/messages/${message.id}`}>
-      <div className='pt-4 pb-3'>
-        <div className='text-xs pb-1'>
+      <div className='row'>
+        <div className='name'>
           <img
             className='rounded-full h-4 w-4 inline-block mr-2'
             src={message.icon}
@@ -39,8 +39,12 @@ function EmailRow({ message }: EmailRowProps): JSX.Element {
           />
           {name}
         </div>
-        <div className='font-bold'>{subject}</div>
-        <div className='text-sm text-gray-700'>{snippet}</div>
+        <div className='subject'>{subject}</div>
+        <div className='snippet'>{snippet}</div>
+        <style jsx>{`
+          .row {
+
+        `}</style>
       </div>
     </Link>
   );

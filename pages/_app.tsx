@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import useSWR, { SWRConfig, mutate } from 'swr';
 import { AppProps } from 'next/app';
 
@@ -9,6 +9,8 @@ import { APIError } from 'lib/model/error';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
+import config from 'styles/config';
+import globals from 'styles/globals';
 import theme from 'styles/theme';
 
 /**
@@ -21,7 +23,7 @@ async function installServiceWorker(): Promise<void> {
   if ('serviceWorker' in navigator) {
     await navigator.serviceWorker
       .register('/sw.js', { scope: '/' })
-      .then((reg: ServiceWorkerRegistration) => {
+      .then((reg: ServiceWorkerRegistration) =>
         reg.addEventListener('updatefound', () => {
           const worker = reg.installing as ServiceWorker;
           worker.addEventListener('statechange', () => {
@@ -29,8 +31,8 @@ async function installServiceWorker(): Promise<void> {
               void mutate('/api/account');
             }
           });
-        });
-      });
+        })
+      );
   } else {
     console.error('Service workers are disabled. Authentication will fail.');
   }
@@ -49,8 +51,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
       userLoaded.current = true;
       return false;
     }
-    if (!userLoaded.current) return undefined;
-    return false;
+    return userLoaded.current ? false : undefined;
   }, [user, error]);
 
   useEffect(() => {
@@ -63,6 +64,12 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <NProgress />
         <Component {...pageProps} />
       </SWRConfig>
+      <style jsx global>
+        {globals}
+      </style>
+      <style jsx global>
+        {config}
+      </style>
       <style jsx global>
         {theme}
       </style>

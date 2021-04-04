@@ -2657,6 +2657,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"classnames@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "classnames@npm:2.3.1"
+  checksum: 57d536edede609f81425d24b062d8d720a466565faf1e38d32c881e883920baa71519ac70c7b565e9cd39201fb1c1ff9bdf8aabf8e26544bac481e7924867c83
+  languageName: node
+  linkType: hard
+
 "cli-boxes@npm:^2.2.0":
   version: 2.2.1
   resolution: "cli-boxes@npm:2.2.1"
@@ -7414,6 +7421,7 @@ fsevents@~2.3.1:
     await-to-js: ^3.0.0
     axios: ^0.21.1
     bottleneck: ^2.19.5
+    classnames: ^2.3.1
     concurrently: ^6.0.0
     cross-env: ^7.0.3
     dequal: ^2.0.2
