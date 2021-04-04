@@ -6,6 +6,10 @@ import { useSWRInfinite } from 'swr';
 
 import { MessagesRes } from 'pages/api/messages';
 
+import CloseIcon from 'components/icons/close';
+import ChevronLeftIcon from 'components/icons/chevron-left';
+import ChevronRightIcon from 'components/icons/chevron-right';
+
 import { prefetch } from 'lib/fetch';
 
 interface Position {
@@ -71,53 +75,49 @@ export default function Controls(): JSX.Element {
   }, [pos.prevId, pos.nextId]);
 
   return (
-    <div className='px-4 pt-4 pb-1 fixed top-0'>
-      <div className='flex'>
-        <div className='rounded-full shadow-sm hover:shadow w-10 h-10 border-2 flex items-center justify-center mr-2 cursor-pointer'>
-          <Link href='/'>
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              className='w-3 h-3 text-gray-600 hover:text-black'
-              viewBox='0 0 24 24'
-            >
-              <path
-                fill='currentcolor'
-                d='M12 11.293l10.293-10.293.707.707-10.293 10.293 10.293 10.293-.707.707-10.293-10.293-10.293 10.293-.707-.707 10.293-10.293-10.293-10.293.707-.707 10.293 10.293z'
-              />
-            </svg>
-          </Link>
-        </div>
-        <div className='rounded-3xl shadow-sm hover:shadow w-20 h-10 border-2 flex items-center justify-between px-4'>
-          <Link href={pos.prevId ? `/messages/${pos.prevId}` : '/'}>
-            <svg
-              className='w-3 h-3 text-gray-600 hover:text-black cursor-pointer'
-              xmlns='http://www.w3.org/2000/svg'
-              fillRule='evenodd'
-              clipRule='evenodd'
-              viewBox='0 0 24 24'
-            >
-              <path
-                fill='currentcolor'
-                d='M20 .755l-14.374 11.245 14.374 11.219-.619.781-15.381-12 15.391-12 .609.755z'
-              />
-            </svg>
-          </Link>
-          <Link href={pos.nextId ? `/messages/${pos.nextId}` : '/'}>
-            <svg
-              className='w-3 h-3 text-gray-600 hover:text-blac cursor-pointer'
-              xmlns='http://www.w3.org/2000/svg'
-              fillRule='evenodd'
-              clipRule='evenodd'
-              viewBox='0 0 24 24'
-            >
-              <path
-                fill='currentcolor'
-                d='M4 .755l14.374 11.245-14.374 11.219.619.781 15.381-12-15.391-12-.609.755z'
-              />
-            </svg>
-          </Link>
-        </div>
-      </div>
+    <div className='controls'>
+      <Link href='/'>
+        <a className='button'>
+          <CloseIcon />
+        </a>
+      </Link>
+      <Link href={pos.prevId ? `/messages/${pos.prevId}` : '/'}>
+        <a className='button'>
+          <ChevronLeftIcon />
+        </a>
+      </Link>
+      <Link href={pos.nextId ? `/messages/${pos.nextId}` : '/'}>
+        <a className='button'>
+          <ChevronRightIcon />
+        </a>
+      </Link>
+      <style jsx>{`
+        .controls {
+          position: fixed;
+          top: 48px;
+          left: 48px;
+          background: var(--background);
+          border: 2px solid var(--accents-2);
+          border-radius: 30px;
+          height: 60px;
+          display: flex;
+          flex-direction: row;
+          padding: 4px;
+        }
+
+        .button {
+          display: block;
+          width: 48px;
+          height: 48px;
+          padding: 12px;
+          border-radius: 100%;
+          transition: background 0.1s ease 0s;
+        }
+
+        .button:hover {
+          background: var(--accents-2);
+        }
+      `}</style>
     </div>
   );
 }

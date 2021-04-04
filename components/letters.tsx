@@ -277,7 +277,7 @@ export default function Letters() {
           font-size: 48px;
           font-weight: 400;
           line-height: 48px;
-          margin: 0 0 24px;
+          margin: 0 0 12px;
         }
 
         header h2 {

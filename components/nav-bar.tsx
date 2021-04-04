@@ -93,7 +93,7 @@ function NavLink({ href, children }: NavLinkProps): JSX.Element {
 }
 
 export default function NavBar(): JSX.Element {
-  const { user } = useUser();
+  const { loggedIn, user } = useUser();
 
   const [loggingOut, setLoggingOut] = useState<boolean>(false);
   const logout = useCallback(async () => {
@@ -107,7 +107,7 @@ export default function NavBar(): JSX.Element {
   return (
     <div className='wrapper'>
       <div className='content'>
-        <Avatar src={user.photo} size={48} />
+        <Avatar loading={!loggedIn} src={user.photo} size={48} />
         <nav>
           <NavLink href='/'>Feed</NavLink>
           <NavLink href='/letters'>Letters</NavLink>
@@ -125,7 +125,8 @@ export default function NavBar(): JSX.Element {
 
         .content {
           position: sticky;
-          top: 96px;
+          margin-top: 12px;
+          top: 48px;
         }
 
         nav {

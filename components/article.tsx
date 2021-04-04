@@ -40,18 +40,27 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   }, [message.payload]);
 
   return (
-    <iframe
-      width='100%'
-      height='1px'
-      srcDoc={body}
-      ref={iframeRef}
-      title={message.getHeader('subject')}
-      sandbox='allow-same-origin allow-popups'
-      onLoad={() => {
-        const i = iframeRef.current;
-        const height = i?.contentWindow?.document.documentElement.scrollHeight;
-        if (height) i?.setAttribute('height', `${height + 5}px`);
-      }}
-    />
+    <>
+      <iframe
+        width='100%'
+        height='0px'
+        srcDoc={body}
+        ref={iframeRef}
+        title={message.getHeader('subject')}
+        sandbox='allow-same-origin allow-popups'
+        onLoad={() => {
+          const i = iframeRef.current;
+          const height =
+            i?.contentWindow?.document.documentElement.scrollHeight;
+          if (height) i?.setAttribute('height', `${height + 5}px`);
+        }}
+      />
+      <style jsx>{`
+        iframe {
+          border: 2px solid var(--accents-2);
+          border-radius: 12px;
+        }
+      `}</style>
+    </>
   );
 }
