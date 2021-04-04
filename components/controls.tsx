@@ -98,7 +98,7 @@ export default function Controls(): JSX.Element {
           height: 48px;
           padding: 12px;
           border-radius: 100%;
-          transition: background 0.1s ease 0s;
+          transition: background 0.3s ease 0s;
         }
 
         .button:hover {
