@@ -11,7 +11,7 @@ export default async function getLetters(
   logger.verbose(`Fetching letters for ${user}...`);
   const client = gmail(user.token);
   const { data } = await client.users.messages.list({
-    maxResults: 50,
+    maxResults: 100,
     userId: 'me',
     pageToken,
   });

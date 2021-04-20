@@ -163,7 +163,7 @@ export default function Letters() {
 
   useEffect(() => {
     if (!data) return;
-    void setSize((prev) => (prev >= 10 ? prev : prev + 1));
+    void setSize((prev) => (prev >= 25 ? prev : prev + 1));
   }, [data, setSize]);
   useEffect(() => {
     setSelected(new Set(user.filter.senders));
