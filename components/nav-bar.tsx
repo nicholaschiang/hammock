@@ -121,12 +121,11 @@ export default function NavBar(): JSX.Element {
 
         .content {
           position: sticky;
-          margin-top: 12px;
-          top: 48px;
+          top: 72px;
         }
 
         nav {
-          margin-top: 156px;
+          margin-top: 120px;
         }
       `}</style>
     </div>

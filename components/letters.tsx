@@ -316,7 +316,7 @@ export default function Letters() {
           font-size: 48px;
           font-weight: 400;
           line-height: 64px;
-          margin: 0 0 48px;
+          margin: -12px 0 48px;
           height: 64px;
         }
 

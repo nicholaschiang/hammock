@@ -19,7 +19,7 @@ export default function LettersPage(): JSX.Element {
             justify-content: space-between;
             max-width: 1048px;
             padding: 0 48px;
-            margin: 96px auto;
+            margin: 72px auto;
           }
         `}</style>
       </div>
