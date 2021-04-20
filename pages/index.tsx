@@ -1,6 +1,6 @@
 import NavBar from 'components/nav-bar';
 import Page from 'components/page';
-import Reader from 'components/reader';
+import Feed from 'components/feed';
 
 import usePage from 'lib/hooks/page';
 
@@ -11,7 +11,7 @@ export default function IndexPage(): JSX.Element {
     <Page title='Home - Return of the Newsletter'>
       <div className='page'>
         <NavBar />
-        <Reader />
+        <Feed />
         <style jsx>{`
           .page {
             display: flex;

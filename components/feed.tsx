@@ -43,7 +43,7 @@ interface Section {
   messages: MessageJSON[];
 }
 
-export default function Reader(): JSX.Element {
+export default function Feed(): JSX.Element {
   const getKey = useCallback((pageIdx: number, prev: MessagesRes | null) => {
     if (prev && !prev.messages.length) return null;
     if (!prev || pageIdx === 0) return '/api/messages';
