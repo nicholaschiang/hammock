@@ -50,7 +50,6 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
         }
 
         h2 {
-          color: var(--on-background);
           line-height: 20px;
           font-size: 16px;
           font-weight: 700;
@@ -58,7 +57,6 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
         }
 
         p {
-          color: var(--on-background);
           line-height: 16px;
           font-size: 14px;
           font-weight: 400;
@@ -159,11 +157,11 @@ export default function LoginPage(): JSX.Element {
 
           .line {
             border-top: 2px solid var(--accents-2);
-            margin: 24px 0 60px;
+            margin: 24px 0 48px;
           }
 
           .actions {
-            margin: 72px 0 48px;
+            margin: 48px 0;
           }
 
           .actions > :global(button) {
