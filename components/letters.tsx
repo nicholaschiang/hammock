@@ -212,7 +212,7 @@ export default function Letters() {
         </Button>
       </header>
       <div className='line' />
-      {false && !!important.length && (
+      {!!important.length && (
         <ul>
           {important.map((r) => (
             <LetterRow
