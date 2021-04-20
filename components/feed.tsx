@@ -113,8 +113,10 @@ export default function Feed(): JSX.Element {
       </header>
       {!data && (
         <div className='section'>
-          <h2 className='nowrap date loading' />
-          <div className='line' />
+          <div className='header'>
+            <h2 className='nowrap date loading' />
+            <div className='line' />
+          </div>
           {Array(2)
             .fill(null)
             .map((_, idx) => (
@@ -124,8 +126,10 @@ export default function Feed(): JSX.Element {
       )}
       {!data && (
         <div className='section'>
-          <h2 className='nowrap date loading' />
-          <div className='line' />
+          <div className='header'>
+            <h2 className='nowrap date loading' />
+            <div className='line' />
+          </div>
           {Array(5)
             .fill(null)
             .map((_, idx) => (
@@ -135,8 +139,10 @@ export default function Feed(): JSX.Element {
       )}
       {sections.map((s) => (
         <div className='section' key={s.displayDate}>
-          <h2 className='date'>{s.displayDate}</h2>
-          <div className='line' />
+          <div className='header'>
+            <h2 className='date'>{s.displayDate}</h2>
+            <div className='line' />
+          </div>
           {s.messages.map((m) => (
             <MessageRow key={m.id} message={Message.fromJSON(m)} />
           ))}
@@ -177,21 +183,30 @@ export default function Feed(): JSX.Element {
           max-width: 500px;
         }
 
-        .section > h2.date {
+        .section > .header {
+          background: var(--background);
+          padding-top: 24px;
+          margin-top: 48px;
+          position: sticky;
+          z-index: 4;
+          top: 0;
+        }
+
+        .section > .header > h2.date {
           color: var(--accents-5);
           font-size: 18px;
           font-weight: 700;
           line-height: 24px;
+          margin: 0 24px;
           height: 24px;
-          margin: 72px 24px 24px;
         }
 
-        .section > h2.date.loading {
+        .section > .header > h2.date.loading {
           border-radius: 6px;
           max-width: 50px;
         }
 
-        .line {
+        .header > .line {
           border-bottom: 2px solid var(--accents-2);
           margin: 24px;
         }
