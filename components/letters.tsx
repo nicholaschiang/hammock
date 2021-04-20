@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import NProgress from 'nprogress';
 import Router from 'next/router';
+import { dequal } from 'dequal';
 
 import { LettersRes } from 'pages/api/letters';
 
@@ -189,13 +190,28 @@ export default function Letters() {
     }
   }, [selected, letters, user]);
 
-  const { other, important } = useMemo(
-    () => ({
-      other: letters.filter((l) => l.category === 'other'),
-      important: letters.filter((l) => l.category === 'important'),
-    }),
+  const other = useMemo(() => letters.filter((l) => l.category === 'other'), [
+    letters,
+  ]);
+  const important = useMemo(
+    () => letters.filter((l) => l.category === 'important'),
     [letters]
   );
+
+  // Pre-select all of the "important" newsletters. From @martinsrna:
+  // > The reason is that in the whitelist "database" we created (that decides
+  // > if a newsletter is important or not), there are mostly substacks and more
+  // > popular newsletters people in general subscribe to.
+  // >
+  // > There's a very high probability they want to have them in their feed.
+  // > It's more likely that users only want to uncheck some of them.
+  useEffect(() => {
+    setSelected((prev) => {
+      const next = [...prev, ...important.map((l) => l.from)];
+      if (dequal([...prev], next)) return prev;
+      return new Set(next);
+    });
+  }, [important]);
 
   return (
     <div className='wrapper'>
