@@ -31,7 +31,7 @@
     "dequal": "^2.0.2",
     "firebase": "^8.3.2",
     "firebase-admin": "^9.6.0",
-    "googleapis": "^70.0.0",
+    "googleapis": "^73.0.0",
     "he": "^1.2.0",
     "nanoid": "^3.1.22",
     "next": "^10.1.2",

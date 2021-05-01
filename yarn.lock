@@ -5706,13 +5706,13 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"googleapis@npm:^70.0.0":
-  version: 70.0.0
-  resolution: "googleapis@npm:70.0.0"
+"googleapis@npm:^73.0.0":
+  version: 73.0.0
+  resolution: "googleapis@npm:73.0.0"
   dependencies:
     google-auth-library: ^7.0.2
     googleapis-common: ^5.0.2
-  checksum: 1ecd3bcc0f779b7a2a56910aa5ba50a225e15c5f645fcd0aee7c47a0f5998aa6f7b3e8b844226f07ac45fb5b22a317af4703e8ad78090fe9555d27a108f94770
+  checksum: 265f7586e85d8c162daaab650edf7bff8578534be9ec72576f54b711716751f304baa2f6196c450d3b2816c19d7826b4e8ce3f8cf4468294fb04566d86e5bdb9
   languageName: node
   linkType: hard
 
@@ -7961,7 +7961,7 @@ fsevents@~2.3.1:
     firebase: ^8.3.2
     firebase-admin: ^9.6.0
     firebase-tools: ^9.8.0
-    googleapis: ^70.0.0
+    googleapis: ^73.0.0
     he: ^1.2.0
     husky: ^6.0.0
     nanoid: ^3.1.22
