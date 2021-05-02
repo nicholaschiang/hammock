@@ -28,7 +28,7 @@ export default function Progress(): JSX.Element {
       #nprogress .bar {
         background: var(--primary);
         position: fixed;
-        z-index: 1031;
+        z-index: 100;
         top: 0;
         left: 0;
         width: 100%;
@@ -52,7 +52,7 @@ export default function Progress(): JSX.Element {
       #nprogress .spinner {
         display: block;
         position: fixed;
-        z-index: 1031;
+        z-index: 100;
         bottom: 15px;
         right: 15px;
         opacity: 1;

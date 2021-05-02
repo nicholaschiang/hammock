@@ -105,6 +105,7 @@ export default function Feed(): JSX.Element {
 
   return (
     <div className='wrapper'>
+      <div className='spacer' />
       <Head>
         <link rel='preload' href='/api/messages' as='fetch' />
       </Head>
@@ -117,11 +118,13 @@ export default function Feed(): JSX.Element {
             <h2 className='nowrap date loading' />
             <div className='line' />
           </div>
-          {Array(2)
-            .fill(null)
-            .map((_, idx) => (
-              <MessageRow loading key={idx} />
-            ))}
+          <div className='messages'>
+            {Array(2)
+              .fill(null)
+              .map((_, idx) => (
+                <MessageRow loading key={idx} />
+              ))}
+          </div>
         </div>
       )}
       {!data && (
@@ -130,11 +133,13 @@ export default function Feed(): JSX.Element {
             <h2 className='nowrap date loading' />
             <div className='line' />
           </div>
-          {Array(5)
-            .fill(null)
-            .map((_, idx) => (
-              <MessageRow loading key={idx} />
-            ))}
+          <div className='messages'>
+            {Array(5)
+              .fill(null)
+              .map((_, idx) => (
+                <MessageRow loading key={idx} />
+              ))}
+          </div>
         </div>
       )}
       {sections.map((s) => (
@@ -143,9 +148,11 @@ export default function Feed(): JSX.Element {
             <h2 className='date'>{s.displayDate}</h2>
             <div className='line' />
           </div>
-          {s.messages.map((m) => (
-            <MessageRow key={m.id} message={Message.fromJSON(m)} />
-          ))}
+          <div className='messages'>
+            {s.messages.map((m) => (
+              <MessageRow key={m.id} message={Message.fromJSON(m)} />
+            ))}
+          </div>
         </div>
       ))}
       <Button
@@ -166,6 +173,16 @@ export default function Feed(): JSX.Element {
           margin: 24px;
         }
 
+        .spacer {
+          height: 96px;
+          width: 100vw;
+          background: var(--background);
+          position: fixed;
+          z-index: 2;
+          left: 0;
+          top: 0;
+        }
+
         header {
           margin: 0 24px;
         }
@@ -175,7 +192,9 @@ export default function Feed(): JSX.Element {
           font-weight: 400;
           line-height: 64px;
           height: 64px;
-          margin: -12px 0 -24px;
+          margin: -12px 0 72px;
+          position: relative;
+          z-index: 3;
         }
 
         header > h1.loading {
@@ -185,11 +204,11 @@ export default function Feed(): JSX.Element {
 
         .section > .header {
           background: var(--background);
-          padding-top: 24px;
-          margin-top: 48px;
           position: sticky;
-          z-index: 4;
-          top: 0;
+          margin: 0 -24px;
+          padding: 0 24px;
+          z-index: 1;
+          top: 96px;
         }
 
         .section > .header > h2.date {
@@ -197,13 +216,17 @@ export default function Feed(): JSX.Element {
           font-size: 18px;
           font-weight: 700;
           line-height: 24px;
-          margin: 0 24px;
+          margin: 24px;
           height: 24px;
         }
 
         .section > .header > h2.date.loading {
           border-radius: 6px;
           max-width: 50px;
+        }
+
+        .section > .messages {
+          padding-bottom: 48px;
         }
 
         .header > .line {

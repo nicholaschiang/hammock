@@ -121,7 +121,7 @@ export default function NavBar(): JSX.Element {
 
         .content {
           position: sticky;
-          top: 72px;
+          top: 96px;
         }
 
         nav {
