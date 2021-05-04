@@ -31,7 +31,7 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
       {!letter && <span className='name loading' />}
       {letter && <span className='name nowrap'>{letter.name}</span>}
       <span className='check'>
-        <input type='checkbox' checked={selected || false} />
+        <input type='checkbox' checked={selected || false} readOnly />
         <span className='icon' aria-hidden='true'>
           <svg viewBox='0 0 24 24' height='24' width='24' fill='none'>
             {selected && (
