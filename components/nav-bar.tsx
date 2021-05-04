@@ -6,12 +6,12 @@ import Avatar from 'components/avatar';
 
 import { useUser } from 'lib/context/user';
 
-interface NavButtonProps {
+export interface NavButtonProps {
   onClick: () => void;
   children: string;
 }
 
-function NavButton({ onClick, children }: NavButtonProps): JSX.Element {
+export function NavButton({ onClick, children }: NavButtonProps): JSX.Element {
   return (
     <button type='button' onClick={onClick}>
       {children}
@@ -46,12 +46,12 @@ function NavButton({ onClick, children }: NavButtonProps): JSX.Element {
   );
 }
 
-interface NavLinkProps {
+export interface NavLinkProps {
   href: string;
   children: string;
 }
 
-function NavLink({ href, children }: NavLinkProps): JSX.Element {
+export function NavLink({ href, children }: NavLinkProps): JSX.Element {
   const { pathname } = useRouter();
 
   return (
