@@ -6,6 +6,7 @@ import { useSWRInfinite } from 'swr';
 
 import { MessagesRes } from 'pages/api/messages';
 
+import ArchiveIcon from 'components/icons/archive';
 import CloseIcon from 'components/icons/close';
 import ChevronLeftIcon from 'components/icons/chevron-left';
 import ChevronRightIcon from 'components/icons/chevron-right';
@@ -78,6 +79,9 @@ export default function Controls(): JSX.Element {
           <ChevronRightIcon />
         </a>
       </Link>
+      <button role='button' className='reset button'>
+        <ArchiveIcon />
+      </button>
       <style jsx>{`
         .controls {
           position: fixed;
