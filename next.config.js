@@ -4,7 +4,7 @@ module.exports = {
   images: {
     domains: [
       'assets.tutorbook.org',
-      'firebasestorage.googleapis.com',
+      'lh3.googleusercontent.com',
       'www.google.com',
     ],
   },

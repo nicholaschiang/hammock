@@ -1,12 +1,9 @@
 import Link from 'next/link';
 import cn from 'classnames';
-import { mutate } from 'swr';
-import { useCallback } from 'react';
 import { useRouter } from 'next/router';
 
 import Avatar from 'components/avatar';
 
-import { User } from 'lib/model/user';
 import { useUser } from 'lib/context/user';
 
 interface NavButtonProps {
@@ -95,13 +92,6 @@ function NavLink({ href, children }: NavLinkProps): JSX.Element {
 export default function NavBar(): JSX.Element {
   const { loggedIn, user } = useUser();
 
-  const logout = useCallback(async () => {
-    await mutate('/api/account', new User(), false);
-    const { default: firebase } = await import('lib/firebase');
-    await import('firebase/auth');
-    await firebase.auth().signOut();
-  }, []);
-
   return (
     <div className='wrapper'>
       <div className='content'>
@@ -109,7 +99,7 @@ export default function NavBar(): JSX.Element {
         <nav>
           <NavLink href='/'>Feed</NavLink>
           <NavLink href='/letters'>Letters</NavLink>
-          <NavButton onClick={logout}>Logout</NavButton>
+          <NavLink href='/api/logout'>Logout</NavLink>
         </nav>
       </div>
       <style jsx>{`

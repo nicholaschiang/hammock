@@ -1,7 +1,7 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import NProgress from 'nprogress';
 import Router from 'next/router';
-import { mutate } from 'swr';
+import axios from 'axios';
 
 import Button from 'components/button';
 import LockIcon from 'components/icons/lock';
@@ -9,8 +9,6 @@ import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
 import UndoIcon from 'components/icons/undo';
 
-import { User } from 'lib/model/user';
-import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
 import usePage from 'lib/hooks/page';
 
@@ -88,30 +86,12 @@ export default function LoginPage(): JSX.Element {
   const onClick = useCallback(async () => {
     setLoading(true);
     try {
-      const { default: firebase } = await import('lib/firebase');
-      await import('firebase/auth');
-
-      const provider = new firebase.auth.GoogleAuthProvider();
-      provider.addScope('https://www.googleapis.com/auth/gmail.modify');
-      provider.addScope('https://www.googleapis.com/auth/gmail.settings.basic');
-      provider.addScope('https://www.googleapis.com/auth/gmail.labels');
-      const cred = await firebase.auth().signInWithPopup(provider);
-
-      if (!cred.user) throw new Error('Did not receive user information');
-
-      const user = new User({
-        id: cred.user.uid,
-        name: cred.user.displayName || '',
-        photo: cred.user.photoURL || '',
-        email: cred.user.email || '',
-        phone: cred.user.phoneNumber || '',
-        token: (cred.credential as any)?.accessToken,
-      });
-
-      const url = '/api/account';
-      await mutate(url, user.toJSON(), false);
-      await mutate(url, fetcher(url, 'patch', user.toJSON()));
-      await Router.push('/letters');
+      // TODO: This API request isn't really necessary. I'm pretty sure that the
+      // login link won't be changing anytime soon, so we should be able to just
+      // hardcode this into the front-end or as an environment variable.
+      // See: https://github.com/googleapis/google-auth-library-nodejs/blob/241063a8c7d583df53ae616347edc532aec02165/src/auth/oauth2client.ts#L522
+      const { data: link } = await axios.options<string>('/api/login');
+      await Router.push(link);
     } catch (e) {
       setError(`Hmm, it looks like we hit a snag. ${period(e.message)}`);
     }

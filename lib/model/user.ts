@@ -30,6 +30,8 @@ export function isFilter(filter: unknown): filter is Filter {
  * @property id - The user's Firebase Authentication ID.
  * @property name - The user's name.
  * @property photo - The user's avatar photo URL.
+ * @property locale - The user's locale code (returned by Google OAuth2).
+ * @property gender - The user's gender (returned by Google OAuth2).
  * @property email - The user's email address.
  * @property phone - The user's phone number.
  * @property token - The user's OAuth token that we use to access Gmail's API.
@@ -41,6 +43,8 @@ export interface UserInterface extends ResourceInterface {
   id: string;
   name: string;
   photo: string;
+  locale: string;
+  gender: string;
   email: string;
   phone: string;
   token: string;

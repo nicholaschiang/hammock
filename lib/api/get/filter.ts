@@ -30,6 +30,8 @@ export default async function getOrCreateFilter(user: User): Promise<Filter> {
       )
   );
 
+  if (!requestBody.criteria.from) return user.filter;
+
   logger.verbose(`Creating filter for ${user}...`);
   const { data: filter } = await client.users.settings.filters.create({
     requestBody,
