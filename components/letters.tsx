@@ -1,5 +1,5 @@
 import { mutate, useSWRInfinite } from 'swr';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import NProgress from 'nprogress';
 import Router from 'next/router';
@@ -95,7 +95,7 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
         }
 
         .check input:checked + .icon {
-          background: var(--accents-4);
+          background: var(--accents-5);
         }
 
         .icon svg {
@@ -103,7 +103,7 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
         }
 
         .check .icon {
-          border: 2px solid var(--accents-4);
+          border: 2px solid var(--accents-5);
           background: var(--background);
           border-radius: 50%;
           height: 24px;
@@ -202,11 +202,13 @@ export default function Letters() {
   // >
   // > There's a very high probability they want to have them in their feed.
   // > It's more likely that users only want to uncheck some of them.
+  const hasBeenUpdated = useRef<boolean>(false);
   useEffect(() => {
+    if (hasBeenUpdated.current) return;
     setSelected((prev) => {
-      const next = [...prev, ...important.map((l) => l.from)];
-      if (dequal([...prev], next)) return prev;
-      return new Set(next);
+      const next = new Set([...prev, ...important.map((l) => l.from)]);
+      if (dequal([...prev], [...next])) return prev;
+      return next;
     });
   }, [important]);
 
@@ -225,6 +227,7 @@ export default function Letters() {
               letter={Letter.fromJSON(r)}
               selected={selected.has(r.from)}
               onSelected={(isSelected: boolean) => {
+                hasBeenUpdated.current = true;
                 setSelected((prev) => {
                   const next = clone(prev);
                   if (!isSelected) next.delete(r.from);
@@ -247,6 +250,7 @@ export default function Letters() {
               letter={Letter.fromJSON(r)}
               selected={selected.has(r.from)}
               onSelected={(isSelected: boolean) => {
+                hasBeenUpdated.current = true;
                 setSelected((prev) => {
                   const next = clone(prev);
                   if (!isSelected) next.delete(r.from);
