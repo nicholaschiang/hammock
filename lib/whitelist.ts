@@ -162,6 +162,7 @@ export const whitelist: Record<string, true | { asset_url: string }> = {
   'investor amnesia': true,
   'investors therapy': true,
   'jayson lusk': true,
+  'josh comeau': true,
   "josh constine's moving product": true,
   "julia evan's programming newsletter": true,
   'julian shapiro': true,
