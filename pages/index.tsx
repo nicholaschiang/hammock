@@ -5,10 +5,10 @@ import Feed from 'components/feed';
 import usePage from 'lib/hooks/page';
 
 export default function IndexPage(): JSX.Element {
-  usePage({ name: 'Home', login: true });
+  usePage({ name: 'Feed', login: true });
 
   return (
-    <Page title='Home - Return of the Newsletter'>
+    <Page title='Feed - Return of the Newsletter'>
       <div className='page'>
         <NavBar />
         <Feed />
