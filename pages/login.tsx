@@ -101,7 +101,7 @@ export default function LoginPage(): JSX.Element {
     <Page title='Login - Return of the Newsletter'>
       <div className='wrapper'>
         <div className='dialog'>
-          <h1>First, let’s get a few things straight...</h1>
+          <h1>A few things to know, before we get started</h1>
           <div className='line' />
           <Section icon={<SyncIcon />} header='Syncs with your Gmail'>
             You won’t need to get a new email address or subscribe to all your
@@ -129,8 +129,8 @@ export default function LoginPage(): JSX.Element {
         <style jsx>{`
           h1 {
             color: var(--accents-5);
-            line-height: 32px;
-            font-size: 24px;
+            line-height: 24px;
+            font-size: 20px;
             font-weight: 700;
             margin: 48px 0 24px;
           }
