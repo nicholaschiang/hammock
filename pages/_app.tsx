@@ -95,10 +95,6 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
           color: var(--on-background);
         }
 
-        svg {
-          fill: var(--on-background);
-        }
-
         button.reset {
           border: unset;
           background: unset;

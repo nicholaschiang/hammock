@@ -105,10 +105,6 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           background: var(--accents-5);
         }
 
-        .icon svg {
-          fill: none;
-        }
-
         .check .icon {
           border: 2px solid var(--accents-5);
           background: var(--background);
