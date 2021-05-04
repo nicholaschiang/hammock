@@ -1,11 +1,31 @@
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import cn from 'classnames';
 
 import ArchiveIcon from 'components/icons/archive';
 import ArrowBackIcon from 'components/icons/arrow-back';
 
 export default function Controls(): JSX.Element {
+  const [visible, setVisible] = useState<boolean>(true);
+  const lastScrollPosition = useRef<number>(0);
+
+  useEffect(() => {
+    function handleScroll(): void {
+      const currentScrollPosition = window.pageYOffset;
+      const prevScrollPosition = lastScrollPosition.current;
+      lastScrollPosition.current = currentScrollPosition;
+      setVisible(() => {
+        const scrolledUp = currentScrollPosition < prevScrollPosition;
+        const scrolledToTop = currentScrollPosition < 10;
+        return scrolledUp || scrolledToTop;
+      });
+    }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <div className='controls'>
+    <div className={cn('controls', { visible })}>
       <Link href='/'>
         <a className='button'>
           <ArrowBackIcon />
@@ -17,15 +37,20 @@ export default function Controls(): JSX.Element {
       <style jsx>{`
         .controls {
           position: fixed;
-          top: 48px;
-          left: 48px;
-          background: var(--background);
-          border: 2px solid var(--accents-2);
-          border-radius: 32px;
-          height: 64px;
+          opacity: 0;
+          top: 0;
+          left: 60px;
+          right: 60px;
+          height: 48px;
           display: flex;
           flex-direction: row;
-          padding: 6px;
+          justify-content: space-between;
+          transition: top 0.2s ease 0s, opacity 0.2s ease 0s;
+        }
+
+        .controls.visible {
+          opacity: 1;
+          top: 48px;
         }
 
         .button {
@@ -34,11 +59,21 @@ export default function Controls(): JSX.Element {
           height: 48px;
           padding: 12px;
           border-radius: 100%;
+          background: var(--background);
           transition: background 0.2s ease 0s;
         }
 
         .button:hover {
           background: var(--accents-2);
+        }
+
+        .button :global(svg) {
+          fill: var(--accents-5);
+          transition: fill 0.2s ease 0s;
+        }
+
+        .button:hover :global(svg) {
+          fill: var(--on-background);
         }
       `}</style>
     </div>
