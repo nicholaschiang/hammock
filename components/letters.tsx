@@ -25,16 +25,23 @@ interface LetterRowProps {
 }
 
 function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
+  const [checked, setChecked] = useState<boolean>(selected || false);
+  useEffect(() => setChecked((prev) => selected || prev), [selected]);
+  const onClick = useCallback(
+    () => (onSelected ? onSelected(!selected) : setChecked((prev) => !prev)),
+    [onSelected, selected]
+  );
+
   return (
-    <li onClick={() => onSelected && onSelected(!selected)}>
+    <li onClick={onClick}>
       <Avatar src={letter?.icon} loading={!letter} size={36} />
       {!letter && <span className='name loading' />}
       {letter && <span className='name nowrap'>{letter.name}</span>}
       <span className='check'>
-        <input type='checkbox' checked={selected || false} readOnly />
+        <input type='checkbox' checked={checked} readOnly />
         <span className='icon' aria-hidden='true'>
           <svg viewBox='0 0 24 24' height='24' width='24' fill='none'>
-            {selected && (
+            {checked && (
               <path
                 d='M14 7L8.5 12.5L6 10'
                 stroke='var(--on-primary)'
