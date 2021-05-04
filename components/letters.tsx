@@ -66,8 +66,8 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           width: 0;
           font-size: 16px;
           font-weight: 400;
-          line-height: 16px;
-          height: 16px;
+          line-height: 18px;
+          height: 18px;
           margin: 0 24px;
         }
 
@@ -116,8 +116,6 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
     </li>
   );
 }
-
-const loadingList = Array(5).fill(null);
 
 export default function Letters() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -189,6 +187,13 @@ export default function Letters() {
     () => letters.filter((l) => l.category === 'important'),
     [letters]
   );
+  const loadingList = useMemo(
+    () =>
+      Array(5)
+        .fill(null)
+        .map((_, idx) => <LetterRow key={idx} />),
+    []
+  );
 
   // Pre-select all of the "important" newsletters. From @martinsrna:
   // > The reason is that in the whitelist "database" we created (that decides
@@ -231,14 +236,8 @@ export default function Letters() {
           ))}
         </ul>
       )}
-      {!data && (
-        <ul>
-          {loadingList.map((_, idx) => (
-            <LetterRow key={idx} />
-          ))}
-        </ul>
-      )}
-      {data && !important.length && <Empty>No newsletters to show</Empty>}
+      {!data && <ul>{loadingList}</ul>}
+      {data && !important.length && <Empty>No newsletters found</Empty>}
       <h2>Other subscriptions, including promotions</h2>
       {!!other.length && (
         <ul>
@@ -259,14 +258,8 @@ export default function Letters() {
           ))}
         </ul>
       )}
-      {!data && (
-        <ul>
-          {loadingList.map((_, idx) => (
-            <LetterRow key={idx} />
-          ))}
-        </ul>
-      )}
-      {data && !other.length && <Empty>No subscriptions to show</Empty>}
+      {!data && <ul>{loadingList}</ul>}
+      {data && !other.length && <Empty>No subscriptions found</Empty>}
       <Button disabled={loading} onClick={onSave}>
         Go to your feed
       </Button>
