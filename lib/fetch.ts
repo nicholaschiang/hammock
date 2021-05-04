@@ -1,4 +1,3 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
 import { mutate } from 'swr';
 import to from 'await-to-js';
 
@@ -9,20 +8,22 @@ export async function fetcher<T, D = T>(
   method: 'get' | 'put' | 'post' | 'patch' | 'delete' = 'get',
   data?: D
 ): Promise<T> {
-  const headers: Record<string, string> = {};
-  if (typeof data === 'string') headers['Content-Type'] = 'text/plain';
-  const [err, res] = await to<AxiosResponse<T>, AxiosError<APIErrorJSON>>(
-    axios({ method, url, data, headers })
-  );
-  if (err && err.response) {
-    const msg = `API (${url}) responded with error: ${err.response.data.message}`;
-    throw new APIError(msg, err.response.status);
-  } else if (err && err.request) {
-    throw new APIError(`API (${url}) did not respond.`);
+  const headers = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+  const body = JSON.stringify(data);
+  const [err, res] = await to<Response>(fetch(url, { headers, method, body }));
+  if (res && !res.ok) {
+    const { message } = (await res.json()) as APIErrorJSON;
+    const msg = `API (${url}) responded with error: ${message}`;
+    throw new APIError(msg, res.status);
   } else if (err) {
     throw new APIError(`${err.name} calling API (${url}): ${err.message}`);
+  } else if (!res) {
+    throw new APIError(`No response from API (${url})`);
   }
-  return (res as AxiosResponse<T>).data;
+  return res.json() as Promise<T>;
 }
 
 export async function prefetch(url: string): Promise<void> {

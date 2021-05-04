@@ -57,7 +57,16 @@ export type UserFirestore = Omit<UserInterface, keyof Resource> &
   ResourceFirestore;
 
 export function isUserJSON(json: unknown): json is UserJSON {
-  const stringFields = ['id', 'name', 'photo', 'email', 'phone', 'token'];
+  const stringFields = [
+    'id',
+    'name',
+    'photo',
+    'locale',
+    'gender',
+    'email',
+    'phone',
+    'token',
+  ];
 
   if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;

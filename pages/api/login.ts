@@ -28,6 +28,7 @@ function fetchLoginLink(req: Req, res: Res<string | APIErrorJSON>): void {
       access_type: 'offline',
       prompt: 'consent',
     });
+    res.setHeader('Content-Type', 'text/plain');
     res.setHeader('Allow', ['GET', 'OPTIONS']);
     res.status(200).end(url);
   } catch (e) {

@@ -1,7 +1,6 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import NProgress from 'nprogress';
 import Router from 'next/router';
-import axios from 'axios';
 
 import Button from 'components/button';
 import LockIcon from 'components/icons/lock';
@@ -90,8 +89,8 @@ export default function LoginPage(): JSX.Element {
       // login link won't be changing anytime soon, so we should be able to just
       // hardcode this into the front-end or as an environment variable.
       // See: https://github.com/googleapis/google-auth-library-nodejs/blob/241063a8c7d583df53ae616347edc532aec02165/src/auth/oauth2client.ts#L522
-      const { data: link } = await axios.options<string>('/api/login');
-      await Router.push(link);
+      const link = await fetch('/api/login', { method: 'options' });
+      await Router.push(await link.text());
     } catch (e) {
       setError(`Hmm, it looks like we hit a snag. ${period(e.message)}`);
     }
