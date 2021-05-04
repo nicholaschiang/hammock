@@ -11,10 +11,11 @@ export default function Empty({ children }: EmptyProps): JSX.Element {
           border: 2px dashed var(--accents-2);
           border-radius: 4px;
           color: var(--accents-3);
-          font-size: 14px;
-          font-weight: 450;
+          font-size: 16px;
+          font-weight: 400;
           position: relative;
-          line-height: 24px;
+          line-height: 16px;
+          text-transform: uppercase;
           height: 100%;
           margin: 0;
           display: flex;

@@ -27,10 +27,13 @@ interface LetterRowProps {
 function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
   return (
     <li onClick={() => onSelected && onSelected(!selected)}>
+      <Avatar src={letter?.icon} loading={!letter} size={36} />
+      {!letter && <span className='name loading' />}
+      {letter && <span className='name nowrap'>{letter.name}</span>}
       <span className='check'>
         <input type='checkbox' checked={selected || false} />
         <span className='icon' aria-hidden='true'>
-          <svg viewBox='0 0 20 20' height='16' width='16' fill='none'>
+          <svg viewBox='0 0 24 24' height='24' width='24' fill='none'>
             {selected && (
               <path
                 d='M14 7L8.5 12.5L6 10'
@@ -43,15 +46,6 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           </svg>
         </span>
       </span>
-      <Avatar src={letter?.icon} loading={!letter} size={24} />
-      {!letter && <span className='name loading' />}
-      {letter && (
-        <span className='name nowrap'>
-          {letter.name}
-          <span className='dot'>·</span>
-          <span className='email'>{letter.from}</span>
-        </span>
-      )}
       <style jsx>{`
         li {
           display: flex;
@@ -63,8 +57,7 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           margin-top: 0;
         }
 
-        li > :global(div) {
-          margin: 0 12px;
+        li > :global(.avatar) {
           flex: none;
         }
 
@@ -73,20 +66,13 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           width: 0;
           font-size: 16px;
           font-weight: 400;
-          line-height: 18px;
-          height: 18px;
+          line-height: 16px;
+          height: 16px;
+          margin: 0 24px;
         }
 
         .name.loading {
           border-radius: 6px;
-        }
-
-        .dot {
-          margin: 0 8px;
-        }
-
-        .email {
-          color: var(--accents-5);
         }
 
         .check {
@@ -109,15 +95,19 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
         }
 
         .check input:checked + .icon {
-          background: var(--primary);
+          background: var(--accents-4);
+        }
+
+        .icon svg {
+          fill: none;
         }
 
         .check .icon {
-          border: 2px solid var(--primary);
+          border: 2px solid var(--accents-4);
           background: var(--background);
-          border-radius: 4px;
-          height: 20px;
-          width: 20px;
+          border-radius: 50%;
+          height: 24px;
+          width: 24px;
           position: relative;
           transition: border-color 0.15s ease 0s;
           transform: transform: rotate(0.000001deg);
@@ -126,6 +116,8 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
     </li>
   );
 }
+
+const loadingList = Array(5).fill(null);
 
 export default function Letters() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -218,16 +210,8 @@ export default function Letters() {
       <Head>
         <link rel='preload' href='/api/letters' as='fetch' />
       </Head>
-      <header>
-        <div className='content'>
-          <h1>Your newsletters</h1>
-          <h2>Choose the subscriptions you want to read in your feed</h2>
-        </div>
-        <Button disabled={loading} onClick={onSave}>
-          Go to your feed
-        </Button>
-      </header>
-      <div className='line' />
+      <h1>Choose what you want to read in your feed</h1>
+      <h2>All the Substacks and popular newsletters</h2>
       {!!important.length && (
         <ul>
           {important.map((r) => (
@@ -249,16 +233,13 @@ export default function Letters() {
       )}
       {!data && (
         <ul>
-          {Array(5)
-            .fill(null)
-            .map((_, idx) => (
-              <LetterRow key={idx} />
-            ))}
+          {loadingList.map((_, idx) => (
+            <LetterRow key={idx} />
+          ))}
         </ul>
       )}
-      {data && !important.length && <Empty>NO SUBSCRIPTIONS TO SHOW</Empty>}
-      <h2>Other “newsletters” in your inbox that we found less relevant</h2>
-      <div className='line' />
+      {data && !important.length && <Empty>No newsletters to show</Empty>}
+      <h2>Other subscriptions, including promotions</h2>
       {!!other.length && (
         <ul>
           {other.map((r) => (
@@ -280,63 +261,52 @@ export default function Letters() {
       )}
       {!data && (
         <ul>
-          {Array(5)
-            .fill(null)
-            .map((_, idx) => (
-              <LetterRow key={idx} />
-            ))}
+          {loadingList.map((_, idx) => (
+            <LetterRow key={idx} />
+          ))}
         </ul>
       )}
-      {data && !other.length && <Empty>NO NEWSLETTERS TO SHOW</Empty>}
+      {data && !other.length && <Empty>No subscriptions to show</Empty>}
+      <Button disabled={loading} onClick={onSave}>
+        Go to your feed
+      </Button>
       <style jsx>{`
         .wrapper {
-          flex: 1 1 auto;
-          max-width: 768px;
-          padding: 0 24px;
-          width: 0;
+          max-width: 724px;
+          padding: 0 48px;
+          margin: 96px auto;
         }
 
-        .wrapper :global(.empty) {
-          margin-bottom: 72px;
+        .wrapper > :global(.empty) {
           height: 300px;
         }
 
-        .line {
-          border-top: 2px solid var(--accents-2);
-          margin: 24px 0 36px;
+        .wrapper > :global(button) {
+          margin-top: 60px;
+          width: 100%;
         }
 
-        header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-        }
-
-        header h1 {
-          font-size: 48px;
-          font-weight: 400;
-          line-height: 64px;
-          margin: -12px 0 48px;
-          height: 64px;
+        h1 {
+          font-size: 30px;
+          font-weight: 500;
+          line-height: 36px;
+          height: 36px;
+          margin: 0;
         }
 
         h2 {
           color: var(--accents-5);
-          font-size: 18px;
-          font-weight: 700;
+          font-size: 20px;
+          font-weight: 400;
           line-height: 24px;
           height: 24px;
-          margin: 0;
+          margin: 60px 0 36px;
         }
 
         ul {
           list-style: none;
-          margin: 0 0 72px;
           padding: 0;
-        }
-
-        ul:last-child {
-          margin-bottom: 0;
+          margin: 0;
         }
       `}</style>
     </div>
