@@ -74,6 +74,10 @@ export class User extends Resource implements UserInterface {
 
   public photo = '';
 
+  public locale = '';
+
+  public gender = '';
+
   public email = '';
 
   public phone = '';
