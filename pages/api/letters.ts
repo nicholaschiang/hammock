@@ -5,10 +5,10 @@ import { LetterJSON } from 'lib/model/letter';
 import getLetters from 'lib/api/get/letters';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
-import verifyAuth from 'lib/api/verify/auth';
 import logger from 'lib/api/logger';
+import verifyAuth from 'lib/api/verify/auth';
 
-export type LettersRes = { letters: LetterJSON[]; nextPageToken: string };
+export type LettersRes = LetterJSON[];
 
 /**
  * GET - Lists the letters for the given user.
@@ -27,11 +27,8 @@ export default async function letters(
       const { pageToken } = req.query as { pageToken?: string };
       const { uid } = await verifyAuth(req.headers);
       const user = await getUser(uid);
-      const { nextPageToken, letters } = await getLetters(user, pageToken);
-      res.status(200).json({
-        nextPageToken,
-        letters: letters.map((l) => l.toJSON()),
-      });
+      const { letters: lettersData } = await getLetters(user, pageToken);
+      res.status(200).json(lettersData.map((l) => l.toJSON()));
       logger.info(`Fetched ${letters.length} letters for ${user}.`);
     } catch (e) {
       handle(e, res);

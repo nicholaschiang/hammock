@@ -1,5 +1,5 @@
-import { mutate, useSWRInfinite } from 'swr';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import useSWR, { mutate } from 'swr';
 import Head from 'next/head';
 import NProgress from 'nprogress';
 import Router from 'next/router';
@@ -12,7 +12,7 @@ import Button from 'components/button';
 import Empty from 'components/empty';
 
 import { Filter, User } from 'lib/model/user';
-import { Letter, LetterJSON } from 'lib/model/letter';
+import { Letter } from 'lib/model/letter';
 import clone from 'lib/utils/clone';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
@@ -134,37 +134,14 @@ export default function Letters() {
     if (error) setLoading(false);
   }, [error]);
 
-  const getKey = useCallback((pageIdx: number, prev: LettersRes | null) => {
-    if (!prev || pageIdx === 0) return '/api/letters';
-    return `/api/letters?pageToken=${prev.nextPageToken}`;
-  }, []);
-
-  const { data, setSize } = useSWRInfinite<LettersRes>(getKey);
+  const { data: letters } = useSWR<LettersRes>('/api/letters');
   const { user } = useUser();
-
-  const letters = useMemo(() => {
-    const noDuplicates: LetterJSON[] = [];
-    data?.forEach((d) => {
-      d.letters.forEach((l) => {
-        if (!noDuplicates.some((n) => n.from === l.from)) noDuplicates.push(l);
-      });
-    });
-    return noDuplicates;
-  }, [data]);
-
-  useEffect(() => {
-    if (!data) return;
-    void setSize((prev) => (prev >= 50 ? prev : prev + 1));
-  }, [data, setSize]);
-  useEffect(() => {
-    setSelected(new Set(user.filter.senders));
-  }, [user.filter.senders]);
 
   const onSave = useCallback(async () => {
     setLoading(true);
     try {
-      const selectedLetters = letters.filter((l) => selected.has(l.from));
-      if (!selectedLetters || selectedLetters.length === 0) return;
+      const selectedLetters = letters?.filter((l) => selected.has(l.from));
+      if (!selectedLetters?.length) return;
 
       const filter: Filter = { id: user.filter.id, senders: [] };
       selectedLetters.forEach((l) => {
@@ -180,11 +157,12 @@ export default function Letters() {
     }
   }, [selected, letters, user]);
 
-  const other = useMemo(() => letters.filter((l) => l.category === 'other'), [
-    letters,
-  ]);
+  const other = useMemo(
+    () => (letters || []).filter((letter) => letter.category === 'other'),
+    [letters]
+  );
   const important = useMemo(
-    () => letters.filter((l) => l.category === 'important'),
+    () => (letters || []).filter((letter) => letter.category === 'important'),
     [letters]
   );
   const loadingList = useMemo(
@@ -194,6 +172,14 @@ export default function Letters() {
         .map((_, idx) => <LetterRow key={idx} />),
     []
   );
+
+  // Select all the saved newsletters (that the user has previously selected).
+  // TODO: Ensure that all of these show up in the newsletter list so that users
+  // can unselect them as needed (i.e. even if they aren't in the last 5000
+  // messages in their Gmail inbox).
+  useEffect(() => {
+    setSelected(new Set(user.filter.senders));
+  }, [user.filter.senders]);
 
   // Pre-select all of the "important" newsletters. From @martinsrna:
   // > The reason is that in the whitelist "database" we created (that decides
@@ -239,8 +225,8 @@ export default function Letters() {
           ))}
         </ul>
       )}
-      {!data && <ul>{loadingList}</ul>}
-      {data && !important.length && <Empty>No newsletters found</Empty>}
+      {!letters && <ul>{loadingList}</ul>}
+      {letters && !important.length && <Empty>No newsletters found</Empty>}
       <h2>Other subscriptions, including promotions</h2>
       {!!other.length && (
         <ul>
@@ -262,8 +248,8 @@ export default function Letters() {
           ))}
         </ul>
       )}
-      {!data && <ul>{loadingList}</ul>}
-      {data && !other.length && <Empty>No subscriptions found</Empty>}
+      {!letters && <ul>{loadingList}</ul>}
+      {letters && !other.length && <Empty>No subscriptions found</Empty>}
       <Button disabled={loading} onClick={onSave}>
         Go to your feed
       </Button>
