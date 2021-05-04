@@ -208,7 +208,7 @@ export default function Feed(): JSX.Element {
           margin: 0 -24px;
           padding: 0 24px;
           z-index: 1;
-          top: 90px;
+          top: 96px;
         }
 
         .section > .header > h2.date {
