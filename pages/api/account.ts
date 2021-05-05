@@ -61,7 +61,7 @@ export default async function account(
       await updateAccount(req, res);
       break;
     default:
-      res.setHeader('Allow', ['GET', 'PUT', 'PATCH']);
+      res.setHeader('Allow', ['GET', 'PUT']);
       res.status(405).end(`Method ${req.method as string} Not Allowed`);
   }
 }
