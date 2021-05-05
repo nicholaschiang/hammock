@@ -1,6 +1,6 @@
 import Bottleneck from 'bottleneck';
 
-import { Message } from 'lib/model/message';
+import { Format, Message } from 'lib/model/message';
 import { Gmail } from 'lib/api/gmail';
 import getMessage from 'lib/api/get/message';
 import logger from 'lib/api/logger';
@@ -20,7 +20,8 @@ import logger from 'lib/api/logger';
  */
 export default async function getGmailMessages(
   messageIds: string[],
-  client: Gmail
+  client: Gmail,
+  format: Format = 'FULL'
 ): Promise<Message[]> {
   console.time('get-gmail-messages');
   logger.verbose(`Fetching ${messageIds.length} messages from Gmail...`);
@@ -32,7 +33,7 @@ export default async function getGmailMessages(
     minTime: 5,
   });
   const messages = await Promise.all(
-    messageIds.map((id) => limiter.schedule(getMessage, id, client))
+    messageIds.map((id) => limiter.schedule(getMessage, id, client, format))
   );
   console.timeEnd('get-gmail-messages');
   return messages;

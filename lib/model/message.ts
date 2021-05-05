@@ -14,6 +14,12 @@ import definedVals from 'lib/model/defined-vals';
 import { isJSON } from 'lib/model/json';
 import { parseFrom } from 'lib/utils';
 
+/**
+ * @typedef Format - The format or amount of data that should be fetched.
+ * @see {@link https://developers.google.com/gmail/api/reference/rest/v1/Format}
+ */
+export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
+
 interface Part {
   mimeType: string;
   body: { data: string };

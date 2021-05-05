@@ -17,7 +17,7 @@ export default async function getLetters(
   });
   const messageIds = (data.messages || []).map((m) => m.id as string);
   const letters: Letter[] = [];
-  (await getGmailMessages(messageIds, client)).forEach((m) => {
+  (await getGmailMessages(messageIds, client, 'METADATA')).forEach((m) => {
     const ltr = m.letter;
     if (!ltr) return;
     if (!letters.some((l) => l.from.toLowerCase() === ltr.from.toLowerCase()))
