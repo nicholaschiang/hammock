@@ -7,10 +7,8 @@
   "license": "AGPL-3.0",
   "scripts": {
     "dev": "next dev",
-    "build:sw": "cd sw && webpack",
-    "build:next": "next build",
     "build:analyze": "cross-env ANALYZE=true next build",
-    "build": "concurrently yarn:build:sw yarn:build:next",
+    "build": "next build",
     "start": "next start",
     "style": "pretty-quick",
     "lint": "eslint . --ext .ts,.tsx"

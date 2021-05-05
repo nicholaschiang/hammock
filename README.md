@@ -39,15 +39,6 @@ Included below are some high-level descriptions of how Return of the Newsletter
 is implemented. The purpose of this writing is not so much to act as
 documentation but rather to encourage better README-driven development.
 
-#### Authentication
-
-Return of the Newsletter uses Firebase Authentication via a service worker that
-intercepts same-origin API requests and appends an authentication JWT header.
-
-This is advantageous as the front-end doesn't have to include the entire
-Firebase SDK on every page. Instead, we can determine login state by calling the
-specialized `/api/account` API route.
-
 #### Newsletters
 
 Return of the Newsletter currently fetches emails from your Google account
