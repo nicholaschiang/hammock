@@ -11,7 +11,6 @@ import Controls from 'components/controls';
 import Page from 'components/page';
 
 import { Message } from 'lib/model/message';
-import { parseFrom } from 'lib/utils';
 import usePage from 'lib/hooks/page';
 
 export default function MessagePage(): JSX.Element {
@@ -21,15 +20,10 @@ export default function MessagePage(): JSX.Element {
   const { data } = useSWR<MessageRes>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
   );
-
   const message = useMemo(
     () => (data ? Message.fromJSON(data) : new Message()),
     [data]
   );
-
-  const from = message.getHeader('from');
-  const subject = message.getHeader('subject');
-  const createdAt = new Date(Number(message.internalDate));
 
   return (
     <Page title='Message - Return of the Newsletter'>
@@ -37,20 +31,20 @@ export default function MessagePage(): JSX.Element {
       <div className='page'>
         <div className='header'>
           <header>
-            <h1 className={cn({ loading: !data })}>{subject}</h1>
+            <h1 className={cn({ loading: !data })}>{message.subject}</h1>
             <a
               target='_blank'
               className='author'
               rel='noopener noreferrer'
-              href={`mailto:${from}`}
+              href={`mailto:${message.from.email}`}
             >
-              <Avatar src={message.icon} loading={!data} size={24} />
+              <Avatar src={message.from.photo} loading={!data} size={24} />
               <span className={cn('from', { loading: !data })}>
-                {data && from && parseFrom(from).name}
+                {message.from.name}
               </span>
               {data && <span className='on'>on</span>}
-              {data && createdAt.toDateString() !== 'Invalid Date' && (
-                <span className='date'>{createdAt.toDateString()}</span>
+              {data && message.date.toDateString() !== 'Invalid Date' && (
+                <span className='date'>{message.date.toDateString()}</span>
               )}
             </a>
           </header>

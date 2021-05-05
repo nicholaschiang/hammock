@@ -1,18 +1,15 @@
+import { DocumentSnapshot, Timestamp } from 'lib/api/firebase';
 import {
-  Resource,
-  ResourceFirestore,
-  ResourceInterface,
-  ResourceJSON,
-  isResourceJSON,
-} from 'lib/model/resource';
-import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
-import { DocumentSnapshot } from 'lib/api/firebase';
-import { Letter } from 'lib/model/letter';
+  Letter,
+  LetterFirestore,
+  LetterInterface,
+  LetterJSON,
+  isLetterJSON,
+} from 'lib/model/letter';
+import { isDateJSON, isJSON } from 'lib/model/json';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
-import { isJSON } from 'lib/model/json';
-import { parseFrom } from 'lib/utils';
 
 /**
  * @typedef Format - The format or amount of data that should be fetched.
@@ -20,99 +17,67 @@ import { parseFrom } from 'lib/utils';
  */
 export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
 
-interface Part {
-  mimeType: string;
-  body: { data: string };
-  parts: Part[] | null;
-}
-
-interface Header {
-  name: string;
-  value: string;
-}
-
-interface Payload {
-  mimeType: string;
-  body: { data: string };
-  headers: Header[];
-  parts: Part[];
-}
-
-export interface MessageInterface extends ResourceInterface {
+/**
+ * @typedef {Object} MessageInterface
+ * @extends LetterInterface
+ * @property id - The message's Gmail-assigned ID (we reuse it in our database).
+ * @property date - When the message was sent (i.e. Gmail's `internalDate`).
+ * @property subject - The message's subject line.
+ * @property snippet - The message's snippet (a short part of message text).
+ * @property html - The message's sanitized HTML (can be used directly in DOM).
+ * @property archived - Whether or not the email has been archived.
+ * @property scroll - The user's scroll position in reading this email.
+ * @property time - The message's estimated reading time (in minutes).
+ */
+export interface MessageInterface extends LetterInterface {
   id: string;
-  labelIds: string[];
+  date: Date;
+  subject: string;
   snippet: string;
-  internalDate: string;
-  payload: Payload;
+  html: string;
+  archived: boolean;
+  scroll: number;
+  time: number;
 }
 
-export type MessageJSON = Omit<MessageInterface, keyof Resource> & ResourceJSON;
-export type MessageFirestore = Omit<MessageInterface, keyof Resource> &
-  ResourceFirestore;
+export type MessageJSON = Omit<MessageInterface, keyof Letter | 'date'> &
+  LetterJSON & { date: string };
+export type MessageFirestore = Omit<MessageInterface, keyof Letter | 'date'> &
+  LetterFirestore & { date: Timestamp };
 
-// TODO: Actually implement this (we should reformat the default Gmail data
-// format before we do though... we don't need all of that data).
 export function isMessageJSON(json: unknown): json is MessageJSON {
-  if (!isResourceJSON(json)) return false;
+  const stringFields = ['id', 'subject', 'snippet', 'html'];
+  const numberFields = ['scroll', 'time'];
+
+  if (!isLetterJSON(json)) return false;
   if (!isJSON(json)) return false;
+  if (!isDateJSON(json.date)) return false;
+  if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
+  if (numberFields.some((key) => typeof json[key] !== 'number')) return false;
+  if (typeof json.archived !== 'boolean') return false;
   return true;
 }
 
-export class Message extends Resource implements MessageInterface {
+export class Message extends Letter implements MessageInterface {
   public id = '';
 
-  public labelIds: string[] = [];
+  public date: Date = new Date();
+
+  public subject = '';
 
   public snippet = '';
 
-  public internalDate = '';
+  public html = '';
 
-  public payload: Payload = {
-    mimeType: '',
-    body: { data: '' },
-    headers: [],
-    parts: [],
-  };
+  public archived = false;
+
+  public scroll = 0;
+
+  public time = 0;
 
   public constructor(message: Partial<MessageInterface> = {}) {
     super(message);
-    construct<MessageInterface, ResourceInterface>(
-      this,
-      message,
-      new Resource()
-    );
-  }
-
-  public getHeader(header: string): string | undefined {
-    return this.payload.headers.find((h) => h.name.toLowerCase() === header)
-      ?.value;
-  }
-
-  public get letter(): Letter | void {
-    const from = this.getHeader('from');
-    const { name, email } = parseFrom(from || '');
-    if (whitelist[name.toLowerCase()] || hasWhitelistDomain(email))
-      return new Letter({ name, from: email, category: 'important' });
-    if (this.getHeader('list-unsubscribe'))
-      return new Letter({ name, from: email, category: 'other' });
-  }
-
-  public get icon(): string {
-    const from = this.getHeader('from');
-    const { name, email } = parseFrom(from || '');
-    const result = whitelist[name.toLowerCase()];
-    if (result && result !== true && result.asset_url) return result.asset_url;
-    let domain = email.slice(email.indexOf('@') + 1);
-    if (domain.startsWith('e.')) {
-      domain = domain.slice(2);
-    }
-    if (domain.startsWith('email.')) {
-      domain = domain.slice(6);
-    }
-    if (domain.startsWith('mail.')) {
-      domain = domain.slice(5);
-    }
-    return 'https://www.google.com/s2/favicons?sz=64&domain_url=' + domain;
+    construct<MessageInterface, LetterInterface>(this, message, new Letter());
   }
 
   public get clone(): Message {
@@ -124,19 +89,35 @@ export class Message extends Resource implements MessageInterface {
   }
 
   public toJSON(): MessageJSON {
-    return definedVals({ ...this, ...super.toJSON() });
+    return definedVals({
+      ...this,
+      ...super.toJSON(),
+      date: this.date.toJSON(),
+    });
   }
 
   public static fromJSON(json: MessageJSON): Message {
-    return new Message({ ...json, ...Resource.fromJSON(json) });
+    return new Message({
+      ...json,
+      ...Letter.fromJSON(json),
+      date: new Date(json.date),
+    });
   }
 
   public toFirestore(): MessageFirestore {
-    return definedVals({ ...this, ...super.toFirestore() });
+    return definedVals({
+      ...this,
+      ...super.toFirestore(),
+      date: (this.date as unknown) as Timestamp,
+    });
   }
 
   public static fromFirestore(data: MessageFirestore): Message {
-    return new Message({ ...data, ...Resource.fromFirestore(data) });
+    return new Message({
+      ...data,
+      ...Letter.fromFirestore(data),
+      date: data.date.toDate(),
+    });
   }
 
   public static fromFirestoreDoc(snapshot: DocumentSnapshot): Message {

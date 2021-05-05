@@ -34,9 +34,9 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
 
   return (
     <li onClick={onClick}>
-      <Avatar src={letter?.icon} loading={!letter} size={36} />
+      <Avatar src={letter?.from.photo} loading={!letter} size={36} />
       {!letter && <span className='name loading' />}
-      {letter && <span className='name nowrap'>{letter.name}</span>}
+      {letter && <span className='name nowrap'>{letter.from.name}</span>}
       <span className='check'>
         <input type='checkbox' checked={checked} readOnly />
         <span className='icon' aria-hidden='true'>
@@ -143,12 +143,15 @@ export default function Letters() {
   const onSave = useCallback(async () => {
     setLoading(true);
     try {
-      const selectedLetters = letters?.filter((l) => selected.has(l.from));
+      const selectedLetters = letters?.filter((l) =>
+        selected.has(l.from.email)
+      );
       if (!selectedLetters?.length) return;
 
       const filter: Filter = { id: user.filter.id, senders: [] };
       selectedLetters.forEach((l) => {
-        if (!filter.senders.includes(l.from)) filter.senders.push(l.from);
+        if (!filter.senders.includes(l.from.email))
+          filter.senders.push(l.from.email);
       });
 
       const url = '/api/account';
@@ -195,7 +198,7 @@ export default function Letters() {
   useEffect(() => {
     if (hasBeenUpdated.current) return;
     setSelected((prev) => {
-      const next = new Set([...prev, ...important.map((l) => l.from)]);
+      const next = new Set([...prev, ...important.map((l) => l.from.email)]);
       if (dequal([...prev], [...next])) return prev;
       return next;
     });
@@ -212,15 +215,15 @@ export default function Letters() {
         <ul>
           {important.map((r) => (
             <LetterRow
-              key={r.from}
+              key={r.from.email}
               letter={Letter.fromJSON(r)}
-              selected={selected.has(r.from)}
+              selected={selected.has(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 setSelected((prev) => {
                   const next = clone(prev);
-                  if (!isSelected) next.delete(r.from);
-                  if (isSelected) next.add(r.from);
+                  if (!isSelected) next.delete(r.from.email);
+                  if (isSelected) next.add(r.from.email);
                   return next;
                 });
               }}
@@ -235,15 +238,15 @@ export default function Letters() {
         <ul>
           {other.map((r) => (
             <LetterRow
-              key={r.from}
+              key={r.from.email}
               letter={Letter.fromJSON(r)}
-              selected={selected.has(r.from)}
+              selected={selected.has(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 setSelected((prev) => {
                   const next = clone(prev);
-                  if (!isSelected) next.delete(r.from);
-                  if (isSelected) next.add(r.from);
+                  if (!isSelected) next.delete(r.from.email);
+                  if (isSelected) next.add(r.from.email);
                   return next;
                 });
               }}

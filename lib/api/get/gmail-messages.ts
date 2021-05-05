@@ -1,8 +1,8 @@
 import Bottleneck from 'bottleneck';
 
-import { Format, Message } from 'lib/model/message';
-import { Gmail } from 'lib/api/gmail';
-import getMessage from 'lib/api/get/message';
+import { Gmail, GmailMessage } from 'lib/api/gmail';
+import { Format } from 'lib/model/message';
+import getGmailMessage from 'lib/api/get/gmail-message';
 import logger from 'lib/api/logger';
 
 /**
@@ -14,17 +14,17 @@ import logger from 'lib/api/logger';
  * to 250/5 = 50 per second.
  * @see {@link https://developers.google.com/gmail/api/reference/quota}
  *
- * @param messageIds - The IDs of the messages to fetch (from `messages.list`).
+ * @param ids - The IDs of the messages to fetch (from `messages.list`).
  * @param client - An authorized Gmail API client.
  * @return Promise that resolves to an array of messages.
  */
 export default async function getGmailMessages(
-  messageIds: string[],
+  ids: string[],
   client: Gmail,
   format: Format = 'FULL'
-): Promise<Message[]> {
+): Promise<GmailMessage[]> {
   console.time('get-gmail-messages');
-  logger.verbose(`Fetching ${messageIds.length} messages from Gmail...`);
+  logger.verbose(`Fetching ${ids.length} messages from Gmail...`);
   const limiter = new Bottleneck({
     reservoir: 250 / 5,
     reservoirRefreshAmount: 250 / 5,
@@ -33,7 +33,7 @@ export default async function getGmailMessages(
     minTime: 5,
   });
   const messages = await Promise.all(
-    messageIds.map((id) => limiter.schedule(getMessage, id, client, format))
+    ids.map((id) => limiter.schedule(getGmailMessage, id, client, format))
   );
   console.timeEnd('get-gmail-messages');
   return messages;

@@ -1,12 +1,9 @@
 import Link from 'next/link';
 import cn from 'classnames';
-import he from 'he';
-import { useMemo } from 'react';
 
 import Avatar from 'components/avatar';
 
 import { Message } from 'lib/model/message';
-import { parseFrom } from 'lib/utils';
 
 export interface MessageRowProps {
   message?: Message;
@@ -17,26 +14,15 @@ export default function MessageRow({
   message,
   loading,
 }: MessageRowProps): JSX.Element {
-  const from = message?.getHeader('from');
-  const subject = message?.getHeader('subject');
-  const { name } = parseFrom(from || '');
-
-  const snippet = useMemo(() => {
-    if (!message?.snippet) return '';
-    let cleanedUp: string = he.decode(message.snippet);
-    if (!cleanedUp.endsWith('.')) cleanedUp += '...';
-    return cleanedUp;
-  }, [message?.snippet]);
-
   return (
     <Link href={message ? `/messages/${message.id}` : ''}>
       <a className={cn('row', { disabled: loading })}>
         <div className='header'>
-          <Avatar src={message?.icon} loading={loading} size={24} />
-          <span className={cn('name', { loading })}>{name}</span>
+          <Avatar src={message?.from.photo} loading={loading} size={24} />
+          <span className={cn('name', { loading })}>{message?.from.name}</span>
         </div>
-        <div className={cn('subject', { loading })}>{subject}</div>
-        <div className={cn('snippet', { loading })}>{snippet}</div>
+        <div className={cn('subject', { loading })}>{message?.subject}</div>
+        <div className={cn('snippet', { loading })}>{message?.snippet}</div>
         <style jsx>{`
           .row {
             display: block;

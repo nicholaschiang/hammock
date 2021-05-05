@@ -1,11 +1,13 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
+import { Letter, LetterJSON } from 'lib/model/letter';
 import { APIErrorJSON } from 'lib/model/error';
-import { LetterJSON } from 'lib/model/letter';
-import getLetters from 'lib/api/get/letters';
+import getGmailMessages from 'lib/api/get/gmail-messages';
 import getUser from 'lib/api/get/user';
+import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import { messageFromGmail } from 'lib/utils/convert';
 import verifyAuth from 'lib/api/verify/auth';
 
 export type LettersRes = LetterJSON[];
@@ -27,7 +29,20 @@ export default async function letters(
       const { pageToken } = req.query as { pageToken?: string };
       const { uid } = await verifyAuth(req.headers);
       const user = await getUser(uid);
-      const { letters: lettersData } = await getLetters(user, pageToken);
+      logger.verbose(`Fetching letters for ${user}...`);
+      const client = gmail(user.token);
+      const { data } = await client.users.messages.list({
+        maxResults: 100,
+        userId: 'me',
+        pageToken,
+      });
+      const messageIds = (data.messages || []).map((m) => m.id as string);
+      const lettersData: Letter[] = [];
+      (await getGmailMessages(messageIds, client, 'METADATA')).forEach((m) => {
+        const letter = messageFromGmail(m);
+        if (!lettersData.some((l) => l.from.email === letter.from.email))
+          lettersData.push(letter);
+      });
       res.status(200).json(lettersData.map((l) => l.toJSON()));
       logger.info(`Fetched ${letters.length} letters for ${user}.`);
     } catch (e) {

@@ -83,7 +83,7 @@ export default function Feed(): JSX.Element {
       .map((l) => l.messages)
       .flat()
       .forEach((message) => {
-        const createdAt = new Date(Number(message.internalDate));
+        const createdAt = new Date(message.date);
         if (
           newSections.some((section) => {
             if (!isSameDay(section.date, createdAt)) return false;

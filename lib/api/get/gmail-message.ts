@@ -1,5 +1,5 @@
-import { Format, Message, MessageInterface } from 'lib/model/message';
-import { Gmail } from 'lib/api/gmail';
+import { Gmail, GmailMessage } from 'lib/api/gmail';
+import { Format } from 'lib/model/message';
 import logger from 'lib/api/logger';
 
 /**
@@ -10,13 +10,11 @@ import logger from 'lib/api/logger';
  * @see {@link https://developers.google.com/gmail/api/reference/rest/v1/Format}
  * @return The message from Gmail (wrapped in our data model).
  */
-export default async function getMessage(
+export default async function getGmailMessage(
   id: string,
   client: Gmail,
   format: Format = 'FULL'
-): Promise<Message> {
+): Promise<GmailMessage> {
   logger.debug(`Fetching message (${id})...`);
-  const userId = 'me';
-  const { data } = await client.users.messages.get({ id, format, userId });
-  return new Message(data as MessageInterface);
+  return (await client.users.messages.get({ id, format, userId: 'me' })).data;
 }

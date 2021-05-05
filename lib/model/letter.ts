@@ -10,7 +10,19 @@ import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
 import { isJSON } from 'lib/model/json';
-import { whitelist } from 'lib/whitelist';
+
+export interface Contact {
+  name: string;
+  email: string;
+  photo: string;
+}
+
+export function isContact(contact: unknown): contact is Contact {
+  const stringFields = ['name', 'email', 'photo'];
+
+  if (!isJSON(contact)) return false;
+  return stringFields.every((key) => typeof contact[key] === 'string');
+}
 
 export type Category = 'important' | 'other';
 
@@ -19,10 +31,17 @@ export function isCategory(category: unknown): category is Category {
   return ['important', 'other'].includes(category);
 }
 
+/**
+ * @typedef {Object} LetterInterface
+ * @extends ResourceInterface
+ * @property from - Who the newsletter is from (their name, email, and photo).
+ * @property [category] - Either "important" (a known newsletter listed on our
+ * whitelist or with a whitelisted sender domain) or "other" (any email that
+ * contains the `list-unsubscribe` header) or missing (not a newsletter).
+ */
 export interface LetterInterface extends ResourceInterface {
-  name: string;
-  from: string;
-  category: Category;
+  from: Contact;
+  category?: Category;
 }
 
 export type LetterJSON = Omit<LetterInterface, keyof Resource> & ResourceJSON;
@@ -32,38 +51,19 @@ export type LetterFirestore = Omit<LetterInterface, keyof Resource> &
 export function isLetterJSON(json: unknown): json is LetterJSON {
   if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;
-  if (typeof json.name !== 'string') return false;
-  if (typeof json.from !== 'string') return false;
+  if (!isContact(json.from)) return false;
   if (!isCategory(json.category)) return false;
   return true;
 }
 
 export class Letter extends Resource implements LetterInterface {
-  public name = '';
+  public from = { name: '', email: '', photo: '' };
 
-  public from = '';
-
-  public category: Category = 'other';
+  public category?: Category;
 
   public constructor(letter: Partial<LetterInterface> = {}) {
     super(letter);
     construct<LetterInterface, ResourceInterface>(this, letter, new Resource());
-  }
-
-  public get icon(): string {
-    const result = whitelist[this.name.toLowerCase()];
-    if (result && result !== true && result.asset_url) return result.asset_url;
-    let domain = this.from.slice(this.from.indexOf('@') + 1);
-    if (domain.startsWith('e.')) {
-      domain = domain.slice(2);
-    }
-    if (domain.startsWith('email.')) {
-      domain = domain.slice(6);
-    }
-    if (domain.startsWith('mail.')) {
-      domain = domain.slice(5);
-    }
-    return `https://www.google.com/s2/favicons?sz=64&domain_url=${domain}`;
   }
 
   public get clone(): Letter {
@@ -71,7 +71,7 @@ export class Letter extends Resource implements LetterInterface {
   }
 
   public toString(): string {
-    return `Letter from ${this.name} (${this.from})`;
+    return `Letter from ${this.from.name} (${this.from.email})`;
   }
 
   public toJSON(): LetterJSON {
