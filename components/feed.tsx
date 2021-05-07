@@ -45,21 +45,18 @@ interface Section {
 
 export default function Feed(): JSX.Element {
   const getKey = useCallback((pageIdx: number, prev: MessagesRes | null) => {
-    if (prev && !prev.messages.length) return null;
+    if (prev && !prev.length) return null;
     if (!prev || pageIdx === 0) return '/api/messages';
-    return `/api/messages?pageToken=${prev.nextPageToken}`;
+    return `/api/messages?lastMessageId=${prev[prev.length - 1].id}`;
   }, []);
 
   const { data, isValidating, setSize } = useSWRInfinite<MessagesRes>(getKey);
   const { user } = useUser();
 
   useEffect(() => {
-    (data || [])
-      .map((l) => l.messages)
-      .flat()
-      .forEach((message) => {
-        void mutate(`/api/messages/${message.id}`, message, false);
-      });
+    data?.flat().forEach((message) => {
+      void mutate(`/api/messages/${message.id}`, message, false);
+    });
   }, [data]);
 
   const [now, setNow] = useState<Date>(new Date());
@@ -79,27 +76,24 @@ export default function Feed(): JSX.Element {
 
   const sections = useMemo(() => {
     const newSections: Section[] = [];
-    (data || [])
-      .map((l) => l.messages)
-      .flat()
-      .forEach((message) => {
-        const createdAt = new Date(message.date);
-        if (
-          newSections.some((section) => {
-            if (!isSameDay(section.date, createdAt)) return false;
-            section.messages.push(message);
-            return true;
-          })
-        )
-          return;
-        newSections.push({
-          displayDate: isSameDay(now, createdAt)
-            ? 'Today'
-            : formatDate(createdAt),
-          date: createdAt,
-          messages: [message],
-        });
+    data?.flat().forEach((message) => {
+      const createdAt = new Date(message.date);
+      if (
+        newSections.some((section) => {
+          if (!isSameDay(section.date, createdAt)) return false;
+          section.messages.push(message);
+          return true;
+        })
+      )
+        return;
+      newSections.push({
+        displayDate: isSameDay(now, createdAt)
+          ? 'Today'
+          : formatDate(createdAt),
+        date: createdAt,
+        messages: [message],
       });
+    });
     return newSections;
   }, [now, data]);
 

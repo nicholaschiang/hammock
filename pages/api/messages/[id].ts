@@ -1,13 +1,10 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
+import { APIError, APIErrorJSON } from 'lib/model/error';
 import { Message, MessageJSON, isMessageJSON } from 'lib/model/message';
-import { APIErrorJSON } from 'lib/model/error';
-import getGmailMessage from 'lib/api/get/gmail-message';
-import getUser from 'lib/api/get/user';
-import gmail from 'lib/api/gmail';
+import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
-import { messageFromGmail } from 'lib/utils/convert';
 import updateMessageDoc from 'lib/api/update/message-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
@@ -22,11 +19,13 @@ async function fetchMessage(
   try {
     const id = verifyQueryId(req.query);
     const { uid } = await verifyAuth(req.headers);
-    const user = await getUser(uid);
-    const gmailMessage = await getGmailMessage(id, gmail(user.token));
-    const messageData = messageFromGmail(gmailMessage);
+    const ref = db.collection('users').doc(uid).collection('messages').doc(id);
+    const doc = await ref.get();
+    // TODO: Try to fetch it from Gmail's API instead.
+    if (!doc.exists) throw new APIError(`Message ${id} does not exist`, 404);
+    const messageData = Message.fromFirestoreDoc(doc);
     res.status(200).json(messageData.toJSON());
-    logger.info(`Fetched ${messageData} for ${user}.`);
+    logger.info(`Fetched ${messageData} for user (${uid}).`);
   } catch (e) {
     handle(e, res);
   }

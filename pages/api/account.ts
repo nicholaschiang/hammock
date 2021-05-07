@@ -7,6 +7,7 @@ import getOrCreateLabel from 'lib/api/get/label';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import syncGmail from 'lib/api/sync-gmail';
 import updateGmailMessages from 'lib/api/update/gmail-messages';
 import updateUserDoc from 'lib/api/update/user-doc';
 import verifyAuth from 'lib/api/verify/auth';
@@ -33,6 +34,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     body.label = await getOrCreateLabel(body);
     body.filter = await getOrCreateFilter(body);
     await updateUserDoc(body);
+    await syncGmail(body);
     res.status(200).json(body.toJSON());
     logger.info(`Updated ${body}.`);
     await updateGmailMessages(body);

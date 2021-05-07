@@ -1,16 +1,13 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
+import { Message, MessageJSON } from 'lib/model/message';
 import { APIErrorJSON } from 'lib/model/error';
-import { MessageJSON } from 'lib/model/message';
-import getGmailMessages from 'lib/api/get/gmail-messages';
-import getUser from 'lib/api/get/user';
-import gmail from 'lib/api/gmail';
+import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
-import { messageFromGmail } from 'lib/utils/convert';
 import verifyAuth from 'lib/api/verify/auth';
 
-export type MessagesRes = { messages: MessageJSON[]; nextPageToken: string };
+export type MessagesRes = MessageJSON[];
 
 /**
  * GET - Lists the messages for the given user.
@@ -26,24 +23,19 @@ export default async function messages(
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
   } else {
     try {
-      const { pageToken } = req.query as { pageToken?: string };
+      const { lastMessageId } = req.query as { lastMessageId?: string };
       const { uid } = await verifyAuth(req.headers);
-      const user = await getUser(uid);
-      logger.verbose(`Fetching messages for ${user}...`);
-      const client = gmail(user.token);
-      const { data } = await client.users.messages.list({
-        labelIds: [user.label],
-        maxResults: 10,
-        userId: 'me',
-        pageToken,
-      });
-      const messageIds = (data.messages || []).map((m) => m.id as string);
-      const gmailMessages = await getGmailMessages(messageIds, client);
-      res.status(200).json({
-        nextPageToken: data.nextPageToken || '',
-        messages: gmailMessages.map((m) => messageFromGmail(m).toJSON()),
-      });
-      logger.info(`Fetched ${messages.length} messages for ${user}.`);
+      logger.verbose(`Fetching messages for user (${uid})...`);
+      const ref = db.collection('users').doc(uid).collection('messages');
+      let query = ref.orderBy('date', 'desc').limit(10);
+      if (lastMessageId) {
+        const lastMessageDoc = await ref.doc(lastMessageId).get();
+        query = query.startAfter(lastMessageDoc);
+      }
+      const { docs } = await query.get();
+      const messagesData = docs.map((d) => Message.fromFirestoreDoc(d));
+      res.status(200).json(messagesData.map((m) => m.toJSON()));
+      logger.info(`Fetched ${messagesData.length} messages for user (${uid}).`);
     } catch (e) {
       handle(e, res);
     }
