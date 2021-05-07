@@ -1,11 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Router from 'next/router';
 import cn from 'classnames';
+import { mutate } from 'swr';
 
 import ArchiveIcon from 'components/icons/archive';
 import ArrowBackIcon from 'components/icons/arrow-back';
 
-export default function Controls(): JSX.Element {
+import { Message } from 'lib/model/message';
+import { fetcher } from 'lib/fetch';
+
+export interface ControlsProps {
+  message: Message;
+}
+
+export default function Controls({ message }: ControlsProps): JSX.Element {
   const [visible, setVisible] = useState<boolean>(true);
   const lastScrollPosition = useRef<number>(0);
 
@@ -24,6 +33,16 @@ export default function Controls(): JSX.Element {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const [archiving, setArchiving] = useState<boolean>(false);
+  const archive = useCallback(async () => {
+    if (!message.id) return;
+    setArchiving(true);
+    const url = `/api/messages/${message.id}`;
+    const data = { ...message.toJSON(), archived: true };
+    await mutate(url, fetcher(url, 'put', data));
+    Router.back();
+  }, [message]);
+
   return (
     <div className={cn('controls', { visible })}>
       <Link href='/'>
@@ -31,7 +50,12 @@ export default function Controls(): JSX.Element {
           <ArrowBackIcon />
         </a>
       </Link>
-      <button role='button' className='reset button'>
+      <button
+        onClick={archive}
+        disabled={archiving}
+        className='reset button'
+        type='button'
+      >
         <ArchiveIcon />
       </button>
       <style jsx>{`

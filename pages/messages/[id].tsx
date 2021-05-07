@@ -27,7 +27,7 @@ export default function MessagePage(): JSX.Element {
 
   return (
     <Page title='Message - Return of the Newsletter'>
-      <Controls />
+      <Controls message={message} />
       <div className='page'>
         <div className='header'>
           <header>
