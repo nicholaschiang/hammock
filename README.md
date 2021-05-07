@@ -1,4 +1,4 @@
-<h1 align='center'>Return of the Newsletter</h1>
+<h1 align='center'>Hammock</h1>
 
 <p align='center'>
   <a aria-label='Release version' href='https://github.com/nicholaschiang/newsletter/releases'>
@@ -15,9 +15,9 @@
   </a>
 </p>
 
-Return of the Newsletter moves your favorite newsletters outside of your
-understandably cluttered inbox, letting you focus on and learn from the content
-you love in a distraction-free reading space.
+Hammock moves your favorite newsletters outside of your understandably cluttered
+inbox, letting you focus on and learn from the content you love in a
+distraction-free reading space.
 
 ## Terminology and Data Model
 
@@ -35,21 +35,23 @@ A message is an email from a recurring newsletter.
 
 ## Implementation
 
-Included below are some high-level descriptions of how Return of the Newsletter
-is implemented. The purpose of this writing is not so much to act as
-documentation but rather to encourage better README-driven development.
+Included below are some high-level descriptions of how Hammock is implemented.
+The purpose of this writing is not so much to act as documentation but rather to
+encourage better README-driven development.
 
 #### Newsletters
 
-Return of the Newsletter currently fetches emails from your Google account
-on-demand from the client. This results in very slow loading times and thus
-**needs to be rectified**.
+Hammock fetches your messages from our Firestore database which syncs with your
+Gmail account using [push
+notifications](https://developers.google.com/gmail/api/guides/push) and [async
+synchronization](https://developers.google.com/gmail/api/guides/sync) that is
+triggered whenever the user fetches their messages.
 
 ## Development
 
-Return of the Newsletter aims to use the most cutting-edge, performant, and
-production-ready solutions available. Included below is our current selection
-and the reasoning behind it, but we're always open to improvements!
+Hammock aims to use the most cutting-edge, performant, and production-ready
+solutions available. Included below is our current selection and the reasoning
+behind it, but we're always open to improvements!
 
 #### Languages
 
