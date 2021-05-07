@@ -7,6 +7,13 @@ import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import verifyAuth from 'lib/api/verify/auth';
 
+export type MessagesQuery = {
+  lastMessageId?: string;
+  quickRead?: 'true' | 'false';
+  archive?: 'true' | 'false';
+  resume?: 'true' | 'false';
+};
+
 export type MessagesRes = MessageJSON[];
 
 /**
@@ -23,11 +30,21 @@ export default async function messages(
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
   } else {
     try {
-      const { lastMessageId } = req.query as { lastMessageId?: string };
+      const {
+        lastMessageId,
+        quickRead,
+        archive,
+        resume,
+      } = req.query as MessagesQuery;
       const { uid } = await verifyAuth(req.headers);
       logger.verbose(`Fetching messages for user (${uid})...`);
       const ref = db.collection('users').doc(uid).collection('messages');
-      let query = ref.orderBy('date', 'desc').limit(10);
+      let query = ref
+        .where('archived', '==', archive === 'true')
+        .orderBy('date', 'desc')
+        .limit(10);
+      if (quickRead === 'true') query = query.where('time', '<=', 15);
+      if (resume === 'true') query = query.where('scroll', '>', 0);
       if (lastMessageId) {
         const lastMessageDoc = await ref.doc(lastMessageId).get();
         query = query.startAfter(lastMessageDoc);

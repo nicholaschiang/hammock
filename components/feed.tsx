@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Head from 'next/head';
 import cn from 'classnames';
 
-import { MessagesRes } from 'pages/api/messages';
+import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
 import Button from 'components/button';
 import MessageRow from 'components/message-row';
@@ -43,12 +43,17 @@ interface Section {
   messages: MessageJSON[];
 }
 
-export default function Feed(): JSX.Element {
-  const getKey = useCallback((pageIdx: number, prev: MessagesRes | null) => {
-    if (prev && !prev.length) return null;
-    if (!prev || pageIdx === 0) return '/api/messages';
-    return `/api/messages?lastMessageId=${prev[prev.length - 1].id}`;
-  }, []);
+export default function Feed(query: MessagesQuery): JSX.Element {
+  const getKey = useCallback(
+    (pageIdx: number, prev: MessagesRes | null) => {
+      const params = new URLSearchParams(query);
+      if (prev && !prev.length) return null;
+      if (!prev || pageIdx === 0) return `/api/messages?${params.toString()}`;
+      const lastMessageId = prev[prev.length - 1].id;
+      return `/api/messages?${params.toString()}&lastMessageId=${lastMessageId}`;
+    },
+    [query]
+  );
 
   const { data, isValidating, setSize } = useSWRInfinite<MessagesRes>(getKey);
   const { user } = useUser();
