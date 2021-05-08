@@ -136,9 +136,7 @@ export default function NavBar(): JSX.Element {
         <div className={cn('menu', { open })}>
           <MenuLink href='/letters'>Subscriptions</MenuLink>
           <MenuLink href='/archive'>Archive</MenuLink>
-          <MenuLink href='#'>Settings</MenuLink>
           <div className='line' />
-          <MenuLink href='#'>Help</MenuLink>
           <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>
             Send feedback
           </MenuLink>
@@ -148,7 +146,6 @@ export default function NavBar(): JSX.Element {
           <NavLink href='/'>Feed</NavLink>
           <NavLink href='/quick-read'>Quick read</NavLink>
           <NavLink href='/resume'>Resume</NavLink>
-          <NavLink href='/highlights'>Highlights</NavLink>
         </nav>
       </div>
       <style jsx>{`
