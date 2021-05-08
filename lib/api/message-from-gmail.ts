@@ -1,6 +1,7 @@
 import atob from 'atob';
-import utf8 from 'utf8';
 import he from 'he';
+import readingTime from 'reading-time';
+import utf8 from 'utf8';
 
 import { Category, Contact } from 'lib/model/letter';
 import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
@@ -100,14 +101,16 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
     category = 'other';
   }
 
+  const html = getMessageBody(gmailMessage);
+
   return new Message({
+    html,
     category,
     id: gmailMessage.id || '',
     date: new Date(Number(gmailMessage.internalDate)),
     from: { name, email, photo },
     subject: getHeader('subject'),
     snippet: getSnippet(gmailMessage),
-    html: getMessageBody(gmailMessage),
-    time: 0, // TODO: Estimate reading time (in minutes) by character count.
+    time: Math.round(readingTime(html).minutes),
   });
 }

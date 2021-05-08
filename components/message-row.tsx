@@ -17,12 +17,17 @@ export default function MessageRow({
   return (
     <Link href={message ? `/messages/${message.id}` : ''}>
       <a className={cn('row', { disabled: loading })}>
-        <div className='header'>
+        <div className='from'>
           <Avatar src={message?.from.photo} loading={loading} size={24} />
           <span className={cn('name', { loading })}>{message?.from.name}</span>
         </div>
-        <div className={cn('subject', { loading })}>{message?.subject}</div>
-        <div className={cn('snippet', { loading })}>{message?.snippet}</div>
+        <div className='header'>
+          <h3 className={cn('subject', { loading })}>{message?.subject}</h3>
+          <div className={cn('time', { loading })}>
+            {message ? `${message.time} min` : ''}
+          </div>
+        </div>
+        <p className={cn('snippet', { loading })}>{message?.snippet}</p>
         <style jsx>{`
           .row {
             display: block;
@@ -45,11 +50,31 @@ export default function MessageRow({
             margin: 8px 0;
           }
 
-          .header,
+          .from,
           .subject {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+          }
+
+          .from {
+            display: flex;
+            height: 24px;
+          }
+
+          .from > .name {
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 24px;
+            color: var(--accents-5);
+          }
+
+          .from > .name.loading {
+            width: 100px;
+          }
+
+          .from > :global(.avatar) {
+            margin-right: 8px;
           }
 
           .header {
@@ -57,22 +82,8 @@ export default function MessageRow({
             height: 24px;
           }
 
-          .header > span.name {
-            font-size: 14px;
-            font-weight: 400;
-            line-height: 24px;
-            color: var(--accents-5);
-          }
-
-          .header > span.name.loading {
-            width: 100px;
-          }
-
-          .header > :global(div) {
-            margin-right: 8px;
-          }
-
-          .subject {
+          .header > .subject {
+            margin: 0;
             font-size: 18px;
             font-weight: 700;
             line-height: 24px;
@@ -80,13 +91,37 @@ export default function MessageRow({
             color: var(--accents-6);
           }
 
-          .subject.loading,
+          .header > .subject.loading {
+            width: 300px;
+          }
+
+          .header > .time {
+            flex: none;
+            margin-left: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 24px;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accents-6);
+            background: var(--accents-2);
+            border-radius: 12px;
+          }
+
+          .header > .time.loading {
+            width: 50px;
+          }
+
+          .header > .subject.loading,
           .snippet.loading,
           .name.loading {
             border-radius: 6px;
           }
 
           .snippet {
+            margin: 8px 0;
             font-size: 16px;
             font-weight: 400;
             line-height: 24px;
