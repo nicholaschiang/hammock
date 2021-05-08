@@ -39,12 +39,12 @@ export default async function messages(
       const { uid } = await verifyAuth(req.headers);
       logger.verbose(`Fetching messages for user (${uid})...`);
       const ref = db.collection('users').doc(uid).collection('messages');
-      let query = ref
-        .where('archived', '==', archive === 'true')
-        .orderBy('date', 'desc')
-        .limit(10);
-      if (quickRead === 'true') query = query.where('time', '<=', 15);
-      if (resume === 'true') query = query.where('scroll', '>', 0);
+      let query = ref.where('archived', '==', archive === 'true');
+      if (quickRead === 'true')
+        query = query.where('time', '<=', 15).orderBy('time');
+      if (resume === 'true')
+        query = query.where('scroll', '>', 0).orderBy('scroll');
+      query = query.orderBy('date', 'desc').limit(10);
       if (lastMessageId) {
         const lastMessageDoc = await ref.doc(lastMessageId).get();
         query = query.startAfter(lastMessageDoc);

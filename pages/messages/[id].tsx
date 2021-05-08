@@ -1,17 +1,27 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
-import { useMemo } from 'react';
 import { useRouter } from 'next/router';
-import useSWR from 'swr';
 
 import { MessageRes } from 'pages/api/messages/[id]';
 
-import Article from 'components/article';
 import Avatar from 'components/avatar';
 import Controls from 'components/controls';
 import Page from 'components/page';
 
 import { Message } from 'lib/model/message';
+import { fetcher } from 'lib/fetch';
 import usePage from 'lib/hooks/page';
+
+/**
+ * @param The element to get the vertical scroll percentage for.
+ * @return A number between 0 to 1 relative to scroll position.
+ * @see {@link https://stackoverflow.com/a/28994709/10023158}
+ */
+function getVerticalScrollPercentage(elm: HTMLElement): number {
+  const p = elm.parentNode as HTMLElement;
+  return (elm.scrollTop || p.scrollTop) / (p.scrollHeight - p.clientHeight);
+}
 
 export default function MessagePage(): JSX.Element {
   usePage({ name: 'Message', login: true });
@@ -24,6 +34,41 @@ export default function MessagePage(): JSX.Element {
     () => (data ? Message.fromJSON(data) : new Message()),
     [data]
   );
+
+  const [scroll, setScroll] = useState<number>(message.scroll);
+  useEffect(() => {
+    function handleScroll(): void {
+      const scrollPercent = getVerticalScrollPercentage(document.body);
+      setScroll(scrollPercent);
+    }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  useEffect(() => {
+    // TODO: Save the message scroll position in our database every second.
+    // Currently, this saves the scroll position after a second of no scrolling.
+    // Instead, I want to schedule an update every one second where we:
+    // - If the scroll position hasn't changed since the last save, skip.
+    // - Otherwise, save the latest scroll position in our database.
+    const timeoutId = setTimeout(() => {
+      if (!message.id) return;
+      const url = `/api/messages/${message.id}`;
+      // TODO: Mutate the data used in `/feed` to match.
+      // See: https://github.com/vercel/swr/issues/1156
+      void mutate(url, fetcher(url, 'put', { ...message.toJSON(), scroll }));
+    }, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [message, scroll]);
+
+  // TODO: Save the scroll position percent of the last visible part of
+  // newsletter in viewport (scroll percent should be relative to newsletter).
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const onLoad = useCallback(() => {
+    const i = iframeRef.current;
+    const height = i?.contentWindow?.document.body.scrollHeight;
+    if (height) i?.setAttribute('height', `${height + 20}px`);
+    window.scrollTo(0, message.scroll * document.body.scrollHeight);
+  }, [message.scroll]);
 
   return (
     <Page title='Message - Return of the Newsletter'>
@@ -49,13 +94,26 @@ export default function MessagePage(): JSX.Element {
             </a>
           </header>
         </div>
-        <Article message={message} />
+        <iframe
+          width='100%'
+          height='0px'
+          ref={iframeRef}
+          onLoad={onLoad}
+          srcDoc={message.html}
+          title={message.subject}
+          sandbox='allow-same-origin allow-popups'
+        />
       </div>
       <style jsx>{`
         .page {
           max-width: 1000px;
           padding: 0 48px;
           margin: 96px auto;
+        }
+
+        iframe {
+          border: 2px solid var(--accents-2);
+          border-radius: 10px;
         }
 
         div.header {
