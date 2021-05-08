@@ -12,18 +12,6 @@ import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
 
-export interface Filter {
-  senders: string[];
-  id: string;
-}
-
-export function isFilter(filter: unknown): filter is Filter {
-  if (!isJSON(filter)) return false;
-  if (typeof filter.id !== 'string') return false;
-  if (!isStringArray(filter.senders)) return false;
-  return true;
-}
-
 /**
  * @typedef {Object} UserInterface
  * @extends ResourceInterface
@@ -37,7 +25,9 @@ export function isFilter(filter: unknown): filter is Filter {
  * @property token - The user's OAuth token that we use to access Gmail's API.
  * @property label - The Gmail label ID for the "Return of the Newsletter" label
  * that we create when the user is onboarded.
- * @property filter - The Gmail filter that we create when the user signs up.
+ * @property filter - The Gmail filter ID that we create when the user signs up.
+ * @property subscriptions - An array of newsletter email addresses that the
+ * user has subscribed to (i.e. the newsletters that show up in their feed).
  */
 export interface UserInterface extends ResourceInterface {
   id: string;
@@ -49,7 +39,8 @@ export interface UserInterface extends ResourceInterface {
   phone: string;
   token: string;
   label: string;
-  filter: Filter;
+  filter: string;
+  subscriptions: string[];
 }
 
 export type UserJSON = Omit<UserInterface, keyof Resource> & ResourceJSON;
@@ -66,13 +57,14 @@ export function isUserJSON(json: unknown): json is UserJSON {
     'email',
     'phone',
     'token',
+    'label',
+    'filter',
   ];
 
   if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (typeof json.label !== 'string') return false;
-  if (!isFilter(json.filter)) return false;
+  if (!isStringArray(json.subscriptions)) return false;
   return true;
 }
 
@@ -95,7 +87,9 @@ export class User extends Resource implements UserInterface {
 
   public label = '';
 
-  public filter: Filter = { id: '', senders: [] };
+  public filter = '';
+
+  public subscriptions: string[] = [];
 
   public constructor(user: Partial<UserInterface> = {}) {
     super(user);

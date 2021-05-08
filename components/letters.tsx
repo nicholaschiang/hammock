@@ -3,7 +3,7 @@ import useSWR, { mutate } from 'swr';
 import Head from 'next/head';
 import NProgress from 'nprogress';
 import Router from 'next/router';
-import { dequal } from 'dequal';
+import cn from 'classnames';
 
 import { LettersRes } from 'pages/api/letters';
 
@@ -11,7 +11,7 @@ import Avatar from 'components/avatar';
 import Button from 'components/button';
 import Empty from 'components/empty';
 
-import { Filter, User } from 'lib/model/user';
+import { User, UserJSON } from 'lib/model/user';
 import { Letter } from 'lib/model/letter';
 import clone from 'lib/utils/clone';
 import { fetcher } from 'lib/fetch';
@@ -25,23 +25,21 @@ interface LetterRowProps {
 }
 
 function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
-  const [checked, setChecked] = useState<boolean>(selected || false);
-  useEffect(() => setChecked((prev) => selected || prev), [selected]);
-  const onClick = useCallback(
-    () => (onSelected ? onSelected(!selected) : setChecked((prev) => !prev)),
-    [onSelected, selected]
-  );
-
   return (
-    <li onClick={onClick}>
+    <li onClick={onSelected ? () => onSelected(!selected) : undefined}>
       <Avatar src={letter?.from.photo} loading={!letter} size={36} />
       {!letter && <span className='name loading' />}
       {letter && <span className='name nowrap'>{letter.from.name}</span>}
-      <span className='check'>
-        <input type='checkbox' checked={checked} readOnly />
+      <span className={cn('check', { disabled: !onSelected })}>
+        <input
+          disabled={!onSelected}
+          checked={selected}
+          type='checkbox'
+          readOnly
+        />
         <span className='icon' aria-hidden='true'>
           <svg viewBox='0 0 24 24' height='24' width='24' fill='none'>
-            {checked && (
+            {selected && (
               <path
                 d='M14 7L8.5 12.5L6 10'
                 stroke='var(--on-primary)'
@@ -89,6 +87,10 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           cursor: pointer;
         }
 
+        .check.disabled {
+          cursor: not-allowed;
+        }
+
         .check input {
           position: absolute;
           width: 1px;
@@ -99,6 +101,10 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
           clip: rect(0,0,0,0);
           white-space: nowrap;
           border-width: 0;
+        }
+
+        .check input:disabled + .icon {
+          border: 2px solid var(--accents-2);
         }
 
         .check input:checked + .icon {
@@ -121,7 +127,6 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
 }
 
 export default function Letters() {
-  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -144,24 +149,24 @@ export default function Letters() {
     setLoading(true);
     try {
       const selectedLetters = letters?.filter((l) =>
-        selected.has(l.from.email)
+        user.subscriptions.includes(l.from.email)
       );
       if (!selectedLetters?.length) return;
 
-      const filter: Filter = { id: user.filter.id, senders: [] };
+      const subscriptions: string[] = [];
       selectedLetters.forEach((l) => {
-        if (!filter.senders.includes(l.from.email))
-          filter.senders.push(l.from.email);
+        if (!subscriptions.includes(l.from.email))
+          subscriptions.push(l.from.email);
       });
 
       const url = '/api/account';
-      const updated = new User({ ...user, filter });
+      const updated = new User({ ...user, subscriptions });
       await mutate(url, fetcher(url, 'put', updated.toJSON()));
       await Router.push('/');
     } catch (e) {
       setError(period(e.message));
     }
-  }, [selected, letters, user]);
+  }, [letters, user]);
 
   const other = useMemo(
     () => (letters || []).filter((letter) => letter.category === 'other'),
@@ -179,13 +184,9 @@ export default function Letters() {
     []
   );
 
-  // Select all the saved newsletters (that the user has previously selected).
-  // TODO: Ensure that all of these show up in the newsletter list so that users
-  // can unselect them as needed (i.e. even if they aren't in the last 5000
-  // messages in their Gmail inbox).
-  useEffect(() => {
-    setSelected(new Set(user.filter.senders));
-  }, [user.filter.senders]);
+  // TODO: Ensure that all of the previously selected subscriptions show up in
+  // the newsletter list so that users can unselect them as needed (i.e. even if
+  // they aren't in the last 100 messages in their Gmail inbox).
 
   // Pre-select all of the "important" newsletters. From @martinsrna:
   // > The reason is that in the whitelist "database" we created (that decides
@@ -197,11 +198,19 @@ export default function Letters() {
   const hasBeenUpdated = useRef<boolean>(false);
   useEffect(() => {
     if (hasBeenUpdated.current) return;
-    setSelected((prev) => {
-      const next = new Set([...prev, ...important.map((l) => l.from.email)]);
-      if (dequal([...prev], [...next])) return prev;
-      return next;
-    });
+    void mutate(
+      '/api/account',
+      (prev?: UserJSON) => {
+        if (!prev) return prev;
+        const subscriptions = clone(prev.subscriptions);
+        important.forEach((l) => {
+          if (!subscriptions.includes(l.from.email))
+            subscriptions.push(l.from.email);
+        });
+        return { ...prev, subscriptions };
+      },
+      false
+    );
   }, [important]);
 
   return (
@@ -217,15 +226,21 @@ export default function Letters() {
             <LetterRow
               key={r.from.email}
               letter={Letter.fromJSON(r)}
-              selected={selected.has(r.from.email)}
+              selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
-                setSelected((prev) => {
-                  const next = clone(prev);
-                  if (!isSelected) next.delete(r.from.email);
-                  if (isSelected) next.add(r.from.email);
-                  return next;
-                });
+                void mutate(
+                  '/api/account',
+                  (prev?: UserJSON) => {
+                    if (!prev) return prev;
+                    const subscriptions = clone(prev.subscriptions);
+                    const idx = subscriptions.indexOf(r.from.email);
+                    if (!isSelected && idx >= 0) subscriptions.splice(idx, 1);
+                    if (isSelected && idx < 0) subscriptions.push(r.from.email);
+                    return { ...prev, subscriptions };
+                  },
+                  false
+                );
               }}
             />
           ))}
@@ -240,15 +255,21 @@ export default function Letters() {
             <LetterRow
               key={r.from.email}
               letter={Letter.fromJSON(r)}
-              selected={selected.has(r.from.email)}
+              selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
-                setSelected((prev) => {
-                  const next = clone(prev);
-                  if (!isSelected) next.delete(r.from.email);
-                  if (isSelected) next.add(r.from.email);
-                  return next;
-                });
+                void mutate(
+                  '/api/account',
+                  (prev?: UserJSON) => {
+                    if (!prev) return prev;
+                    const subscriptions = clone(prev.subscriptions);
+                    const idx = subscriptions.indexOf(r.from.email);
+                    if (!isSelected && idx >= 0) subscriptions.splice(idx, 1);
+                    if (isSelected && idx < 0) subscriptions.push(r.from.email);
+                    return { ...prev, subscriptions };
+                  },
+                  false
+                );
               }}
             />
           ))}

@@ -1,14 +1,14 @@
 import { dequal } from 'dequal';
 
-import { Filter, User } from 'lib/model/user';
+import { User } from 'lib/model/user';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
 
-export default async function getOrCreateFilter(user: User): Promise<Filter> {
+export default async function getOrCreateFilter(user: User): Promise<string> {
   const client = gmail(user.token);
   const requestBody = {
     action: { addLabelIds: [user.label], removeLabelIds: ['INBOX'] },
-    criteria: { from: user.filter.senders.join(' OR ') },
+    criteria: { from: user.subscriptions.join(' OR ') },
   };
 
   logger.verbose(`Fetching filters for ${user}...`);
@@ -16,7 +16,7 @@ export default async function getOrCreateFilter(user: User): Promise<Filter> {
   const existing = data.filter?.find((f) =>
     dequal(requestBody, { action: f.action, criteria: f.criteria })
   );
-  if (existing?.id) return { ...user.filter, id: existing.id };
+  if (existing?.id) return existing.id;
 
   logger.verbose(`Deleting old filters for ${user}...`);
   await Promise.all(
@@ -37,5 +37,5 @@ export default async function getOrCreateFilter(user: User): Promise<Filter> {
     requestBody,
     userId: 'me',
   });
-  return { ...user.filter, id: filter.id as string };
+  return filter.id || '';
 }

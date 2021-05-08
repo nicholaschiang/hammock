@@ -17,7 +17,7 @@ export default async function updateGmailMessages(user: User): Promise<void> {
   console.time('filter-messages');
   const client = gmail(user.token);
   const { data } = await client.users.messages.list({
-    q: `from:(${user.filter.senders.join(' OR ')})`,
+    q: `from:(${user.subscriptions.join(' OR ')})`,
     maxResults: 2500,
     userId: 'me',
   });
