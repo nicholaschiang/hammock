@@ -48,9 +48,12 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     (pageIdx: number, prev: MessagesRes | null) => {
       const params = new URLSearchParams(query);
       if (prev && !prev.length) return null;
-      if (!prev || pageIdx === 0) return `/api/messages?${params.toString()}`;
-      const lastMessageId = prev[prev.length - 1].id;
-      return `/api/messages?${params.toString()}&lastMessageId=${lastMessageId}`;
+      if (!prev || pageIdx === 0) {
+        const queryString = params.toString();
+        return queryString ? `/api/messages?${queryString}` : '/api/messages';
+      }
+      params.append('lastMessageId', prev[prev.length - 1].id);
+      return `/api/messages?${params.toString()}`;
     },
     [query]
   );
