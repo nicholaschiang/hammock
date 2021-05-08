@@ -71,7 +71,7 @@ async function loginUser(
         secure: true,
       })
     );
-    res.redirect('/letters');
+    res.redirect('/subscriptions');
   } catch (e) {
     handle(e, res);
   }

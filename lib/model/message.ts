@@ -1,11 +1,11 @@
 import { DocumentSnapshot, Timestamp } from 'lib/api/firebase';
 import {
-  Letter,
-  LetterFirestore,
-  LetterInterface,
-  LetterJSON,
-  isLetterJSON,
-} from 'lib/model/letter';
+  Subscription,
+  SubscriptionFirestore,
+  SubscriptionInterface,
+  SubscriptionJSON,
+  isSubscriptionJSON,
+} from 'lib/model/subscription';
 import { isDateJSON, isJSON } from 'lib/model/json';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -19,7 +19,7 @@ export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
 
 /**
  * @typedef {Object} MessageInterface
- * @extends LetterInterface
+ * @extends SubscriptionInterface
  * @property id - The message's Gmail-assigned ID (we reuse it in our database).
  * @property date - When the message was sent (i.e. Gmail's `internalDate`).
  * @property subject - The message's subject line.
@@ -29,7 +29,7 @@ export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
  * @property scroll - The user's scroll position in reading this email.
  * @property time - The message's estimated reading time (in minutes).
  */
-export interface MessageInterface extends LetterInterface {
+export interface MessageInterface extends SubscriptionInterface {
   id: string;
   date: Date;
   subject: string;
@@ -40,16 +40,19 @@ export interface MessageInterface extends LetterInterface {
   time: number;
 }
 
-export type MessageJSON = Omit<MessageInterface, keyof Letter | 'date'> &
-  LetterJSON & { date: string };
-export type MessageFirestore = Omit<MessageInterface, keyof Letter | 'date'> &
-  LetterFirestore & { date: Timestamp };
+export type MessageJSON = Omit<MessageInterface, keyof Subscription | 'date'> &
+  SubscriptionJSON & { date: string };
+export type MessageFirestore = Omit<
+  MessageInterface,
+  keyof Subscription | 'date'
+> &
+  SubscriptionFirestore & { date: Timestamp };
 
 export function isMessageJSON(json: unknown): json is MessageJSON {
   const stringFields = ['id', 'subject', 'snippet', 'html'];
   const numberFields = ['scroll', 'time'];
 
-  if (!isLetterJSON(json)) return false;
+  if (!isSubscriptionJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (!isDateJSON(json.date)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
@@ -58,7 +61,7 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
   return true;
 }
 
-export class Message extends Letter implements MessageInterface {
+export class Message extends Subscription implements MessageInterface {
   public id = '';
 
   public date: Date = new Date();
@@ -77,7 +80,11 @@ export class Message extends Letter implements MessageInterface {
 
   public constructor(message: Partial<MessageInterface> = {}) {
     super(message);
-    construct<MessageInterface, LetterInterface>(this, message, new Letter());
+    construct<MessageInterface, SubscriptionInterface>(
+      this,
+      message,
+      new Subscription()
+    );
   }
 
   public get clone(): Message {
@@ -99,7 +106,7 @@ export class Message extends Letter implements MessageInterface {
   public static fromJSON(json: MessageJSON): Message {
     return new Message({
       ...json,
-      ...Letter.fromJSON(json),
+      ...Subscription.fromJSON(json),
       date: new Date(json.date),
     });
   }
@@ -115,7 +122,7 @@ export class Message extends Letter implements MessageInterface {
   public static fromFirestore(data: MessageFirestore): Message {
     return new Message({
       ...data,
-      ...Letter.fromFirestore(data),
+      ...Subscription.fromFirestore(data),
       date: data.date.toDate(),
     });
   }

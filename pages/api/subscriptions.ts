@@ -1,6 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { Letter, LetterJSON } from 'lib/model/letter';
+import { Subscription, SubscriptionJSON } from 'lib/model/subscription';
 import { APIErrorJSON } from 'lib/model/error';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import getUser from 'lib/api/get/user';
@@ -10,16 +10,16 @@ import logger from 'lib/api/logger';
 import messageFromGmail from 'lib/api/message-from-gmail';
 import verifyAuth from 'lib/api/verify/auth';
 
-export type LettersRes = LetterJSON[];
+export type SubscriptionsRes = SubscriptionJSON[];
 
 /**
- * GET - Lists the letters for the given user.
+ * GET - Lists the subscriptions for the given user.
  *
- * Requires a JWT; will return the letters for that user.
+ * Requires a JWT; will return the subscriptions for that user.
  */
-export default async function letters(
+export default async function subscriptions(
   req: Req,
-  res: Res<LettersRes | APIErrorJSON>
+  res: Res<SubscriptionsRes | APIErrorJSON>
 ): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -29,7 +29,7 @@ export default async function letters(
       const { pageToken } = req.query as { pageToken?: string };
       const { uid } = await verifyAuth(req.headers);
       const user = await getUser(uid);
-      logger.verbose(`Fetching letters for ${user}...`);
+      logger.verbose(`Fetching subscriptions for ${user}...`);
       const client = gmail(user.token);
       const { data } = await client.users.messages.list({
         maxResults: 100,
@@ -37,14 +37,14 @@ export default async function letters(
         pageToken,
       });
       const messageIds = (data.messages || []).map((m) => m.id as string);
-      const lettersData: Letter[] = [];
+      const subscriptionsData: Subscription[] = [];
       (await getGmailMessages(messageIds, client, 'METADATA')).forEach((m) => {
-        const letter = messageFromGmail(m);
-        if (!lettersData.some((l) => l.from.email === letter.from.email))
-          lettersData.push(letter);
+        const msg = messageFromGmail(m);
+        if (!subscriptionsData.some((l) => l.from.email === msg.from.email))
+          subscriptionsData.push(msg);
       });
-      res.status(200).json(lettersData.map((l) => l.toJSON()));
-      logger.info(`Fetched ${letters.length} letters for ${user}.`);
+      res.status(200).json(subscriptionsData.map((l) => l.toJSON()));
+      logger.info(`Fetched ${subscriptions.length} subscriptions for ${user}.`);
     } catch (e) {
       handle(e, res);
     }

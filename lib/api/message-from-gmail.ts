@@ -3,7 +3,7 @@ import he from 'he';
 import readingTime from 'reading-time';
 import utf8 from 'utf8';
 
-import { Category, Contact } from 'lib/model/letter';
+import { Category, Contact } from 'lib/model/subscription';
 import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';

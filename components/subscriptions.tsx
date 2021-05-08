@@ -5,31 +5,41 @@ import NProgress from 'nprogress';
 import Router from 'next/router';
 import cn from 'classnames';
 
-import { LettersRes } from 'pages/api/letters';
+import { SubscriptionsRes } from 'pages/api/subscriptions';
 
 import Avatar from 'components/avatar';
 import Button from 'components/button';
 import Empty from 'components/empty';
 
 import { User, UserJSON } from 'lib/model/user';
-import { Letter } from 'lib/model/letter';
+import { Subscription } from 'lib/model/subscription';
 import clone from 'lib/utils/clone';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
 import { useUser } from 'lib/context/user';
 
-interface LetterRowProps {
-  letter?: Letter;
+interface SubscriptionRowProps {
+  subscription?: Subscription;
   selected?: boolean;
   onSelected?: (selected: boolean) => void;
 }
 
-function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
+function SubscriptionRow({
+  subscription,
+  selected,
+  onSelected,
+}: SubscriptionRowProps) {
   return (
     <li onClick={onSelected ? () => onSelected(!selected) : undefined}>
-      <Avatar src={letter?.from.photo} loading={!letter} size={36} />
-      {!letter && <span className='name loading' />}
-      {letter && <span className='name nowrap'>{letter.from.name}</span>}
+      <Avatar
+        src={subscription?.from.photo}
+        loading={!subscription}
+        size={36}
+      />
+      {!subscription && <span className='name loading' />}
+      {subscription && (
+        <span className='name nowrap'>{subscription.from.name}</span>
+      )}
       <span className={cn('check', { disabled: !onSelected })}>
         <input
           disabled={!onSelected}
@@ -126,7 +136,7 @@ function LetterRow({ letter, selected, onSelected }: LetterRowProps) {
   );
 }
 
-export default function Letters() {
+export default function Subscriptions() {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -142,56 +152,57 @@ export default function Letters() {
     if (error) setLoading(false);
   }, [error]);
 
-  const { data: letters } = useSWR<LettersRes>('/api/letters');
+  const { data: subscriptions } = useSWR<SubscriptionsRes>(
+    '/api/subscriptions'
+  );
   const { user } = useUser();
 
   const onSave = useCallback(async () => {
     setLoading(true);
     try {
-      const selectedLetters = letters?.filter((l) =>
+      const selectedSubscriptions = subscriptions?.filter((l) =>
         user.subscriptions.includes(l.from.email)
       );
-      if (!selectedLetters?.length) return;
+      if (!selectedSubscriptions?.length) return;
 
-      const subscriptions: string[] = [];
-      selectedLetters.forEach((l) => {
-        if (!subscriptions.includes(l.from.email))
-          subscriptions.push(l.from.email);
+      const subs: string[] = [];
+      selectedSubscriptions.forEach((l) => {
+        if (!subs.includes(l.from.email)) subs.push(l.from.email);
       });
 
       const url = '/api/account';
-      const updated = new User({ ...user, subscriptions });
+      const updated = new User({ ...user, subscriptions: subs });
       await mutate(url, fetcher(url, 'put', updated.toJSON()));
       await Router.push('/');
     } catch (e) {
       setError(period(e.message));
     }
-  }, [letters, user]);
+  }, [subscriptions, user]);
 
   const other = useMemo(
-    () => (letters || []).filter((letter) => letter.category === 'other'),
-    [letters]
+    () => (subscriptions || []).filter((s) => s.category === 'other'),
+    [subscriptions]
   );
   const important = useMemo(
-    () => (letters || []).filter((letter) => letter.category === 'important'),
-    [letters]
+    () => (subscriptions || []).filter((s) => s.category === 'important'),
+    [subscriptions]
   );
   const loadingList = useMemo(
     () =>
       Array(5)
         .fill(null)
-        .map((_, idx) => <LetterRow key={idx} />),
+        .map((_, idx) => <SubscriptionRow key={idx} />),
     []
   );
 
   // TODO: Ensure that all of the previously selected subscriptions show up in
-  // the newsletter list so that users can unselect them as needed (i.e. even if
+  // the newssubscription list so that users can unselect them as needed (i.e. even if
   // they aren't in the last 100 messages in their Gmail inbox).
 
-  // Pre-select all of the "important" newsletters. From @martinsrna:
+  // Pre-select all of the "important" newssubscriptions. From @martinsrna:
   // > The reason is that in the whitelist "database" we created (that decides
-  // > if a newsletter is important or not), there are mostly substacks and more
-  // > popular newsletters people in general subscribe to.
+  // > if a newssubscription is important or not), there are mostly substacks and more
+  // > popular newssubscriptions people in general subscribe to.
   // >
   // > There's a very high probability they want to have them in their feed.
   // > It's more likely that users only want to uncheck some of them.
@@ -202,12 +213,11 @@ export default function Letters() {
       '/api/account',
       (prev?: UserJSON) => {
         if (!prev) return prev;
-        const subscriptions = clone(prev.subscriptions);
+        const subs = clone(prev.subscriptions);
         important.forEach((l) => {
-          if (!subscriptions.includes(l.from.email))
-            subscriptions.push(l.from.email);
+          if (!subs.includes(l.from.email)) subs.push(l.from.email);
         });
-        return { ...prev, subscriptions };
+        return { ...prev, subscriptions: subs };
       },
       false
     );
@@ -216,16 +226,16 @@ export default function Letters() {
   return (
     <div className='wrapper'>
       <Head>
-        <link rel='preload' href='/api/letters' as='fetch' />
+        <link rel='preload' href='/api/subscriptions' as='fetch' />
       </Head>
       <h1>Choose what you want to read in your feed</h1>
-      <h2>All the Substacks and popular newsletters</h2>
+      <h2>All the Substacks and popular newssubscriptions</h2>
       {!!important.length && (
         <ul>
           {important.map((r) => (
-            <LetterRow
+            <SubscriptionRow
               key={r.from.email}
-              letter={Letter.fromJSON(r)}
+              subscription={Subscription.fromJSON(r)}
               selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
@@ -233,11 +243,11 @@ export default function Letters() {
                   '/api/account',
                   (prev?: UserJSON) => {
                     if (!prev) return prev;
-                    const subscriptions = clone(prev.subscriptions);
-                    const idx = subscriptions.indexOf(r.from.email);
-                    if (!isSelected && idx >= 0) subscriptions.splice(idx, 1);
-                    if (isSelected && idx < 0) subscriptions.push(r.from.email);
-                    return { ...prev, subscriptions };
+                    const subs = clone(prev.subscriptions);
+                    const idx = subs.indexOf(r.from.email);
+                    if (!isSelected && idx >= 0) subs.splice(idx, 1);
+                    if (isSelected && idx < 0) subs.push(r.from.email);
+                    return { ...prev, subscriptions: subs };
                   },
                   false
                 );
@@ -246,15 +256,17 @@ export default function Letters() {
           ))}
         </ul>
       )}
-      {!letters && <ul>{loadingList}</ul>}
-      {letters && !important.length && <Empty>No newsletters found</Empty>}
+      {!subscriptions && <ul>{loadingList}</ul>}
+      {subscriptions && !important.length && (
+        <Empty>No newssubscriptions found</Empty>
+      )}
       <h2>Other subscriptions, including promotions</h2>
       {!!other.length && (
         <ul>
           {other.map((r) => (
-            <LetterRow
+            <SubscriptionRow
               key={r.from.email}
-              letter={Letter.fromJSON(r)}
+              subscription={Subscription.fromJSON(r)}
               selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
@@ -262,11 +274,11 @@ export default function Letters() {
                   '/api/account',
                   (prev?: UserJSON) => {
                     if (!prev) return prev;
-                    const subscriptions = clone(prev.subscriptions);
-                    const idx = subscriptions.indexOf(r.from.email);
-                    if (!isSelected && idx >= 0) subscriptions.splice(idx, 1);
-                    if (isSelected && idx < 0) subscriptions.push(r.from.email);
-                    return { ...prev, subscriptions };
+                    const subs = clone(prev.subscriptions);
+                    const idx = subs.indexOf(r.from.email);
+                    if (!isSelected && idx >= 0) subs.splice(idx, 1);
+                    if (isSelected && idx < 0) subs.push(r.from.email);
+                    return { ...prev, subscriptions: subs };
                   },
                   false
                 );
@@ -275,8 +287,8 @@ export default function Letters() {
           ))}
         </ul>
       )}
-      {!letters && <ul>{loadingList}</ul>}
-      {letters && !other.length && <Empty>No subscriptions found</Empty>}
+      {!subscriptions && <ul>{loadingList}</ul>}
+      {subscriptions && !other.length && <Empty>No subscriptions found</Empty>}
       <Button disabled={loading} onClick={onSave}>
         Go to your feed
       </Button>

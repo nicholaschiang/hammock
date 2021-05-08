@@ -134,7 +134,7 @@ export default function NavBar(): JSX.Element {
           <Avatar loading={!loggedIn} src={user.photo} size={48} />
         </button>
         <div className={cn('menu', { open })}>
-          <MenuLink href='/letters'>Subscriptions</MenuLink>
+          <MenuLink href='/subscriptions'>Subscriptions</MenuLink>
           <MenuLink href='/archive'>Archive</MenuLink>
           <div className='line' />
           <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>

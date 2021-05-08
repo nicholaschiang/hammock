@@ -25,13 +25,13 @@ distraction-free reading space.
 
 A user is a person; someone who uses the app.
 
-### `Letter`
+### `Subscription`
 
-A letter is a recurring newsletter from a specific email address.
+A subscription is a recurring newsletter from a specific email address.
 
 ### `Message`
 
-A message is an email from a recurring newsletter.
+A message is an email from a recurring newsletter (extends `Subscription`).
 
 ## Implementation
 

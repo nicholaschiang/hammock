@@ -32,23 +32,27 @@ export function isCategory(category: unknown): category is Category {
 }
 
 /**
- * @typedef {Object} LetterInterface
+ * @typedef {Object} SubscriptionInterface
  * @extends ResourceInterface
  * @property from - Who the newsletter is from (their name, email, and photo).
  * @property [category] - Either "important" (a known newsletter listed on our
  * whitelist or with a whitelisted sender domain) or "other" (any email that
  * contains the `list-unsubscribe` header) or missing (not a newsletter).
  */
-export interface LetterInterface extends ResourceInterface {
+export interface SubscriptionInterface extends ResourceInterface {
   from: Contact;
   category?: Category;
 }
 
-export type LetterJSON = Omit<LetterInterface, keyof Resource> & ResourceJSON;
-export type LetterFirestore = Omit<LetterInterface, keyof Resource> &
+export type SubscriptionJSON = Omit<SubscriptionInterface, keyof Resource> &
+  ResourceJSON;
+export type SubscriptionFirestore = Omit<
+  SubscriptionInterface,
+  keyof Resource
+> &
   ResourceFirestore;
 
-export function isLetterJSON(json: unknown): json is LetterJSON {
+export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
   if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (!isContact(json.from)) return false;
@@ -56,48 +60,54 @@ export function isLetterJSON(json: unknown): json is LetterJSON {
   return true;
 }
 
-export class Letter extends Resource implements LetterInterface {
+export class Subscription extends Resource implements SubscriptionInterface {
   public from = { name: '', email: '', photo: '' };
 
   public category?: Category;
 
-  public constructor(letter: Partial<LetterInterface> = {}) {
-    super(letter);
-    construct<LetterInterface, ResourceInterface>(this, letter, new Resource());
+  public constructor(subscription: Partial<SubscriptionInterface> = {}) {
+    super(subscription);
+    construct<SubscriptionInterface, ResourceInterface>(
+      this,
+      subscription,
+      new Resource()
+    );
   }
 
-  public get clone(): Letter {
-    return new Letter(clone(this));
+  public get clone(): Subscription {
+    return new Subscription(clone(this));
   }
 
   public toString(): string {
-    return `Letter from ${this.from.name} (${this.from.email})`;
+    return `Subscription from ${this.from.name} (${this.from.email})`;
   }
 
-  public toJSON(): LetterJSON {
+  public toJSON(): SubscriptionJSON {
     return definedVals({ ...this, ...super.toJSON() });
   }
 
-  public static fromJSON(json: LetterJSON): Letter {
-    return new Letter({ ...json, ...Resource.fromJSON(json) });
+  public static fromJSON(json: SubscriptionJSON): Subscription {
+    return new Subscription({ ...json, ...Resource.fromJSON(json) });
   }
 
-  public toFirestore(): LetterFirestore {
+  public toFirestore(): SubscriptionFirestore {
     return definedVals({ ...this, ...super.toFirestore() });
   }
 
-  public static fromFirestore(data: LetterFirestore): Letter {
-    return new Letter({ ...data, ...Resource.fromFirestore(data) });
+  public static fromFirestore(data: SubscriptionFirestore): Subscription {
+    return new Subscription({ ...data, ...Resource.fromFirestore(data) });
   }
 
-  public static fromFirestoreDoc(snapshot: DocumentSnapshot): Letter {
-    if (!snapshot.exists) return new Letter();
+  public static fromFirestoreDoc(snapshot: DocumentSnapshot): Subscription {
+    if (!snapshot.exists) return new Subscription();
     const overrides = definedVals({
       created: snapshot.createTime?.toDate(),
       updated: snapshot.updateTime?.toDate(),
       id: snapshot.id,
     });
-    const letter = Letter.fromFirestore(snapshot.data() as LetterFirestore);
-    return new Letter({ ...letter, ...overrides });
+    const subscription = Subscription.fromFirestore(
+      snapshot.data() as SubscriptionFirestore
+    );
+    return new Subscription({ ...subscription, ...overrides });
   }
 }
