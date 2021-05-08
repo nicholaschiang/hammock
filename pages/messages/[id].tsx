@@ -1,7 +1,7 @@
+import Router, { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
-import { useRouter } from 'next/router';
 
 import { MessageRes } from 'pages/api/messages/[id]';
 
@@ -50,12 +50,18 @@ export default function MessagePage(): JSX.Element {
     // Instead, I want to schedule an update every one second where we:
     // - If the scroll position hasn't changed since the last save, skip.
     // - Otherwise, save the latest scroll position in our database.
-    const timeoutId = setTimeout(() => {
+    async function saveScrollPosition(): Promise<void> {
       if (!message.id) return;
       const url = `/api/messages/${message.id}`;
+      const data = { ...message.toJSON(), scroll };
+      if (scroll === 1) data.archived = true;
       // TODO: Mutate the data used in `/feed` to match.
       // See: https://github.com/vercel/swr/issues/1156
-      void mutate(url, fetcher(url, 'put', { ...message.toJSON(), scroll }));
+      await mutate(url, fetcher(url, 'put', data));
+      if (data.archived) Router.back();
+    }
+    const timeoutId = setTimeout(() => {
+      void saveScrollPosition();
     }, 1000);
     return () => clearTimeout(timeoutId);
   }, [message, scroll]);
