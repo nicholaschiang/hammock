@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
 import Router from 'next/router';
 import cn from 'classnames';
 import { mutate } from 'swr';
