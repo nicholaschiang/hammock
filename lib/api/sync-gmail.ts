@@ -3,7 +3,7 @@ import { db } from 'lib/api/firebase';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
-import { messageFromGmail } from 'lib/utils/convert';
+import messageFromGmail from 'lib/api/message-from-gmail';
 
 /**
  * Syncs our database with the user's Gmail account:

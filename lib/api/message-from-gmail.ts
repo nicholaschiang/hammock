@@ -7,7 +7,7 @@ import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';
 
-export function getIcon(name: string, email: string): string {
+function getIcon(name: string, email: string): string {
   const result = whitelist[name.toLowerCase()];
   if (result && result !== true && result.asset_url) return result.asset_url;
   let domain = email.slice(email.indexOf('@') + 1);
@@ -28,7 +28,7 @@ export function getIcon(name: string, email: string): string {
  * @param The from header from Gmail's API.
  * @return The from header parsed into name and email strings.
  */
-export function parseFrom(from: string): Contact {
+function parseFrom(from: string): Contact {
   const matches = /(.*) <(.*)>/.exec(from);
   if (!matches) return { name: from, email: from, photo: '' };
   let name = matches[1].trim();
@@ -42,7 +42,7 @@ export function parseFrom(from: string): Contact {
   return { name, email, photo: getIcon(name, email) };
 }
 
-export function getMessageBody(message: GmailMessage): string {
+function getMessageBody(message: GmailMessage): string {
   let bodyData = '';
   if (message?.payload?.mimeType === 'text/html') {
     bodyData = message?.payload?.body?.data || '';
@@ -71,7 +71,7 @@ export function getMessageBody(message: GmailMessage): string {
   return utf8.decode(atob(bodyData.replace(/-/g, '+').replace(/_/g, '/')));
 }
 
-export function getSnippet(message: GmailMessage): string {
+function getSnippet(message: GmailMessage): string {
   if (!message.snippet) return '';
   let cleanedUp: string = he.decode(message.snippet);
   if (!cleanedUp.endsWith('.')) cleanedUp += '...';
@@ -83,7 +83,7 @@ export function getSnippet(message: GmailMessage): string {
  * @param gmailMessage - The GmailMessage to convert.
  * @return The converted message (with sanitized HTML and all).
  */
-export function messageFromGmail(gmailMessage: GmailMessage): Message {
+export default function messageFromGmail(gmailMessage: GmailMessage): Message {
   function getHeader(header: string): string {
     return (
       gmailMessage.payload?.headers?.find(

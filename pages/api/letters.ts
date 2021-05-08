@@ -7,7 +7,7 @@ import getUser from 'lib/api/get/user';
 import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
-import { messageFromGmail } from 'lib/utils/convert';
+import messageFromGmail from 'lib/api/message-from-gmail';
 import verifyAuth from 'lib/api/verify/auth';
 
 export type LettersRes = LetterJSON[];
