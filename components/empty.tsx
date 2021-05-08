@@ -8,7 +8,7 @@ export default function Empty({ children }: EmptyProps): JSX.Element {
       {children}
       <style jsx>{`
         .empty {
-          border: 2px dashed var(--accents-2);
+          border: 1px dashed var(--accents-2);
           border-radius: 4px;
           color: var(--accents-3);
           font-size: 16px;
