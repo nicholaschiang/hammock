@@ -8,7 +8,7 @@ export default function QuickReadPage(): JSX.Element {
   usePage({ name: 'Quick Read', login: true });
 
   return (
-    <Page title='Quick Read - Return of the Newsletter'>
+    <Page title='Quick Read - Hammock'>
       <div className='page'>
         <NavBar />
         <Feed quickRead='true' />

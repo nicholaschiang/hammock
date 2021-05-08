@@ -2,7 +2,7 @@ import { User } from 'lib/model/user';
 import gmail from 'lib/api/gmail';
 
 /**
- * Filters the user's Gmail messages into our "Return of the Newsletter" label
+ * Filters the user's Gmail messages into our "Hammock" label
  * based on their most up-to-date filters:
  * 1. Removes the label from messages that are not from our specified senders.
  * 2. Adds the label to messages that are from our specified senders and do not

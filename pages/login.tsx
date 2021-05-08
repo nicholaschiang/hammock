@@ -97,7 +97,7 @@ export default function LoginPage(): JSX.Element {
   }, []);
 
   return (
-    <Page title='Login - Return of the Newsletter'>
+    <Page title='Login - Hammock'>
       <div className='wrapper'>
         <div className='dialog'>
           <h1>A few things to know, before we get started</h1>

@@ -8,7 +8,7 @@ export default function ResumePage(): JSX.Element {
   usePage({ name: 'Resume', login: true });
 
   return (
-    <Page title='Resume - Return of the Newsletter'>
+    <Page title='Resume - Hammock'>
       <div className='page'>
         <NavBar />
         <Feed resume='true' />

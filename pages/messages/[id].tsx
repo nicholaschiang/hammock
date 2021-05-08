@@ -77,7 +77,7 @@ export default function MessagePage(): JSX.Element {
   }, [message.scroll]);
 
   return (
-    <Page title='Message - Return of the Newsletter'>
+    <Page title='Message - Hammock'>
       <Controls message={message} />
       <div className='page'>
         <div className='header'>

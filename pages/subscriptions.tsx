@@ -7,7 +7,7 @@ export default function SubscriptionsPage(): JSX.Element {
   usePage({ name: 'Subscriptions', login: true });
 
   return (
-    <Page title='Subscriptions - Return of the Newsletter'>
+    <Page title='Subscriptions - Hammock'>
       <Subscriptions />
     </Page>
   );

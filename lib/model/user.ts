@@ -23,7 +23,7 @@ import definedVals from 'lib/model/defined-vals';
  * @property email - The user's email address.
  * @property phone - The user's phone number.
  * @property token - The user's OAuth token that we use to access Gmail's API.
- * @property label - The Gmail label ID for the "Return of the Newsletter" label
+ * @property label - The Gmail label ID for the "Hammock" label
  * that we create when the user is onboarded.
  * @property filter - The Gmail filter ID that we create when the user signs up.
  * @property subscriptions - An array of newsletter email addresses that the

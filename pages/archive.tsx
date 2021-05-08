@@ -8,7 +8,7 @@ export default function ArchivePage(): JSX.Element {
   usePage({ name: 'Archive', login: true });
 
   return (
-    <Page title='Archive - Return of the Newsletter'>
+    <Page title='Archive - Hammock'>
       <div className='page'>
         <NavBar />
         <Feed archive='true' />

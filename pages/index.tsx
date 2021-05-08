@@ -8,7 +8,7 @@ export default function IndexPage(): JSX.Element {
   usePage({ name: 'Feed', login: true });
 
   return (
-    <Page title='Feed - Return of the Newsletter'>
+    <Page title='Feed - Hammock'>
       <div className='page'>
         <NavBar />
         <Feed />

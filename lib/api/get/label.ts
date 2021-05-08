@@ -2,7 +2,7 @@ import { User } from 'lib/model/user';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
 
-const LABEL_NAME = 'Return of the Newsletter';
+const LABEL_NAME = 'Hammock';
 
 export default async function getOrCreateLabel(user: User): Promise<string> {
   const client = gmail(user.token);
