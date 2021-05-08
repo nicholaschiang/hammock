@@ -54,11 +54,13 @@ export default function Controls({ message }: ControlsProps): JSX.Element {
 
   return (
     <div className={cn('controls', { visible })}>
-      <Link href='/'>
-        <a className='button'>
-          <ArrowBackIcon />
-        </a>
-      </Link>
+      <button
+        onClick={() => Router.back()}
+        className='reset button'
+        type='button'
+      >
+        <ArrowBackIcon />
+      </button>
       <button
         onClick={archive}
         disabled={archiving}
