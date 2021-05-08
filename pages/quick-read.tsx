@@ -11,7 +11,7 @@ export default function QuickReadPage(): JSX.Element {
     <Page title='Quick Read - Return of the Newsletter'>
       <div className='page'>
         <NavBar />
-        <Feed quickRead />
+        <Feed quickRead='true' />
         <style jsx>{`
           .page {
             display: flex;

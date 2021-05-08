@@ -11,7 +11,7 @@ export default function ArchivePage(): JSX.Element {
     <Page title='Archive - Return of the Newsletter'>
       <div className='page'>
         <NavBar />
-        <Feed archive />
+        <Feed archive='true' />
         <style jsx>{`
           .page {
             display: flex;

@@ -11,7 +11,7 @@ export default function ResumePage(): JSX.Element {
     <Page title='Resume - Return of the Newsletter'>
       <div className='page'>
         <NavBar />
-        <Feed resume />
+        <Feed resume='true' />
         <style jsx>{`
           .page {
             display: flex;
