@@ -98,9 +98,9 @@ export default function NavBar(): JSX.Element {
         <Avatar loading={!loggedIn} src={user.photo} size={48} />
         <nav>
           <NavLink href='/'>Feed</NavLink>
-          <NavLink href='/archive'>Archive</NavLink>
-          <NavLink href='/letters'>Letters</NavLink>
-          <NavLink href='/api/logout'>Logout</NavLink>
+          <NavLink href='/quick-read'>Quick read</NavLink>
+          <NavLink href='/resume'>Resume</NavLink>
+          <NavLink href='/highlights'>Highlights</NavLink>
         </nav>
       </div>
       <style jsx>{`
