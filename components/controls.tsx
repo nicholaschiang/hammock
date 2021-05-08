@@ -4,6 +4,8 @@ import Router from 'next/router';
 import cn from 'classnames';
 import { mutate } from 'swr';
 
+import { MessagesRes } from 'pages/api/messages';
+
 import ArchiveIcon from 'components/icons/archive';
 import ArrowBackIcon from 'components/icons/arrow-back';
 
@@ -40,6 +42,13 @@ export default function Controls({ message }: ControlsProps): JSX.Element {
     const url = `/api/messages/${message.id}`;
     const data = { ...message.toJSON(), archived: true };
     await mutate(url, fetcher(url, 'put', data));
+    // TODO: Mutate the data used in `/feed` to match.
+    // See: https://github.com/vercel/swr/issues/1156
+    await mutate('/api/messages', (messages: MessagesRes = []) => {
+      const idx = messages.findIndex((m) => m.id === data.id);
+      if (idx < 0) return messages;
+      return [...messages.slice(0, idx), ...messages.slice(idx + 1)];
+    });
     Router.back();
   }, [message]);
 
