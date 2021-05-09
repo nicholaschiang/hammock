@@ -7,6 +7,7 @@ import { Category, Contact } from 'lib/model/subscription';
 import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';
+import xss from 'lib/api/xss';
 
 function getIcon(name: string, email: string): string {
   const result = whitelist[name.toLowerCase()];
@@ -101,7 +102,7 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
     category = 'other';
   }
 
-  const html = getMessageBody(gmailMessage);
+  const html = xss.process(getMessageBody(gmailMessage));
 
   return new Message({
     html,

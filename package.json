@@ -44,7 +44,8 @@
     "smartcrop-sharp": "^2.0.3",
     "swr": "^0.5.5",
     "utf8": "^3.0.0",
-    "winston": "^3.3.3"
+    "winston": "^3.3.3",
+    "xss": "^1.0.9"
   },
   "devDependencies": {
     "@types/atob": "^2.1.2",
