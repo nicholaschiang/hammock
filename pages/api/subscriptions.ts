@@ -44,7 +44,9 @@ export default async function subscriptions(
           subscriptionsData.push(msg);
       });
       res.status(200).json(subscriptionsData.map((l) => l.toJSON()));
-      logger.info(`Fetched ${subscriptions.length} subscriptions for ${user}.`);
+      logger.info(
+        `Fetched ${subscriptionsData.length} subscriptions for ${user}.`
+      );
     } catch (e) {
       handle(e, res);
     }
