@@ -18,6 +18,6 @@ export default async function logout(req: Req, res: Res): Promise<void> {
         secure: true,
       })
     );
-    res.redirect('/login');
+    res.status(200).end();
   }
 }

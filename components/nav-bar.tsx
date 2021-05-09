@@ -1,58 +1,61 @@
+import Router, { useRouter } from 'next/router';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import cn from 'classnames';
-import { useRouter } from 'next/router';
-import { useState } from 'react';
 
 import Avatar from 'components/avatar';
 
 import { useUser } from 'lib/context/user';
 
-export interface NavButtonProps {
+interface MenuButtonProps {
   onClick: () => void;
+  disabled?: boolean;
   children: string;
 }
 
-export function NavButton({ onClick, children }: NavButtonProps): JSX.Element {
+function MenuButton({
+  onClick,
+  disabled,
+  children,
+}: MenuButtonProps): JSX.Element {
   return (
-    <button type='button' onClick={onClick}>
+    <button disabled={disabled} type='button' onClick={onClick}>
       {children}
       <style jsx>{`
         button {
-          transition: color 0.2s ease 0s;
-          color: var(--accents-5);
-          text-decoration: none;
-          cursor: pointer;
-          font-size: 18px;
-          font-weight: 400;
-          font-family: var(--font-sans);
-          line-height: 24px;
-          height: 24px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          margin: 16px 0;
-          display: block;
-          background: unset;
-          text-align: unset;
-          padding: unset;
-          border: unset;
           width: 100%;
+          border: unset;
+          margin: unset;
+          font: unset;
+          text-align: unset;
+          appearance: unset;
+          cursor: pointer;
+          padding: 12px 36px 12px 24px;
+          background: var(--background);
+          transition: background 0.2s ease 0s;
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 18px;
         }
 
         button:hover {
-          color: var(--on-background);
+          background: var(--accents-2);
+        }
+
+        button.disabled {
+          cursor: not-allowed;
         }
       `}</style>
     </button>
   );
 }
 
-export interface LinkProps {
+interface LinkProps {
   href: string;
   children: string;
 }
 
-export function NavLink({ href, children }: LinkProps): JSX.Element {
+function NavLink({ href, children }: LinkProps): JSX.Element {
   const { pathname } = useRouter();
 
   return (
@@ -87,7 +90,7 @@ export function NavLink({ href, children }: LinkProps): JSX.Element {
   );
 }
 
-export function MenuLink({ href, children }: LinkProps): JSX.Element {
+function MenuLink({ href, children }: LinkProps): JSX.Element {
   return (
     <Link href={href}>
       <a
@@ -122,6 +125,12 @@ export function MenuLink({ href, children }: LinkProps): JSX.Element {
 export default function NavBar(): JSX.Element {
   const { loggedIn, user } = useUser();
   const [open, setOpen] = useState<boolean>(false);
+  const [loggingOut, setLoggingOut] = useState<boolean>(false);
+  const logout = useCallback(async () => {
+    setLoggingOut(true);
+    await fetch('/api/logout');
+    await Router.push('/login');
+  }, []);
 
   return (
     <div className='wrapper'>
@@ -140,7 +149,9 @@ export default function NavBar(): JSX.Element {
           <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>
             Send feedback
           </MenuLink>
-          <MenuLink href='/api/logout'>Logout</MenuLink>
+          <MenuButton onClick={logout}>
+            {loggingOut ? 'Logging out...' : 'Logout'}
+          </MenuButton>
         </div>
         <nav>
           <NavLink href='/'>Feed</NavLink>
