@@ -196,13 +196,13 @@ export default function Subscriptions() {
   );
 
   // TODO: Ensure that all of the previously selected subscriptions show up in
-  // the newssubscription list so that users can unselect them as needed (i.e. even if
+  // the newsletter list so that users can unselect them as needed (i.e. even if
   // they aren't in the last 100 messages in their Gmail inbox).
 
-  // Pre-select all of the "important" newssubscriptions. From @martinsrna:
+  // Pre-select all of the "important" newsletters. From @martinsrna:
   // > The reason is that in the whitelist "database" we created (that decides
-  // > if a newssubscription is important or not), there are mostly substacks and more
-  // > popular newssubscriptions people in general subscribe to.
+  // > if a newsletter is important or not), there are mostly substacks and more
+  // > popular newsletters people in general subscribe to.
   // >
   // > There's a very high probability they want to have them in their feed.
   // > It's more likely that users only want to uncheck some of them.
@@ -229,7 +229,7 @@ export default function Subscriptions() {
         <link rel='preload' href='/api/subscriptions' as='fetch' />
       </Head>
       <h1>Choose what you want to read in your feed</h1>
-      <h2>All the Substacks and popular newssubscriptions</h2>
+      <h2>All the Substacks and popular newsletters</h2>
       {!!important.length && (
         <ul>
           {important.map((r) => (
@@ -258,7 +258,7 @@ export default function Subscriptions() {
       )}
       {!subscriptions && <ul>{loadingList}</ul>}
       {subscriptions && !important.length && (
-        <Empty>No newssubscriptions found</Empty>
+        <Empty>No newsletters found</Empty>
       )}
       <h2>Other subscriptions, including promotions</h2>
       {!!other.length && (
