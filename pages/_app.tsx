@@ -3,6 +3,7 @@ import useSWR, { SWRConfig } from 'swr';
 import { AppProps } from 'next/app';
 
 import NProgress from 'components/nprogress';
+import Segment from 'components/segment';
 
 import { User, UserJSON } from 'lib/model/user';
 import { APIError } from 'lib/model/error';
@@ -28,6 +29,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
   return (
     <UserContext.Provider value={{ user, loggedIn }}>
       <SWRConfig value={{ fetcher }}>
+        <Segment />
         <NProgress />
         <Component {...pageProps} />
       </SWRConfig>

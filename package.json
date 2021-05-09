@@ -21,6 +21,7 @@
     "url": "https://github.com/newsletterreader/newsletter/issues"
   },
   "dependencies": {
+    "@segment/analytics.js-core": "^4.1.11",
     "atob": "^2.1.2",
     "await-to-js": "^3.0.0",
     "bottleneck": "^2.19.5",

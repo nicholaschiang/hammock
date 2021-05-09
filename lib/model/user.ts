@@ -139,4 +139,14 @@ export class User extends Resource implements UserInterface {
   public toString(): string {
     return `${this.name}${this.id ? ` (${this.id})` : ''}`;
   }
+
+  public toSegment(): Record<string, string> {
+    return {
+      id: this.id,
+      name: this.name,
+      email: this.email,
+      phone: this.phone,
+      avatar: this.photo,
+    };
+  }
 }
