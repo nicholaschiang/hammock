@@ -85,6 +85,7 @@ export default function LoginPage(): JSX.Element {
   const onClick = useCallback(async () => {
     setLoading(true);
     try {
+      window?.analytics.track('Login Started');
       // TODO: This API request isn't really necessary. I'm pretty sure that the
       // login link won't be changing anytime soon, so we should be able to just
       // hardcode this into the front-end or as an environment variable.
@@ -92,6 +93,7 @@ export default function LoginPage(): JSX.Element {
       const link = await fetch('/api/login', { method: 'options' });
       await Router.push(await link.text());
     } catch (e) {
+      window?.analytics.track('Login Errored', period(e.message));
       setError(`Hmm, it looks like we hit a snag. ${period(e.message)}`);
     }
   }, []);

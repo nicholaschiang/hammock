@@ -160,10 +160,14 @@ export default function Subscriptions() {
   const onSave = useCallback(async () => {
     setLoading(true);
     try {
-      const selectedSubscriptions = subscriptions?.filter((l) =>
+      const selectedSubscriptions = (subscriptions || []).filter((l) =>
         user.subscriptions.includes(l.from.email)
       );
-      if (!selectedSubscriptions?.length) return;
+      window.analytics?.track(
+        'Subscriptions Saved',
+        selectedSubscriptions.map((s) => Subscription.fromJSON(s).toSegment())
+      );
+      if (!selectedSubscriptions.length) return;
 
       const subs: string[] = [];
       selectedSubscriptions.forEach((l) => {
@@ -239,6 +243,10 @@ export default function Subscriptions() {
               selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
+                window.analytics?.track(
+                  `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
+                  Subscription.fromJSON(r).toSegment()
+                );
                 void mutate(
                   '/api/account',
                   (prev?: UserJSON) => {
@@ -270,6 +278,10 @@ export default function Subscriptions() {
               selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
+                window.analytics?.track(
+                  `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
+                  Subscription.fromJSON(r).toSegment()
+                );
                 void mutate(
                   '/api/account',
                   (prev?: UserJSON) => {
