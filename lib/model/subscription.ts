@@ -110,4 +110,11 @@ export class Subscription extends Resource implements SubscriptionInterface {
     );
     return new Subscription({ ...subscription, ...overrides });
   }
+
+  public toSegment(): Record<string, unknown> {
+    return {
+      from: `${this.from.name} <${this.from.email}>`,
+      category: this.category,
+    };
+  }
 }

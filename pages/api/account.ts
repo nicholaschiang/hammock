@@ -7,6 +7,7 @@ import getOrCreateLabel from 'lib/api/get/label';
 import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import segment from 'lib/api/segment';
 import syncGmail from 'lib/api/sync-gmail';
 import updateGmailMessages from 'lib/api/update/gmail-messages';
 import updateUserDoc from 'lib/api/update/user-doc';
@@ -20,6 +21,11 @@ async function fetchAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     const user = await getUser(uid);
     res.status(200).json(user.toJSON());
     logger.info(`Fetched ${user}.`);
+    segment.track({
+      userId: uid,
+      event: 'User Fetched',
+      properties: user.toSegment(),
+    });
   } catch (e) {
     handle(e, res);
   }
@@ -37,6 +43,11 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     await syncGmail(body);
     res.status(200).json(body.toJSON());
     logger.info(`Updated ${body}.`);
+    segment.track({
+      userId: body.id,
+      event: 'User Updated',
+      properties: body.toSegment(),
+    });
     await updateGmailMessages(body);
     logger.info(`Retroactively filtered messages for ${body}.`);
   } catch (e) {

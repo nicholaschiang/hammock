@@ -53,12 +53,15 @@ export default function MessagePage(): JSX.Element {
     async function saveScrollPosition(): Promise<void> {
       if (!message.id) return;
       const url = `/api/messages/${message.id}`;
-      const data = { ...message.toJSON(), scroll };
-      if (scroll === 1) data.archived = true;
+      const updated = { ...message.toJSON(), scroll };
+      if (scroll === 1) {
+        updated.archived = true;
+        window.analytics?.track('Message Read', message.toSegment());
+      }
       // TODO: Mutate the data used in `/feed` to match.
       // See: https://github.com/vercel/swr/issues/1156
-      await mutate(url, fetcher(url, 'put', data));
-      if (data.archived) Router.back();
+      await mutate(url, fetcher(url, 'put', updated));
+      if (updated.archived) Router.back();
     }
     const timeoutId = setTimeout(() => {
       void saveScrollPosition();

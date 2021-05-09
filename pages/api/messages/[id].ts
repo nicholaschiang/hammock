@@ -5,6 +5,7 @@ import { Message, MessageJSON, isMessageJSON } from 'lib/model/message';
 import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import segment from 'lib/api/segment';
 import updateMessageDoc from 'lib/api/update/message-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
@@ -26,6 +27,11 @@ async function fetchMessage(
     const messageData = Message.fromFirestoreDoc(doc);
     res.status(200).json(messageData.toJSON());
     logger.info(`Fetched ${messageData} for user (${uid}).`);
+    segment.track({
+      userId: uid,
+      event: 'Message Fetched',
+      properties: messageData.toSegment(),
+    });
   } catch (e) {
     handle(e, res);
   }
@@ -45,6 +51,11 @@ async function updateMessage(
     await updateMessageDoc(uid, body);
     res.status(200).json(body.toJSON());
     logger.info(`Updated ${body} for user (${uid}).`);
+    segment.track({
+      userId: uid,
+      event: 'Message Updated',
+      properties: body.toSegment(),
+    });
   } catch (e) {
     handle(e, res);
   }

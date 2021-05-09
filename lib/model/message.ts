@@ -137,4 +137,17 @@ export class Message extends Subscription implements MessageInterface {
     const message = Message.fromFirestore(snapshot.data() as MessageFirestore);
     return new Message({ ...message, ...overrides });
   }
+
+  public toSegment(): Record<string, unknown> {
+    return {
+      ...super.toSegment(),
+      id: this.id,
+      date: this.date,
+      subject: this.subject,
+      snippet: this.snippet,
+      archived: this.archived,
+      scroll: this.scroll,
+      time: this.time,
+    };
+  }
 }

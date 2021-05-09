@@ -5,6 +5,7 @@ import { APIErrorJSON } from 'lib/model/error';
 import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import segment from 'lib/api/segment';
 import verifyAuth from 'lib/api/verify/auth';
 
 export type MessagesQuery = {
@@ -53,6 +54,11 @@ export default async function messages(
       const messagesData = docs.map((d) => Message.fromFirestoreDoc(d));
       res.status(200).json(messagesData.map((m) => m.toJSON()));
       logger.info(`Fetched ${messagesData.length} messages for user (${uid}).`);
+      segment.track({
+        userId: uid,
+        event: 'Messages Listed',
+        properties: messagesData.map((m) => m.toSegment()),
+      });
     } catch (e) {
       handle(e, res);
     }

@@ -13,7 +13,7 @@ declare global {
 export default function Segment(): null {
   const { user } = useUser();
 
-  const prevIdentity = useRef<Record<string, string>>();
+  const prevIdentity = useRef<Record<string, unknown>>();
   useEffect(() => {
     const identity = user.toSegment();
     if (dequal(prevIdentity.current, identity)) return;

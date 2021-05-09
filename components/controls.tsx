@@ -37,6 +37,7 @@ export default function Controls({ message }: ControlsProps): JSX.Element {
   const [archiving, setArchiving] = useState<boolean>(false);
   const archive = useCallback(async () => {
     if (!message.id) return;
+    window.analytics?.track('Archive Button Clicked', message.toSegment());
     setArchiving(true);
     const url = `/api/messages/${message.id}`;
     const data = { ...message.toJSON(), archived: true };
