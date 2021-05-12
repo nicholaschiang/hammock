@@ -302,7 +302,7 @@ export default function Subscriptions() {
       {!subscriptions && <ul>{loadingList}</ul>}
       {subscriptions && !other.length && <Empty>No subscriptions found</Empty>}
       <Button disabled={loading} onClick={onSave}>
-        Go to your feed
+        Save subscriptions
       </Button>
       <style jsx>{`
         .wrapper {
