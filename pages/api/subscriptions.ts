@@ -32,7 +32,7 @@ export default async function subscriptions(
       logger.verbose(`Fetching subscriptions for ${user}...`);
       const client = gmail(user.token);
       const { data } = await client.users.messages.list({
-        maxResults: 100,
+        maxResults: 1000,
         userId: 'me',
         pageToken,
       });
