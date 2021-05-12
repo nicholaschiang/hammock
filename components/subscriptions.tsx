@@ -163,13 +163,16 @@ export default function Subscriptions() {
     revalidateAll: true,
     initialSize: 10,
   });
-  const subscriptions = useMemo(
-    () =>
-      (data || [])
-        .map((d) => d.subscriptions.map((s) => Subscription.fromJSON(s)))
-        .flat(),
-    [data]
-  );
+  const subscriptions = useMemo(() => {
+    const subs: Subscription[] = [];
+    data?.forEach((d) => {
+      d.subscriptions.forEach((s) => {
+        if (!subs.find((l) => l.from.email === s.from.email))
+          subs.push(Subscription.fromJSON(s));
+      });
+    });
+    return subs;
+  }, [data]);
 
   const { user } = useUser();
 
