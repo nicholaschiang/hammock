@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { mutate, useSWRInfinite } from 'swr';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import NProgress from 'nprogress';
 import Router from 'next/router';
@@ -235,7 +235,7 @@ export default function Subscriptions() {
     if (hasBeenUpdated.current) return;
     void mutate(
       '/api/account',
-      (prev?: UserJSON) => {
+      async (prev?: UserJSON) => {
         if (!prev) return prev;
         const subs = clone(prev.subscriptions);
         important.forEach((l) => {
