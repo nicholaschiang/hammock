@@ -42,7 +42,7 @@ export default async function messages(
       const ref = db.collection('users').doc(uid).collection('messages');
       let query = ref.where('archived', '==', archive === 'true');
       if (quickRead === 'true')
-        query = query.where('time', '<=', 15).orderBy('time');
+        query = query.where('time', '<=', 10).orderBy('time');
       if (resume === 'true')
         query = query.where('scroll', '>', 0).orderBy('scroll');
       query = query.orderBy('date', 'desc').limit(10);
