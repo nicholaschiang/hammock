@@ -177,6 +177,7 @@ export default function Subscriptions() {
       const url = '/api/account';
       const updated = new User({ ...user, subscriptions: subs });
       await mutate(url, fetcher(url, 'put', updated.toJSON()));
+      void fetch('/api/sync');
       await Router.push('/');
     } catch (e) {
       setError(period(e.message));

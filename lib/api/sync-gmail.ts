@@ -17,15 +17,22 @@ import messageFromGmail from 'lib/api/message-from-gmail';
  * `messages.get` request consumes 5 quota units. Thus, I have to limit requests
  * to 250/5 = 50 per second.
  * @see {@link https://developers.google.com/gmail/api/reference/quota}
+ *
+ * @return {string} - The next page token (call `syncGmail` again with that
+ * token to sync the next 10 messages).
  */
-export default async function syncGmail(user: User): Promise<void> {
+export default async function syncGmail(
+  user: User,
+  pageToken?: string
+): Promise<string> {
   const client = gmail(user.token);
 
   logger.verbose(`Fetching messages for ${user}...`);
   const { data } = await client.users.messages.list({
     q: `from:(${user.subscriptions.join(' OR ')})`,
-    maxResults: 2500,
+    maxResults: 10,
     userId: 'me',
+    pageToken,
   });
   const messageIds = (data.messages || []).map((m) => m.id as string);
 
@@ -59,4 +66,6 @@ export default async function syncGmail(user: User): Promise<void> {
       logger.debug(`Saved ${message} to Firestore database.`);
     })
   );
+
+  return data.nextPageToken || '';
 }
