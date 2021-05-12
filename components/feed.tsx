@@ -58,7 +58,9 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     [query]
   );
 
-  const { data, isValidating, setSize } = useSWRInfinite<MessagesRes>(getKey);
+  const { data, isValidating, setSize } = useSWRInfinite<MessagesRes>(getKey, {
+    revalidateAll: true,
+  });
   const { user } = useUser();
 
   useEffect(() => {
