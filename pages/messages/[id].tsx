@@ -54,7 +54,7 @@ export default function MessagePage(): JSX.Element {
       if (!message.id) return;
       const url = `/api/messages/${message.id}`;
       const updated = { ...message.toJSON(), scroll };
-      if (scroll === 1) {
+      if (false && scroll === 1) {
         updated.archived = true;
         window.analytics?.track('Message Read', message.toSegment());
       }
