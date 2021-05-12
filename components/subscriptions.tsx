@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import useSWR, { mutate } from 'swr';
+import { mutate, useSWRInfinite } from 'swr';
 import Head from 'next/head';
 import NProgress from 'nprogress';
 import Router from 'next/router';
@@ -152,25 +152,41 @@ export default function Subscriptions() {
     if (error) setLoading(false);
   }, [error]);
 
-  const { data: subscriptions } = useSWR<SubscriptionsRes>(
-    '/api/subscriptions'
+  const getKey = useCallback(
+    (pageIdx: number, prev: SubscriptionsRes | null) => {
+      if (!prev || pageIdx === 0) return '/api/subscriptions';
+      return `/api/subscriptions?pageToken=${prev.nextPageToken}`;
+    },
+    []
   );
+  const { data } = useSWRInfinite<SubscriptionsRes>(getKey, {
+    revalidateAll: true,
+    initialSize: 10,
+  });
+  const subscriptions = useMemo(
+    () =>
+      (data || [])
+        .map((d) => d.subscriptions.map((s) => Subscription.fromJSON(s)))
+        .flat(),
+    [data]
+  );
+
   const { user } = useUser();
 
   const onSave = useCallback(async () => {
     setLoading(true);
     try {
-      const selectedSubscriptions = (subscriptions || []).filter((l) =>
+      const selected = subscriptions.filter((l) =>
         user.subscriptions.includes(l.from.email)
       );
       window.analytics?.track(
         'Subscriptions Saved',
-        selectedSubscriptions.map((s) => Subscription.fromJSON(s).toSegment())
+        selected.map((s) => s.toSegment())
       );
-      if (!selectedSubscriptions.length) return;
+      if (!selected.length) return;
 
       const subs: string[] = [];
-      selectedSubscriptions.forEach((l) => {
+      selected.forEach((l) => {
         if (!subs.includes(l.from.email)) subs.push(l.from.email);
       });
 
@@ -185,11 +201,11 @@ export default function Subscriptions() {
   }, [subscriptions, user]);
 
   const other = useMemo(
-    () => (subscriptions || []).filter((s) => s.category === 'other'),
+    () => subscriptions.filter((s) => s.category === 'other'),
     [subscriptions]
   );
   const important = useMemo(
-    () => (subscriptions || []).filter((s) => s.category === 'important'),
+    () => subscriptions.filter((s) => s.category === 'important'),
     [subscriptions]
   );
   const loadingList = useMemo(
@@ -240,13 +256,13 @@ export default function Subscriptions() {
           {important.map((r) => (
             <SubscriptionRow
               key={r.from.email}
-              subscription={Subscription.fromJSON(r)}
+              subscription={r}
               selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
                   `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
-                  Subscription.fromJSON(r).toSegment()
+                  r.toSegment()
                 );
                 void mutate(
                   '/api/account',
@@ -265,23 +281,21 @@ export default function Subscriptions() {
           ))}
         </ul>
       )}
-      {!subscriptions && <ul>{loadingList}</ul>}
-      {subscriptions && !important.length && (
-        <Empty>No newsletters found</Empty>
-      )}
+      {!data && <ul>{loadingList}</ul>}
+      {data && !important.length && <Empty>No newsletters found</Empty>}
       <h2>Other subscriptions, including promotions</h2>
       {!!other.length && (
         <ul>
           {other.map((r) => (
             <SubscriptionRow
               key={r.from.email}
-              subscription={Subscription.fromJSON(r)}
+              subscription={r}
               selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
                   `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
-                  Subscription.fromJSON(r).toSegment()
+                  r.toSegment()
                 );
                 void mutate(
                   '/api/account',
@@ -300,8 +314,8 @@ export default function Subscriptions() {
           ))}
         </ul>
       )}
-      {!subscriptions && <ul>{loadingList}</ul>}
-      {subscriptions && !other.length && <Empty>No subscriptions found</Empty>}
+      {!data && <ul>{loadingList}</ul>}
+      {data && !other.length && <Empty>No subscriptions found</Empty>}
       <Button disabled={loading} onClick={onSave}>
         Save subscriptions
       </Button>

@@ -10,7 +10,10 @@ import logger from 'lib/api/logger';
 import messageFromGmail from 'lib/api/message-from-gmail';
 import verifyAuth from 'lib/api/verify/auth';
 
-export type SubscriptionsRes = SubscriptionJSON[];
+export type SubscriptionsRes = {
+  nextPageToken: string;
+  subscriptions: SubscriptionJSON[];
+};
 
 /**
  * GET - Lists the subscriptions for the given user.
@@ -43,7 +46,10 @@ export default async function subscriptions(
         if (!subscriptionsData.some((l) => l.from.email === msg.from.email))
           subscriptionsData.push(msg);
       });
-      res.status(200).json(subscriptionsData.map((l) => l.toJSON()));
+      res.status(200).json({
+        subscriptions: subscriptionsData.map((s) => s.toJSON()),
+        nextPageToken: data.nextPageToken || '',
+      });
       logger.info(
         `Fetched ${subscriptionsData.length} subscriptions for ${user}.`
       );
