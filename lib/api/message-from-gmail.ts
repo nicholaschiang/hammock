@@ -1,6 +1,6 @@
 import atob from 'atob';
 import he from 'he';
-import readingTime from 'reading-time';
+import readTimeEstimate from 'read-time-estimate';
 import utf8 from 'utf8';
 
 import { Category, Contact } from 'lib/model/subscription';
@@ -112,6 +112,6 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
     from: { name, email, photo },
     subject: getHeader('subject'),
     snippet: getSnippet(gmailMessage),
-    time: Math.round(readingTime(html).minutes),
+    time: Math.round(readTimeEstimate(html).duration),
   });
 }
