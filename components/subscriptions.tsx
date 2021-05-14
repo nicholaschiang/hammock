@@ -4,6 +4,7 @@ import Head from 'next/head';
 import NProgress from 'nprogress';
 import Router from 'next/router';
 import cn from 'classnames';
+import { dequal } from 'dequal';
 
 import { SubscriptionsRes } from 'pages/api/subscriptions';
 
@@ -11,9 +12,8 @@ import Avatar from 'components/avatar';
 import Button from 'components/button';
 import Empty from 'components/empty';
 
-import { User, UserJSON } from 'lib/model/user';
+import { UserJSON } from 'lib/model/user';
 import { Subscription } from 'lib/model/subscription';
-import clone from 'lib/utils/clone';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
 import { useUser } from 'lib/context/user';
@@ -175,33 +175,42 @@ export default function Subscriptions() {
   }, [data]);
 
   const { user } = useUser();
+  const [selected, setSelected] = useState<Set<string>>(new Set<string>());
+  useEffect(() => {
+    void mutate(
+      '/api/account',
+      async (prev?: UserJSON) => {
+        if (!prev || dequal([...selected], prev.subscriptions)) return prev;
+        return { ...prev, subscriptions: [...selected] };
+      },
+      false
+    );
+  }, [selected]);
+
+  /**
+   * @todo Enable this global user to local state sync once I fix the problem of
+   * SWR revalidating when the local data has been mutated.
+   * @see {@link https://github.com/nicholaschiang/hammock/issues/27}
+   * useEffect(() => {
+   *   setSelected((prev) => {
+   *     if (dequal([...prev], user.subscriptions)) return prev;
+   *     return new Set(user.subscriptions);
+   *   });
+   * }, [user.subscriptions]);
+   */
 
   const onSave = useCallback(async () => {
     setLoading(true);
     try {
-      const selected = subscriptions.filter((l) =>
-        user.subscriptions.includes(l.from.email)
-      );
-      window.analytics?.track(
-        'Subscriptions Saved',
-        selected.map((s) => s.toSegment())
-      );
-      if (!selected.length) return;
-
-      const subs: string[] = [];
-      selected.forEach((l) => {
-        if (!subs.includes(l.from.email)) subs.push(l.from.email);
-      });
-
+      window.analytics?.track('Subscriptions Saved');
       const url = '/api/account';
-      const updated = new User({ ...user, subscriptions: subs });
-      await mutate(url, fetcher(url, 'put', updated.toJSON()));
+      await mutate(url, fetcher(url, 'put', user.toJSON()));
       void fetch('/api/sync');
       await Router.push('/');
     } catch (e) {
       setError(period(e.message));
     }
-  }, [subscriptions, user]);
+  }, [user]);
 
   const other = useMemo(
     () => subscriptions.filter((s) => s.category === 'other'),
@@ -233,18 +242,12 @@ export default function Subscriptions() {
   const hasBeenUpdated = useRef<boolean>(false);
   useEffect(() => {
     if (hasBeenUpdated.current) return;
-    void mutate(
-      '/api/account',
-      async (prev?: UserJSON) => {
-        if (!prev) return prev;
-        const subs = clone(prev.subscriptions);
-        important.forEach((l) => {
-          if (!subs.includes(l.from.email)) subs.push(l.from.email);
-        });
-        return { ...prev, subscriptions: subs };
-      },
-      false
-    );
+    setSelected((prev) => {
+      const updated = new Set(prev);
+      important.forEach((i) => updated.add(i.from.email));
+      if (dequal([...prev], [...updated])) return prev;
+      return updated;
+    });
   }, [important]);
 
   return (
@@ -260,25 +263,20 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r.from.email)}
+              selected={selected.has(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
                   `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
                   r.toSegment()
                 );
-                void mutate(
-                  '/api/account',
-                  (prev?: UserJSON) => {
-                    if (!prev) return prev;
-                    const subs = clone(prev.subscriptions);
-                    const idx = subs.indexOf(r.from.email);
-                    if (!isSelected && idx >= 0) subs.splice(idx, 1);
-                    if (isSelected && idx < 0) subs.push(r.from.email);
-                    return { ...prev, subscriptions: subs };
-                  },
-                  false
-                );
+                setSelected((prev) => {
+                  const updated = new Set(prev);
+                  if (isSelected) updated.add(r.from.email);
+                  if (!isSelected) updated.delete(r.from.email);
+                  if (dequal([...prev], [...updated])) return prev;
+                  return updated;
+                });
               }}
             />
           ))}
@@ -293,25 +291,20 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r.from.email)}
+              selected={selected.has(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
                   `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
                   r.toSegment()
                 );
-                void mutate(
-                  '/api/account',
-                  (prev?: UserJSON) => {
-                    if (!prev) return prev;
-                    const subs = clone(prev.subscriptions);
-                    const idx = subs.indexOf(r.from.email);
-                    if (!isSelected && idx >= 0) subs.splice(idx, 1);
-                    if (isSelected && idx < 0) subs.push(r.from.email);
-                    return { ...prev, subscriptions: subs };
-                  },
-                  false
-                );
+                setSelected((prev) => {
+                  const updated = new Set(prev);
+                  if (isSelected) updated.add(r.from.email);
+                  if (!isSelected) updated.delete(r.from.email);
+                  if (dequal([...prev], [...updated])) return prev;
+                  return updated;
+                });
               }}
             />
           ))}
