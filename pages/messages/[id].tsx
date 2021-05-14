@@ -1,6 +1,6 @@
-import Router, { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
+import { useRouter } from 'next/router';
 import cn from 'classnames';
 
 import { MessageRes } from 'pages/api/messages/[id]';
@@ -54,14 +54,9 @@ export default function MessagePage(): JSX.Element {
       if (!message.id) return;
       const url = `/api/messages/${message.id}`;
       const updated = { ...message.toJSON(), scroll };
-      if (false && scroll === 1) {
-        updated.archived = true;
-        window.analytics?.track('Message Read', message.toSegment());
-      }
       // TODO: Mutate the data used in `/feed` to match.
       // See: https://github.com/vercel/swr/issues/1156
       await mutate(url, fetcher(url, 'put', updated));
-      if (updated.archived) Router.back();
     }
     const timeoutId = setTimeout(() => {
       void saveScrollPosition();
