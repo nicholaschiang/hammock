@@ -1,6 +1,7 @@
 import atob from 'atob';
 import he from 'he';
-import readTimeEstimate from 'read-time-estimate';
+import { htmlToText } from 'html-to-text';
+import readingTime from 'reading-time';
 import utf8 from 'utf8';
 
 import { Category, Contact } from 'lib/model/subscription';
@@ -103,6 +104,13 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
   }
 
   const html = xss.process(getMessageBody(gmailMessage));
+  const text = htmlToText(html, {
+    wordwrap: false,
+    tags: {
+      a: { options: { ignoreHref: true } },
+      img: { format: 'skip' },
+    },
+  });
 
   return new Message({
     html,
@@ -112,6 +120,6 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
     from: { name, email, photo },
     subject: getHeader('subject'),
     snippet: getSnippet(gmailMessage),
-    time: Math.round(readTimeEstimate(html).duration),
+    time: Math.round(readingTime(text).minutes),
   });
 }
