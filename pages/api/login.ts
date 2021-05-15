@@ -66,7 +66,7 @@ async function loginUser(
     logger.info(`Updated ${user.toString()}.`);
     res.setHeader(
       'Set-Cookie',
-      cookie.serialize('token', tokens.id_token, {
+      cookie.serialize('token', tokens.refresh_token, {
         httpOnly: true,
         secure: true,
       })

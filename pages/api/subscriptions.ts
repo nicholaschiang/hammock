@@ -3,7 +3,6 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { Subscription, SubscriptionJSON } from 'lib/model/subscription';
 import { APIErrorJSON } from 'lib/model/error';
 import getGmailMessages from 'lib/api/get/gmail-messages';
-import getUser from 'lib/api/get/user';
 import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
@@ -30,10 +29,9 @@ export default async function subscriptions(
   } else {
     try {
       const { pageToken } = req.query as { pageToken?: string };
-      const { uid } = await verifyAuth(req.headers);
-      const user = await getUser(uid);
-      logger.verbose(`Fetching subscriptions for ${user}...`);
-      const client = gmail(user.token);
+      const { uid, token } = await verifyAuth(req.headers);
+      logger.verbose(`Fetching subscriptions for user (${uid})...`);
+      const client = gmail(token);
       const { data } = await client.users.messages.list({
         maxResults: 100,
         userId: 'me',
@@ -51,7 +49,7 @@ export default async function subscriptions(
         nextPageToken: data.nextPageToken || '',
       });
       logger.info(
-        `Fetched ${subscriptionsData.length} subscriptions for ${user}.`
+        `Fetched ${subscriptionsData.length} subscriptions for user (${uid}).`
       );
     } catch (e) {
       handle(e, res);
