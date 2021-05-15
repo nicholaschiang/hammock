@@ -1,5 +1,5 @@
-import { useMemo, useRef } from 'react';
-import useSWR, { SWRConfig } from 'swr';
+import { useCallback, useMemo, useRef } from 'react';
+import useSWR, { SWRConfig, mutate } from 'swr';
 import { AppProps } from 'next/app';
 
 import NProgress from 'components/nprogress';
@@ -7,12 +7,27 @@ import Segment from 'components/segment';
 
 import { User, UserJSON } from 'lib/model/user';
 import { APIError } from 'lib/model/error';
+import { CallbackParam } from 'lib/model/callback';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
 export default function App({ Component, pageProps }: AppProps): JSX.Element {
-  const { data, error } = useSWR<UserJSON, APIError>('/api/account', fetcher);
+  const userMutated = useRef<boolean>(false);
+  const isPaused = useCallback(() => userMutated.current, []);
+  const { data, error } = useSWR<UserJSON, APIError>('/api/account', fetcher, {
+    isPaused,
+  });
   const user = useMemo(() => (data ? User.fromJSON(data) : new User()), [data]);
+  const setUser = useCallback(
+    (param: CallbackParam<User>) => {
+      let updated = user;
+      if (typeof param === 'function') updated = param(updated);
+      if (typeof param === 'object') updated = param;
+      userMutated.current = true;
+      void mutate('/api/account', updated.toJSON(), false);
+    },
+    [user]
+  );
   const userLoaded = useRef<boolean>(false);
   const loggedIn = useMemo(() => {
     if (user.id) {
@@ -27,7 +42,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
   }, [user, error]);
 
   return (
-    <UserContext.Provider value={{ user, loggedIn }}>
+    <UserContext.Provider value={{ user, setUser, loggedIn }}>
       <SWRConfig value={{ fetcher }}>
         <Segment />
         <NProgress />

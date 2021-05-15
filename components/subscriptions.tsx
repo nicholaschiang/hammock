@@ -12,8 +12,8 @@ import Avatar from 'components/avatar';
 import Button from 'components/button';
 import Empty from 'components/empty';
 
-import { UserJSON } from 'lib/model/user';
 import { Subscription } from 'lib/model/subscription';
+import { User } from 'lib/model/user';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
 import { useUser } from 'lib/context/user';
@@ -174,30 +174,20 @@ export default function Subscriptions() {
     return subs;
   }, [data]);
 
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const [selected, setSelected] = useState<Set<string>>(new Set<string>());
   useEffect(() => {
-    void mutate(
-      '/api/account',
-      async (prev?: UserJSON) => {
-        if (!prev || dequal([...selected], prev.subscriptions)) return prev;
-        return { ...prev, subscriptions: [...selected] };
-      },
-      false
-    );
-  }, [selected]);
-
-  /**
-   * @todo Enable this global user to local state sync once I fix the problem of
-   * SWR revalidating when the local data has been mutated.
-   * @see {@link https://github.com/nicholaschiang/hammock/issues/27}
-   * useEffect(() => {
-   *   setSelected((prev) => {
-   *     if (dequal([...prev], user.subscriptions)) return prev;
-   *     return new Set(user.subscriptions);
-   *   });
-   * }, [user.subscriptions]);
-   */
+    setUser((prev) => {
+      if (dequal([...selected], prev.subscriptions)) return prev;
+      return new User({ ...prev, subscriptions: [...selected] });
+    });
+  }, [setUser, selected]);
+  useEffect(() => {
+    setSelected((prev) => {
+      if (dequal([...prev], user.subscriptions)) return prev;
+      return new Set(user.subscriptions);
+    });
+  }, [user.subscriptions]);
 
   const onSave = useCallback(async () => {
     setLoading(true);
