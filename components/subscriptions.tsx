@@ -174,20 +174,7 @@ export default function Subscriptions() {
     return subs;
   }, [data]);
 
-  const { user, setUser } = useUser();
-  const [selected, setSelected] = useState<Set<string>>(new Set<string>());
-  useEffect(() => {
-    setUser((prev) => {
-      if (dequal([...selected], prev.subscriptions)) return prev;
-      return new User({ ...prev, subscriptions: [...selected] });
-    });
-  }, [setUser, selected]);
-  useEffect(() => {
-    setSelected((prev) => {
-      if (dequal([...prev], user.subscriptions)) return prev;
-      return new Set(user.subscriptions);
-    });
-  }, [user.subscriptions]);
+  const { user, setUser, setUserMutated } = useUser();
 
   const onSave = useCallback(async () => {
     setLoading(true);
@@ -195,12 +182,13 @@ export default function Subscriptions() {
       window.analytics?.track('Subscriptions Saved');
       const url = '/api/account';
       await mutate(url, fetcher(url, 'put', user.toJSON()));
+      setUserMutated(false);
       void fetch('/api/sync');
       await Router.push('/');
     } catch (e) {
       setError(period(e.message));
     }
-  }, [user]);
+  }, [user, setUserMutated]);
 
   const other = useMemo(
     () => subscriptions.filter((s) => s.category === 'other'),
@@ -232,13 +220,17 @@ export default function Subscriptions() {
   const hasBeenUpdated = useRef<boolean>(false);
   useEffect(() => {
     if (hasBeenUpdated.current) return;
-    setSelected((prev) => {
-      const updated = new Set(prev);
+    setUser((prev) => {
+      const updated = new Set(prev.subscriptions);
+      // TODO: Perhaps I should add a URL query param that specifies if we want
+      // to pre-select all the important subscriptions. Right now, we only
+      // pre-select if the user doesn't already have any subscriptions selected.
+      if (updated.size) return prev;
       important.forEach((i) => updated.add(i.from.email));
-      if (dequal([...prev], [...updated])) return prev;
-      return updated;
+      if (dequal([...updated], prev.subscriptions)) return prev;
+      return new User({ ...prev, subscriptions: [...updated] });
     });
-  }, [important]);
+  }, [setUser, important]);
 
   return (
     <div className='wrapper'>
@@ -253,19 +245,19 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={selected.has(r.from.email)}
+              selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
                   `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
                   r.toSegment()
                 );
-                setSelected((prev) => {
-                  const updated = new Set(prev);
+                setUser((prev) => {
+                  const updated = new Set(prev.subscriptions);
                   if (isSelected) updated.add(r.from.email);
                   if (!isSelected) updated.delete(r.from.email);
-                  if (dequal([...prev], [...updated])) return prev;
-                  return updated;
+                  if (dequal([...updated], prev.subscriptions)) return prev;
+                  return new User({ ...prev, subscriptions: [...updated] });
                 });
               }}
             />
@@ -281,19 +273,19 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={selected.has(r.from.email)}
+              selected={user.subscriptions.includes(r.from.email)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
                   `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
                   r.toSegment()
                 );
-                setSelected((prev) => {
-                  const updated = new Set(prev);
+                setUser((prev) => {
+                  const updated = new Set(prev.subscriptions);
                   if (isSelected) updated.add(r.from.email);
                   if (!isSelected) updated.delete(r.from.email);
-                  if (dequal([...prev], [...updated])) return prev;
-                  return updated;
+                  if (dequal([...updated], prev.subscriptions)) return prev;
+                  return new User({ ...prev, subscriptions: [...updated] });
                 });
               }}
             />

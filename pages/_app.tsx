@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import useSWR, { SWRConfig, mutate } from 'swr';
 import { AppProps } from 'next/app';
+import { dequal } from 'dequal';
 
 import NProgress from 'components/nprogress';
 import Segment from 'components/segment';
@@ -12,10 +13,9 @@ import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
 export default function App({ Component, pageProps }: AppProps): JSX.Element {
-  const userMutated = useRef<boolean>(false);
-  const isPaused = useCallback(() => userMutated.current, []);
+  const [userMutated, setUserMutated] = useState<boolean>(false);
   const { data, error } = useSWR<UserJSON, APIError>('/api/account', fetcher, {
-    isPaused,
+    isPaused: () => userMutated,
   });
   const user = useMemo(() => (data ? User.fromJSON(data) : new User()), [data]);
   const setUser = useCallback(
@@ -23,7 +23,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
       let updated = user;
       if (typeof param === 'function') updated = param(updated);
       if (typeof param === 'object') updated = param;
-      userMutated.current = true;
+      if (!dequal(updated, user)) setUserMutated(true);
       void mutate('/api/account', updated.toJSON(), false);
     },
     [user]
@@ -42,7 +42,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
   }, [user, error]);
 
   return (
-    <UserContext.Provider value={{ user, setUser, loggedIn }}>
+    <UserContext.Provider value={{ user, setUser, setUserMutated, loggedIn }}>
       <SWRConfig value={{ fetcher }}>
         <Segment />
         <NProgress />
