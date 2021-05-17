@@ -1,5 +1,5 @@
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import Router, { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import cn from 'classnames';
 
@@ -124,12 +124,32 @@ function MenuLink({ href, children }: LinkProps): JSX.Element {
 
 export default function NavBar(): JSX.Element {
   const { loggedIn, user } = useUser();
-  const [open, setOpen] = useState<boolean>(false);
   const [loggingOut, setLoggingOut] = useState<boolean>(false);
   const logout = useCallback(async () => {
     setLoggingOut(true);
     await fetch('/api/logout');
     await Router.push('/login');
+  }, []);
+
+  const [open, setOpen] = useState<boolean>(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    function nodeInRefs(node: Node, refs: RefObject<HTMLElement>[]): boolean {
+      return refs.some(
+        (ref) =>
+          !ref.current || ref.current === node || ref.current.contains(node)
+      );
+    }
+    function onClick({ target }: MouseEvent | TouchEvent): void {
+      if (!nodeInRefs(target as Node, [menuRef, buttonRef])) setOpen(false);
+    }
+    document.body.addEventListener('mousedown', onClick);
+    document.body.addEventListener('touchstart', onClick);
+    return () => {
+      document.body.removeEventListener('mousedown', onClick);
+      document.body.removeEventListener('touchstart', onClick);
+    };
   }, []);
 
   return (
@@ -138,11 +158,12 @@ export default function NavBar(): JSX.Element {
         <button
           onClick={() => setOpen((prev) => !prev)}
           className='reset avatar'
+          ref={buttonRef}
           type='button'
         >
           <Avatar loading={!loggedIn} src={user.photo} size={48} />
         </button>
-        <div className={cn('menu', { open })}>
+        <div ref={menuRef} className={cn('menu', { open })}>
           <MenuLink href='/subscriptions'>Subscriptions</MenuLink>
           <MenuLink href='/archive'>Archive</MenuLink>
           <div className='line' />
