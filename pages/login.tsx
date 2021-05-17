@@ -3,6 +3,7 @@ import NProgress from 'nprogress';
 import Router from 'next/router';
 
 import Button from 'components/button';
+import Dialog from 'components/dialog';
 import LockIcon from 'components/icons/lock';
 import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
@@ -100,33 +101,27 @@ export default function LoginPage(): JSX.Element {
 
   return (
     <Page title='Login - Hammock'>
-      <div className='wrapper'>
-        <div className='dialog'>
-          <h1>A few things to know, before we get started</h1>
-          <div className='line' />
-          <Section icon={<SyncIcon />} header='Syncs with your Gmail'>
-            You won’t need to get a new email address or subscribe to all your
-            newsletters again.
-          </Section>
-          <Section
-            icon={<LockIcon />}
-            header='We don’t read your email, promise'
-          >
-            We’ll request a few Gmail permissions to help us organize your
-            newsletters. Nothing else.
-          </Section>
-          <Section icon={<UndoIcon />} header='Your newsletters are yours'>
-            You can always go back to reading them in your inbox; we won’t be
-            offended.
-          </Section>
-          <div className='actions'>
-            <Button disabled={loading} onClick={onClick} google>
-              Continue signing in
-            </Button>
-            {error && <p className='error'>{error}</p>}
-          </div>
+      <Dialog>
+        <h1>A few things to know, before we get started</h1>
+        <div className='line' />
+        <Section icon={<SyncIcon />} header='Syncs with your Gmail'>
+          You won’t need to get a new email address or subscribe to all your
+          newsletters again.
+        </Section>
+        <Section icon={<LockIcon />} header='We don’t read your email, promise'>
+          We’ll request a few Gmail permissions to help us organize your
+          newsletters. Nothing else.
+        </Section>
+        <Section icon={<UndoIcon />} header='Your newsletters are yours'>
+          You can always go back to reading them in your inbox; we won’t be
+          offended.
+        </Section>
+        <div className='actions'>
+          <Button disabled={loading} onClick={onClick} google>
+            Continue signing in
+          </Button>
+          {error && <p className='error'>{error}</p>}
         </div>
-        <div className='scrim' />
         <style jsx>{`
           h1 {
             color: var(--accents-5);
@@ -157,65 +152,13 @@ export default function LoginPage(): JSX.Element {
             margin-top: 12px;
           }
 
-          .wrapper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-          }
-
-          .dialog {
-            max-width: 540px;
-            max-height: calc(100% - 32px);
-            background: var(--background);
-            border-radius: 10px;
-            box-shadow: var(--shadow-large);
-            overflow: auto;
-            padding: 0 48px;
-          }
-
-          .scrim {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: rgba(0, 0, 0, 0.32);
-            opacity: 1;
-          }
-
-          @media (max-width: 540px) {
-            .dialog {
-              box-shadow: none;
-              max-height: 100%;
-            }
-
-            .scrim {
-              display: none;
-            }
-          }
-
           @media (max-width: 450px) {
-            .dialog {
-              padding: 0 24px;
-            }
-
-            h1 {
-              margin-top: 24px;
-            }
-
             .actions {
               margin-bottom: 24px;
             }
           }
         `}</style>
-      </div>
+      </Dialog>
     </Page>
   );
 }
