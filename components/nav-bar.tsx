@@ -4,7 +4,12 @@ import Link from 'next/link';
 import cn from 'classnames';
 
 import Avatar from 'components/avatar';
+import DarkIcon from 'components/icons/dark';
+import LightIcon from 'components/icons/light';
+import Select from 'components/select';
+import SystemIcon from 'components/icons/system';
 
+import { useTheme } from 'lib/context/theme';
 import { useUser } from 'lib/context/user';
 
 interface MenuButtonProps {
@@ -31,6 +36,7 @@ function MenuButton({
           appearance: unset;
           cursor: pointer;
           padding: 12px 36px 12px 24px;
+          color: var(--on-background);
           background: var(--background);
           transition: background 0.2s ease 0s;
           font-size: 16px;
@@ -152,6 +158,8 @@ export default function NavBar(): JSX.Element {
     };
   }, []);
 
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className='wrapper'>
       <div className='content'>
@@ -166,6 +174,30 @@ export default function NavBar(): JSX.Element {
         <div ref={menuRef} className={cn('menu', { open })}>
           <MenuLink href='/subscriptions'>Subscriptions</MenuLink>
           <MenuLink href='/archive'>Archive</MenuLink>
+          <div className='line' />
+          <Select
+            small
+            value={theme}
+            onChange={setTheme}
+            label='Change color theme'
+            options={[
+              {
+                value: 'system',
+                label: 'System',
+                icon: <SystemIcon />,
+              },
+              {
+                value: 'dark',
+                label: 'Dark',
+                icon: <DarkIcon />,
+              },
+              {
+                value: 'light',
+                label: 'Light',
+                icon: <LightIcon />,
+              },
+            ]}
+          />
           <div className='line' />
           <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>
             Send feedback
@@ -217,6 +249,10 @@ export default function NavBar(): JSX.Element {
         .menu .line {
           border-top: 1px solid var(--accents-2);
           margin: 4px 0;
+        }
+
+        .menu :global(.select) {
+          margin: 12px;
         }
 
         nav {
