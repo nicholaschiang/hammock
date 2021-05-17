@@ -932,6 +932,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@plaiceholder/core@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@plaiceholder/core@npm:1.0.0"
+  peerDependencies:
+    sharp: ">= 0.26.2"
+  checksum: ca32ac2dc77579e8f29b0caca3813efe4ae0aad3743b10dd9d306cadb49a39afc9f4ca3b45af8b8f7f4462fa1ebec5e801bc3cdd492bfb6cf67d3be76641499a
+  languageName: node
+  linkType: hard
+
+"@plaiceholder/css@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@plaiceholder/css@npm:1.0.0"
+  dependencies:
+    "@plaiceholder/core": ^1.0.0
+  peerDependencies:
+    sharp: ">= 0.26.2"
+  checksum: 85e1bb1c3268f1517fd8d3b85dcad4e6f0e68fa6ac0652c62e376f428578d496a2ef2f9f9c947172509250601747f7adad8670edd80cb84437cbe7a327006d33
+  languageName: node
+  linkType: hard
+
 "@polka/url@npm:^1.0.0-next.9":
   version: 1.0.0-next.12
   resolution: "@polka/url@npm:1.0.0-next.12"
@@ -8378,6 +8398,7 @@ fsevents@~2.3.1:
   version: 0.0.0-use.local
   resolution: "newsletter@workspace:."
   dependencies:
+    "@plaiceholder/css": ^1.0.0
     "@segment/analytics.js-core": ^4.1.11
     "@types/analytics-node": ^3.1.4
     "@types/atob": ^2.1.2
