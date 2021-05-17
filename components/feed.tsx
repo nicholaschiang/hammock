@@ -6,6 +6,7 @@ import cn from 'classnames';
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
 import Button from 'components/button';
+import Empty from 'components/empty';
 import MessageRow from 'components/message-row';
 
 import { Message, MessageJSON } from 'lib/model/message';
@@ -159,6 +160,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
           </div>
         </div>
       ))}
+      {data && !sections.length && <Empty>No messages to show</Empty>}
       <Button
         disabled={isValidating}
         onClick={() => setSize((prev) => prev + 1)}
@@ -170,6 +172,10 @@ export default function Feed(query: MessagesQuery): JSX.Element {
           flex: 1 1 auto;
           max-width: 768px;
           width: 0;
+        }
+
+        .wrapper > :global(.empty) {
+          margin: 24px;
         }
 
         .wrapper > :global(button) {

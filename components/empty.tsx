@@ -15,6 +15,7 @@ export default function Empty({ children }: EmptyProps): JSX.Element {
           font-weight: 400;
           position: relative;
           line-height: 16px;
+          text-align: center;
           text-transform: uppercase;
           height: 100%;
           margin: 0;
