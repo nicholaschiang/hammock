@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import useSWR, { SWRConfig, mutate } from 'swr';
 import { AppProps } from 'next/app';
 import { dequal } from 'dequal';
@@ -42,22 +42,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     return userLoaded.current ? false : undefined;
   }, [user, error]);
 
-  const [theme, setTheme] = useState<Theme>('system');
-  useEffect(() => {
-    let dark = theme === 'dark';
-    if (theme === 'system') {
-      const mq = matchMedia('(prefers-color-scheme: dark)');
-      if (mq.matches) dark = true;
-    }
-    if (dark) return document.documentElement.classList.add('dark');
-    return document.documentElement.classList.remove('dark');
-  }, [theme]);
-  useEffect(() => {
-    setTheme((prev) => (localStorage.getItem('theme') as Theme) || prev);
-  }, []);
-  useEffect(() => {
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+  const [theme, setTheme] = useState<Theme>('light');
 
   return (
     <UserContext.Provider value={{ user, setUser, setUserMutated, loggedIn }}>
