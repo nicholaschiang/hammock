@@ -321,7 +321,7 @@ export default function Subscriptions() {
       await mutate(url, fetcher(url, 'put', user.toJSON()));
       setUserMutated(false);
       void fetch('/api/sync');
-      await Router.push('/');
+      await Router.push('/feed');
     } catch (e) {
       setError(period(e.message));
     }
