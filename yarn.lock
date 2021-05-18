@@ -932,6 +932,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@plaiceholder/base64@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@plaiceholder/base64@npm:1.0.0"
+  dependencies:
+    "@plaiceholder/core": ^1.0.0
+  peerDependencies:
+    sharp: ">= 0.26.2"
+  checksum: fd9d56ebfcccfe4105b43d6d50f77b72686ed226b4c0d8a9825f38dbc25f50ddfc73d3acc2eebcaf4f3bfb066b0eb709f88ceded1d1703295e5f9d5c0e90caec
+  languageName: node
+  linkType: hard
+
 "@plaiceholder/core@npm:^1.0.0":
   version: 1.0.0
   resolution: "@plaiceholder/core@npm:1.0.0"
@@ -8398,6 +8409,7 @@ fsevents@~2.3.1:
   version: 0.0.0-use.local
   resolution: "newsletter@workspace:."
   dependencies:
+    "@plaiceholder/base64": ^1.0.0
     "@plaiceholder/css": ^1.0.0
     "@segment/analytics.js-core": ^4.1.11
     "@types/analytics-node": ^3.1.4

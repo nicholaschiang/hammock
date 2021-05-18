@@ -51,6 +51,7 @@
     "xss": "^1.0.9"
   },
   "devDependencies": {
+    "@plaiceholder/base64": "^1.0.0",
     "@plaiceholder/css": "^1.0.0",
     "@types/analytics-node": "^3.1.4",
     "@types/atob": "^2.1.2",
