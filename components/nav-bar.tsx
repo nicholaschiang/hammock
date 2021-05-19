@@ -168,6 +168,9 @@ export default function NavBar(): JSX.Element {
           <MenuLink href='/subscriptions'>Subscriptions</MenuLink>
           <MenuLink href='/archive'>Archive</MenuLink>
           <div className='line' />
+          <MenuLink href='https://www.notion.so/readhammock/Help-Support-9b6bb1da1d6d4887ad3631f32d7741de'>
+            Help
+          </MenuLink>
           <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>
             Send feedback
           </MenuLink>
