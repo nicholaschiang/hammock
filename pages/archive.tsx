@@ -5,7 +5,7 @@ import Feed from 'components/feed';
 import usePage from 'lib/hooks/page';
 
 export default function ArchivePage(): JSX.Element {
-  usePage({ name: 'Archive', login: true });
+  usePage({ name: 'Archive', login: true, sync: true });
 
   return (
     <Page title='Archive - Hammock'>

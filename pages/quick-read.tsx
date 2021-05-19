@@ -5,7 +5,7 @@ import Feed from 'components/feed';
 import usePage from 'lib/hooks/page';
 
 export default function QuickReadPage(): JSX.Element {
-  usePage({ name: 'Quick Read', login: true });
+  usePage({ name: 'Quick Read', login: true, sync: true });
 
   return (
     <Page title='Quick Read - Hammock'>

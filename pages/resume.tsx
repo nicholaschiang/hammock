@@ -5,7 +5,7 @@ import Feed from 'components/feed';
 import usePage from 'lib/hooks/page';
 
 export default function ResumePage(): JSX.Element {
-  usePage({ name: 'Resume', login: true });
+  usePage({ name: 'Resume', login: true, sync: true });
 
   return (
     <Page title='Resume - Hammock'>

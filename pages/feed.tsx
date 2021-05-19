@@ -5,7 +5,7 @@ import Feed from 'components/feed';
 import usePage from 'lib/hooks/page';
 
 export default function FeedPage(): JSX.Element {
-  usePage({ name: 'Feed', login: true });
+  usePage({ name: 'Feed', login: true, sync: true });
 
   return (
     <Page title='Feed - Hammock'>
