@@ -1,6 +1,6 @@
+import Router, { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
-import { useRouter } from 'next/router';
 import cn from 'classnames';
 
 import { MessageRes } from 'pages/api/messages/[id]';
@@ -44,7 +44,24 @@ export default function MessagePage(): JSX.Element {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const [archiving, setArchiving] = useState<boolean>(false);
+  const archive = useCallback(async () => {
+    if (!message.id) return;
+    window.analytics?.track('Message Archived', message.toSegment());
+    setArchiving(true);
+    const url = `/api/messages/${message.id}`;
+    const data = { ...message.toJSON(), scroll, archived: true };
+    await mutate(url, fetcher(url, 'put', data));
+    // TODO: Mutate the data used in `/feed` to match.
+    // @see {@link https://github.com/vercel/swr/issues/1156}
+    Router.back();
+  }, [scroll, message]);
+
   useEffect(() => {
+    // Don't try to update the scroll position if we're archiving the message.
+    // @see {@link https://github.com/readhammock/hammock/issues/37}
+    if (archiving) return () => {};
     // TODO: Save the message scroll position in our database every second.
     // Currently, this saves the scroll position after a second of no scrolling.
     // Instead, I want to schedule an update every one second where we:
@@ -62,7 +79,7 @@ export default function MessagePage(): JSX.Element {
       void saveScrollPosition();
     }, 1000);
     return () => clearTimeout(timeoutId);
-  }, [message, scroll]);
+  }, [archiving, message, scroll]);
 
   // TODO: Save the scroll position percent of the last visible part of
   // newsletter in viewport (scroll percent should be relative to newsletter).
@@ -76,7 +93,7 @@ export default function MessagePage(): JSX.Element {
 
   return (
     <Page title='Message - Hammock'>
-      <Controls message={message} />
+      <Controls archiving={archiving} archive={archive} />
       <div className='page'>
         <div className='header'>
           <header>
