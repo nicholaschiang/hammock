@@ -185,21 +185,21 @@ function Benefits(): JSX.Element {
       <Container>
         <div className='columns w-row'>
           <div className='benefit-column w-col'>
-            <h4>Dedicated space for newsletters</h4>
+            <h2>Dedicated space for newsletters</h2>
             <p>
               Login with your Gmail and get all your newsletters you want to
               read. No need for a new email address or lengthy setup.
             </p>
           </div>
           <div className='benefit-column w-col'>
-            <h4>Minimalist reading experience</h4>
+            <h2>Minimalist reading experience</h2>
             <p>
               Read content from your favorite writers and domain experts without
               the overwhelm of your inbox and whenever it suits you.
             </p>
           </div>
           <div className='benefit-column w-col'>
-            <h4>Remember what you read</h4>
+            <h2>Remember what you read</h2>
             <p>
               Highlight what you want to remember or share, and export to your
               favorite note taking tools, like Roam or Notion.
@@ -267,7 +267,7 @@ function Benefits(): JSX.Element {
           color: #626262;
         }
 
-        .benefit-column h4 {
+        .benefit-column h2 {
           margin-right: -7px;
           padding-right: 0px;
           font-weight: 700;
@@ -300,7 +300,7 @@ function Benefits(): JSX.Element {
             margin-bottom: 20px;
           }
 
-          .benefit-column h4 {
+          .benefit-column h2 {
             margin-bottom: 5px;
           }
 
