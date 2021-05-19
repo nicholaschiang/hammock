@@ -19,16 +19,6 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     isPaused: () => userMutated,
   });
   const user = useMemo(() => (data ? User.fromJSON(data) : new User()), [data]);
-  const setUser = useCallback(
-    (param: CallbackParam<User>) => {
-      let updated = user;
-      if (typeof param === 'function') updated = param(updated);
-      if (typeof param === 'object') updated = param;
-      if (!dequal(updated, user)) setUserMutated(true);
-      void mutate('/api/account', updated.toJSON(), false);
-    },
-    [user]
-  );
   const userLoaded = useRef<boolean>(false);
   const loggedIn = useMemo(() => {
     if (user.id) {
@@ -41,6 +31,18 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     }
     return userLoaded.current ? false : undefined;
   }, [user, error]);
+  const setUser = useCallback(
+    (param: CallbackParam<User>) => {
+      let updated = user;
+      if (typeof param === 'function') updated = param(updated);
+      if (typeof param === 'object') updated = param;
+      if (!dequal(updated, user)) setUserMutated(true);
+      // Trigger revalidation if we haven't received any account data yet.
+      // @see {@link https://github.com/readhammock/hammock/issues/33}
+      void mutate('/api/account', updated.toJSON(), loggedIn === undefined);
+    },
+    [loggedIn, user]
+  );
 
   const [theme, setTheme] = useState<Theme>('light');
 
