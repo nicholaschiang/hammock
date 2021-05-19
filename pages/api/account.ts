@@ -38,8 +38,11 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
   try {
     const body = verifyBody<User, UserJSON>(req.body, isUserJSON, User);
     await verifyAuth(req.headers, body.id);
-    await updateUserDoc(body);
-    await syncGmail(body);
+    await Promise.all([
+      updateMessages(body),
+      updateUserDoc(body),
+      syncGmail(body),
+    ]);
     res.status(200).json(body.toJSON());
     logger.info(`Updated ${body}.`);
     segment.track({
@@ -49,9 +52,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     });
     body.label = await getOrCreateLabel(body);
     body.filter = await getOrCreateFilter(body);
-    await updateUserDoc(body);
-    await updateMessages(body);
-    await updateGmailMessages(body);
+    await Promise.all([updateUserDoc(body), updateGmailMessages(body)]);
     logger.info(`Retroactively filtered messages for ${body}.`);
   } catch (e) {
     handle(e, res);
