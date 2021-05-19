@@ -1,9 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ReactNode } from 'react';
-import cn from 'classnames';
 
+import Button from 'components/marketing-button';
+import Container from 'components/container';
+import FooterLink from 'components/footer-link';
+import Page from 'components/page';
 import Screenshot from 'components/screenshot';
+
+import usePage from 'lib/hooks/page';
 
 function Paragraph({ children }: { children: ReactNode }): JSX.Element {
   return (
@@ -52,109 +57,6 @@ function Paragraph({ children }: { children: ReactNode }): JSX.Element {
         }
       `}</style>
     </p>
-  );
-}
-
-interface ButtonProps {
-  href: string;
-  children: string;
-}
-
-function Button({ href, children }: ButtonProps): JSX.Element {
-  return (
-    <a href={href} rel='noopener noreferrer' target='_blank'>
-      {children}
-      <style jsx>{`
-        a {
-          position: static;
-          margin-top: 10px;
-          margin-bottom: 20px;
-          border-radius: 6px;
-          background-color: #0c0c0c;
-          box-shadow: 0 6px 10px 0 transparent;
-          transition: transform 350ms ease, box-shadow 350ms ease;
-          font-size: 18px;
-          font-weight: 700;
-          text-decoration: none;
-          display: inline-block;
-          padding: 10px 15px;
-          color: white;
-          border: 0;
-          line-height: 20px;
-          cursor: pointer;
-        }
-
-        a:hover {
-          transform: scale(0.97);
-        }
-
-        @media (max-width: 991px) {
-          a {
-            margin-top: 30px;
-            margin-bottom: 30px;
-            padding-top: 10px;
-            padding-right: 20px;
-            padding-left: 20px;
-          }
-        }
-
-        @media (max-width: 479px) {
-          a {
-            margin-bottom: 20px;
-          }
-        }
-      `}</style>
-    </a>
-  );
-}
-
-interface ContainerProps {
-  children: ReactNode;
-  className?: string;
-}
-
-function Container({ className, children }: ContainerProps): JSX.Element {
-  return (
-    <div className={cn(className, 'w-container')}>
-      {children}
-      <style jsx>{`
-        .w-container {
-          margin-left: auto;
-          margin-right: auto;
-          max-width: 940px;
-          margin-bottom: 0px;
-          padding-bottom: 0px;
-          padding-left: 0px;
-          text-align: center;
-        }
-
-        .w-container:before,
-        .w-container:after {
-          content: ' ';
-          display: table;
-          grid-column-start: 1;
-          grid-row-start: 1;
-          grid-column-end: 2;
-          grid-row-end: 2;
-        }
-
-        .w-container:after {
-          clear: both;
-        }
-
-        @media (max-width: 991px) {
-          .w-container {
-            max-width: 728px;
-          }
-        }
-
-        @media (max-width: 479px) {
-          .w-container {
-            max-width: none;
-          }
-        }
-      `}</style>
-    </div>
   );
 }
 
@@ -409,31 +311,6 @@ function Benefits(): JSX.Element {
   );
 }
 
-function FooterLink({ href, children }: ButtonProps): JSX.Element {
-  return (
-    <a href={href} rel='noopener noreferrer' target='_blank'>
-      {children}
-      <style jsx>{`
-        a {
-          transition: color 0.2s ease 0s;
-          color: #626262;
-          text-decoration: none;
-        }
-
-        a:hover {
-          color: #0c0c0c;
-        }
-
-        @media (max-width: 479px) {
-          a {
-            margin-left: 0px;
-          }
-        }
-      `}</style>
-    </a>
-  );
-}
-
 function Footer(): JSX.Element {
   return (
     <footer className='footer'>
@@ -590,11 +467,13 @@ function Footer(): JSX.Element {
 }
 
 export default function IndexPage(): JSX.Element {
+  usePage({ name: 'Index' });
+
   return (
-    <>
+    <Page title='Hammock'>
       <Header />
       <Benefits />
       <Footer />
-    </>
+    </Page>
   );
 }
