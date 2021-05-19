@@ -67,10 +67,10 @@ function Header(): JSX.Element {
         <div className='logo'>
           <Image
             src='/images/hammock-webclip.png'
-            alt='Hammock'
             height={75}
             width={75}
             priority
+            alt=''
           />
         </div>
         <h1>Hammock</h1>
@@ -87,7 +87,7 @@ function Header(): JSX.Element {
         <div>
           <Link href='/story'>
             <a className='link-story'>
-              Read about why we&#x27;re building this →
+              Read about why we&#x27;re building this &rarr;
             </a>
           </Link>
         </div>
