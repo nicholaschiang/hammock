@@ -36,7 +36,6 @@
     "html-to-text": "^7.1.1",
     "nanoid": "^3.1.22",
     "next": "^10.2.0",
-    "next-google-fonts": "^2.2.0",
     "nprogress": "^0.2.0",
     "phone": "^2.4.21",
     "react": "^17.0.2",

@@ -8454,7 +8454,6 @@ fsevents@~2.3.1:
     husky: ^6.0.0
     nanoid: ^3.1.22
     next: ^10.2.0
-    next-google-fonts: ^2.2.0
     nprogress: ^0.2.0
     phone: ^2.4.21
     prettier: ^2.2.1
@@ -8478,17 +8477,6 @@ fsevents@~2.3.1:
     xss: ^1.0.9
   languageName: unknown
   linkType: soft
-
-"next-google-fonts@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "next-google-fonts@npm:2.2.0"
-  peerDependencies:
-    next: ">= 10.0.7"
-    react: ">= 17.0.1"
-    react-dom: ">= 17.0.1"
-  checksum: addde2211cca3366b5364a99a798566c867d5cbc2222000d5141b0e610c02c86d53def2d416bd33700397478f329cf4c79a6dc13be8967121fbe04751f24fdf3
-  languageName: node
-  linkType: hard
 
 "next-tick@npm:1, next-tick@npm:^1.1.0":
   version: 1.1.0

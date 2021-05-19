@@ -1,4 +1,3 @@
-import { GoogleFonts } from 'next-google-fonts';
 import Head from 'next/head';
 import { ReactNode } from 'react';
 
@@ -45,10 +44,14 @@ export default function Page({ title, children }: PageProps): JSX.Element {
         <link href='/images/webclip.png' rel='apple-touch-icon' />
         <link rel='preconnect' href='https://cdn.segment.com' />
         <link rel='preconnect' href='https://api.segment.io' />
+        <link rel='preconnect' href='https://fonts.gstatic.com' />
+        <link
+          href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
+          rel='stylesheet'
+        />
         <script dangerouslySetInnerHTML={{ __html: segmentSnippet }} />
         <link rel='preload' href='/api/account' as='fetch' />
       </Head>
-      <GoogleFonts href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' />
       {children}
     </>
   );
