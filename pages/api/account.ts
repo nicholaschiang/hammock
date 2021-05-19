@@ -10,6 +10,7 @@ import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
 import syncGmail from 'lib/api/sync-gmail';
 import updateGmailMessages from 'lib/api/update/gmail-messages';
+import updateMessages from 'lib/api/update/messages';
 import updateUserDoc from 'lib/api/update/user-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
@@ -49,6 +50,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     body.label = await getOrCreateLabel(body);
     body.filter = await getOrCreateFilter(body);
     await updateUserDoc(body);
+    await updateMessages(body);
     await updateGmailMessages(body);
     logger.info(`Retroactively filtered messages for ${body}.`);
   } catch (e) {
