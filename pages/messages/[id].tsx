@@ -48,14 +48,23 @@ export default function MessagePage(): JSX.Element {
   const [archiving, setArchiving] = useState<boolean>(false);
   const archive = useCallback(async () => {
     if (!message.id) return;
-    window.analytics?.track('Message Archived', message.toSegment());
+    if (message.archived) {
+      window.analytics?.track('Message Unarchived', message.toSegment());
+    } else {
+      window.analytics?.track('Message Archived', message.toSegment());
+    }
     setArchiving(true);
     const url = `/api/messages/${message.id}`;
-    const data = { ...message.toJSON(), scroll, archived: true };
-    await mutate(url, fetcher(url, 'put', data));
+    const updated = {
+      ...message.toJSON(),
+      scroll,
+      archived: !message.archived,
+    };
+    await mutate(url, fetcher(url, 'put', updated));
     // TODO: Mutate the data used in `/feed` to match.
     // @see {@link https://github.com/vercel/swr/issues/1156}
-    Router.back();
+    if (!message.archived) Router.back();
+    setArchiving(false);
   }, [scroll, message]);
 
   useEffect(() => {
@@ -93,7 +102,11 @@ export default function MessagePage(): JSX.Element {
 
   return (
     <Page title='Message - Hammock'>
-      <Controls archiving={archiving} archive={archive} />
+      <Controls
+        archiving={archiving}
+        archived={message.archived}
+        archive={archive}
+      />
       <div className='page'>
         <div className='header'>
           <header>

@@ -3,15 +3,18 @@ import Router from 'next/router';
 import cn from 'classnames';
 
 import ArchiveIcon from 'components/icons/archive';
+import UnarchiveIcon from 'components/icons/unarchive';
 import ArrowBackIcon from 'components/icons/arrow-back';
 
 export interface ControlsProps {
   archiving: boolean;
+  archived: boolean;
   archive: () => void;
 }
 
 export default function Controls({
   archiving,
+  archived,
   archive,
 }: ControlsProps): JSX.Element {
   const [visible, setVisible] = useState<boolean>(true);
@@ -47,7 +50,7 @@ export default function Controls({
         className='reset button'
         type='button'
       >
-        <ArchiveIcon />
+        {archived ? <UnarchiveIcon /> : <ArchiveIcon />}
       </button>
       <style jsx>{`
         .controls {
