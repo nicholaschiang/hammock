@@ -175,6 +175,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
         }
 
         .wrapper > :global(.empty) {
+          height: 400px;
           margin: 24px;
         }
 
