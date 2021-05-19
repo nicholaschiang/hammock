@@ -167,7 +167,10 @@ function SubscriptionRow({
   onSelected,
 }: SubscriptionRowProps) {
   return (
-    <li onClick={onSelected ? () => onSelected(!selected) : undefined}>
+    <li
+      onClick={onSelected ? () => onSelected(!selected) : undefined}
+      className={cn({ disabled: !onSelected })}
+    >
       <Avatar
         src={subscription?.from.photo}
         loading={!subscription}
@@ -177,7 +180,7 @@ function SubscriptionRow({
       {subscription && (
         <span className='name nowrap'>{subscription.from.name}</span>
       )}
-      <span className={cn('check', { disabled: !onSelected })}>
+      <span className='check'>
         <input
           disabled={!onSelected}
           checked={selected}
@@ -203,6 +206,11 @@ function SubscriptionRow({
           display: flex;
           align-items: center;
           margin: 16px 0;
+          cursor: pointer;
+        }
+
+        li.disabled {
+          cursor: wait;
         }
 
         li:first-child {
@@ -231,11 +239,6 @@ function SubscriptionRow({
           flex: none;
           display: flex;
           align-items: center;
-          cursor: pointer;
-        }
-
-        .check.disabled {
-          cursor: not-allowed;
         }
 
         .check input {
