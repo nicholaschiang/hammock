@@ -3,7 +3,7 @@
   "name": "newsletter",
   "version": "0.4.0",
   "author": "Nicholas Chiang <nicholas.h.chiang@gmail.com>",
-  "homepage": "https://returnofthenewsletter.com",
+  "homepage": "https://readhammock.com",
   "license": "AGPL-3.0",
   "scripts": {
     "dev": "next dev",
