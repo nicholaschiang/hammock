@@ -14,34 +14,41 @@ export default function Page({ title, children }: PageProps): JSX.Element {
       <Head>
         <title>{title}</title>
         <meta
-          content='A place where you can enjoy reading and learning from newsletters. So you spend less time in your inbox.'
           name='description'
+          content='A place where you can enjoy reading and learning from newsletters. So you spend less time in your inbox.'
         />
         <meta charSet='UTF-8' />
         <meta name='viewport' content='width=device-width,initial-scale=1.0' />
-        <meta content='Hammock App - Newsletter Reader' property='og:title' />
-        <meta
-          content='A place where you can enjoy reading and learning from newsletters. So you spend less time in your inbox.'
-          property='og:description'
-        />
-        <meta content='/images/hammock-app.png' property='og:image' />
-        <meta
-          content='Hammock App - Newsletter Reader'
-          property='twitter:title'
-        />
-        <meta
-          content='A place where you can enjoy reading and learning from newsletters. So you spend less time in your inbox.'
-          property='twitter:description'
-        />
-        <meta content='/images/hammock-app.png' property='twitter:image' />
         <meta property='og:type' content='website' />
-        <meta content='summary_large_image' name='twitter:card' />
+        <meta property='og:title' content='Hammock App - Newsletter Reader' />
+        <meta
+          property='og:description'
+          content='A place where you can enjoy reading and learning from newsletters. So you spend less time in your inbox.'
+        />
+        <meta
+          property='og:image'
+          content='https://hammock.vercel.app/images/hammock-app.png'
+        />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:site' content='@readhammock' />
+        <meta
+          property='twitter:title'
+          content='Hammock App - Newsletter Reader'
+        />
+        <meta
+          property='twitter:description'
+          content='A place where you can enjoy reading and learning from newsletters. So you spend less time in your inbox.'
+        />
+        <meta
+          property='twitter:image'
+          content='https://hammock.vercel.app/images/hammock-app.png'
+        />
         <link
-          href='/images/favicon.png'
           rel='shortcut icon'
+          href='/images/favicon.png'
           type='image/x-icon'
         />
-        <link href='/images/webclip.png' rel='apple-touch-icon' />
+        <link rel='apple-touch-icon' href='/images/webclip.png' />
         <link rel='preconnect' href='https://cdn.segment.com' />
         <link rel='preconnect' href='https://api.segment.io' />
         <link rel='preconnect' href='https://fonts.gstatic.com' />
