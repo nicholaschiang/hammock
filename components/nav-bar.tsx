@@ -92,12 +92,14 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
 }
 
 function MenuLink({ href, children }: LinkProps): JSX.Element {
+  const { pathname } = useRouter();
+
   return (
     <Link href={href}>
       <a
         rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
         target={href.startsWith('http') ? '_blank' : undefined}
-        className='nowrap'
+        className={cn('nowrap', { active: pathname === href })}
       >
         {children}
         <style jsx>{`
@@ -116,6 +118,10 @@ function MenuLink({ href, children }: LinkProps): JSX.Element {
 
           a:hover {
             background: var(--accents-2);
+          }
+
+          a.active {
+            cursor: not-allowed;
           }
         `}</style>
       </a>
