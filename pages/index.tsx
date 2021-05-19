@@ -1,6 +1,7 @@
+import { ReactNode, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import Router from 'next/router';
 
 import Button from 'components/marketing-button';
 import Container from 'components/container';
@@ -9,6 +10,7 @@ import Page from 'components/page';
 import Screenshot from 'components/screenshot';
 
 import usePage from 'lib/hooks/page';
+import { useUser } from 'lib/context/user';
 
 function Paragraph({ children }: { children: ReactNode }): JSX.Element {
   return (
@@ -468,6 +470,15 @@ function Footer(): JSX.Element {
 
 export default function IndexPage(): JSX.Element {
   usePage({ name: 'Index' });
+
+  const { loggedIn } = useUser();
+  useEffect(() => {
+    void Router.prefetch('/feed');
+  }, []);
+  useEffect(() => {
+    if (!loggedIn) return;
+    void Router.replace('/feed');
+  }, [loggedIn]);
 
   return (
     <Page title='Hammock'>
