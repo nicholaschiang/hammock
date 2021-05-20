@@ -57,7 +57,6 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <style jsx global>{`
           ::selection {
             background-color: var(--selection);
-            color: var(--on-background);
           }
 
           *,
@@ -150,7 +149,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
             --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
             --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
 
-            --selection: #79ffe1;
+            --selection: #faf3dd;
           }
 
           .dark {
