@@ -87,7 +87,7 @@ function Header(): JSX.Element {
         </Button>
         <div>
           <a
-            href='https://docs.google.com/spreadsheets/d/18yK2NiODyDTmUOmP3PM8UO7OIKigKv8iL8N-oVQEbhg/edit#gid=710018392'
+            href='https://www.notion.so/readhammock/Return-of-the-Newsletter-524563869f6242baaa60250299536654'
             rel='noopener noreferrer'
             className='link-story'
             target='_blank'
