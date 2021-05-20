@@ -1,6 +1,5 @@
 import { ReactNode, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import Router from 'next/router';
 
 import Button from 'components/marketing-button';
@@ -87,11 +86,14 @@ function Header(): JSX.Element {
           Join waitlist
         </Button>
         <div>
-          <Link href='/story'>
-            <a className='link-story'>
-              Read about why we&#x27;re building this &rarr;
-            </a>
-          </Link>
+          <a
+            href='https://docs.google.com/spreadsheets/d/18yK2NiODyDTmUOmP3PM8UO7OIKigKv8iL8N-oVQEbhg/edit#gid=710018392'
+            rel='noopener noreferrer'
+            className='link-story'
+            target='_blank'
+          >
+            Read about why we&#x27;re building this &rarr;
+          </a>
         </div>
         <div className='screenshot'>
           <Screenshot />
