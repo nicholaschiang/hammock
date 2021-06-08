@@ -31,6 +31,7 @@
     "dequal": "^2.0.2",
     "firebase": "^8.4.3",
     "firebase-admin": "^9.7.0",
+    "gaxios": "^4.3.0",
     "googleapis": "^73.0.0",
     "he": "^1.2.0",
     "html-to-text": "^7.1.1",

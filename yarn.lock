@@ -5287,6 +5287,19 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
+"gaxios@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "gaxios@npm:4.3.0"
+  dependencies:
+    abort-controller: ^3.0.0
+    extend: ^3.0.2
+    https-proxy-agent: ^5.0.0
+    is-stream: ^2.0.0
+    node-fetch: ^2.3.0
+  checksum: 190f693d72c78a9168eb8ce0ea8d394f628dd2d15bbaa26eb7cd3b023212afd172355be372e0efaf2ae4d89afc1d93d2c41c3dd0ff1d9b3080b2ab1b0eaa439f
+  languageName: node
+  linkType: hard
+
 "gcp-metadata@npm:^4.2.0":
   version: 4.2.1
   resolution: "gcp-metadata@npm:4.2.1"
@@ -7842,6 +7855,7 @@ fsevents@~2.3.1:
     firebase: ^8.4.3
     firebase-admin: ^9.7.0
     firebase-tools: ^9.10.0
+    gaxios: ^4.3.0
     googleapis: ^73.0.0
     he: ^1.2.0
     html-to-text: ^7.1.1
