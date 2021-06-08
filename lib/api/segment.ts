@@ -1,3 +1,13 @@
 import Analytics from 'analytics-node';
 
-export default new Analytics(process.env.SEGMENT_WRITE_KEY as string);
+const key = process.env.SEGMENT_WRITE_KEY;
+const stub = {
+  identify: () => stub,
+  track: () => stub,
+  flush: () => stub,
+  page: () => stub,
+  alias: () => stub,
+  group: () => stub,
+};
+
+export default key ? new Analytics(key) : stub as Analytics;
