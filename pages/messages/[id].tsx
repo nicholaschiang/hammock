@@ -11,7 +11,6 @@ import Page from 'components/page';
 
 import { Message } from 'lib/model/message';
 import { fetcher } from 'lib/fetch';
-import usePage from 'lib/hooks/page';
 
 /**
  * @param The element to get the vertical scroll percentage for.
@@ -24,8 +23,6 @@ function getVerticalScrollPercentage(elm: HTMLElement): number {
 }
 
 export default function MessagePage(): JSX.Element {
-  usePage({ name: 'Message', login: true });
-
   const { query } = useRouter();
   const { data } = useSWR<MessageRes>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
@@ -101,7 +98,7 @@ export default function MessagePage(): JSX.Element {
   }, [message.scroll]);
 
   return (
-    <Page title='Message - Hammock'>
+    <Page name='Message' login>
       <Controls
         archiving={archiving}
         archived={message.archived}

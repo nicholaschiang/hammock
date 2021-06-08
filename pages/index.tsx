@@ -8,7 +8,6 @@ import FooterLink from 'components/footer-link';
 import Page from 'components/page';
 import Screenshot from 'components/screenshot';
 
-import usePage from 'lib/hooks/page';
 import { useUser } from 'lib/context/user';
 
 function Paragraph({ children }: { children: ReactNode }): JSX.Element {
@@ -471,8 +470,6 @@ function Footer(): JSX.Element {
 }
 
 export default function IndexPage(): JSX.Element {
-  usePage({ name: 'Index' });
-
   const { loggedIn } = useUser();
   useEffect(() => {
     void Router.prefetch('/feed');
@@ -483,7 +480,7 @@ export default function IndexPage(): JSX.Element {
   }, [loggedIn]);
 
   return (
-    <Page title='Hammock'>
+    <Page name='Newsletter Reader'>
       <Header />
       <Benefits />
       <Footer />
