@@ -2,13 +2,9 @@ import NavBar from 'components/nav-bar';
 import Page from 'components/page';
 import Feed from 'components/feed';
 
-import usePage from 'lib/hooks/page';
-
 export default function QuickReadPage(): JSX.Element {
-  usePage({ name: 'Quick Read', login: true, sync: true });
-
   return (
-    <Page title='Quick Read - Hammock'>
+    <Page name='Quick Read' login sync>
       <div className='page'>
         <NavBar />
         <Feed quickRead='true' />

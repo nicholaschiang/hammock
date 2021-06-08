@@ -2,13 +2,9 @@ import NavBar from 'components/nav-bar';
 import Page from 'components/page';
 import Feed from 'components/feed';
 
-import usePage from 'lib/hooks/page';
-
 export default function FeedPage(): JSX.Element {
-  usePage({ name: 'Feed', login: true, sync: true });
-
   return (
-    <Page title='Feed - Hammock'>
+    <Page name='Feed' login sync>
       <div className='page'>
         <NavBar />
         <Feed />

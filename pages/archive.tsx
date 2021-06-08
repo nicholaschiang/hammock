@@ -2,13 +2,9 @@ import NavBar from 'components/nav-bar';
 import Page from 'components/page';
 import Feed from 'components/feed';
 
-import usePage from 'lib/hooks/page';
-
 export default function ArchivePage(): JSX.Element {
-  usePage({ name: 'Archive', login: true, sync: true });
-
   return (
-    <Page title='Archive - Hammock'>
+    <Page name='Archive' login sync>
       <div className='page'>
         <NavBar />
         <Feed archive='true' />

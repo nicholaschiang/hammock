@@ -2,13 +2,9 @@ import NavBar from 'components/nav-bar';
 import Page from 'components/page';
 import Feed from 'components/feed';
 
-import usePage from 'lib/hooks/page';
-
 export default function ResumePage(): JSX.Element {
-  usePage({ name: 'Resume', login: true, sync: true });
-
   return (
-    <Page title='Resume - Hammock'>
+    <Page name='Resume' login sync>
       <div className='page'>
         <NavBar />
         <Feed resume='true' />

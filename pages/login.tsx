@@ -10,7 +10,6 @@ import SyncIcon from 'components/icons/sync';
 import UndoIcon from 'components/icons/undo';
 
 import { period } from 'lib/utils';
-import usePage from 'lib/hooks/page';
 
 interface SectionProps {
   icon: ReactNode;
@@ -66,8 +65,6 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
 }
 
 export default function LoginPage(): JSX.Element {
-  usePage({ name: 'Login' });
-
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
@@ -100,7 +97,7 @@ export default function LoginPage(): JSX.Element {
   }, []);
 
   return (
-    <Page title='Login - Hammock'>
+    <Page name='Login'>
       <Dialog>
         <h1>A few things to know, before we get started</h1>
         <div className='line' />
