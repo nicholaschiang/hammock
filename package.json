@@ -7,11 +7,11 @@
   "license": "AGPL-3.0",
   "scripts": {
     "dev": "next dev",
-    "build:analyze": "cross-env ANALYZE=true next build",
     "build": "next build",
     "start": "next start",
     "style": "pretty-quick",
-    "lint": "eslint . --ext .ts,.tsx"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "analyze": "cross-env ANALYZE=true next build"
   },
   "repository": {
     "type": "git",
