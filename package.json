@@ -63,7 +63,6 @@
     "@types/utf8": "^2.1.6",
     "@typescript-eslint/eslint-plugin": "^4.20.0",
     "@typescript-eslint/parser": "^4.20.0",
-    "concurrently": "^6.0.0",
     "cross-env": "^7.0.3",
     "eslint": "^7.23.0",
     "eslint-config-airbnb": "^18.2.1",
