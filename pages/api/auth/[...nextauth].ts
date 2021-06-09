@@ -7,6 +7,7 @@ import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
 import getUser from 'lib/api/get/user';
 import logger from 'lib/api/logger';
+import syncGmail from 'lib/api/sync-gmail';
 import updateUserDoc from 'lib/api/update/user-doc';
 
 export default NextAuth({
@@ -67,7 +68,7 @@ export default NextAuth({
         created.label = res?.label || await getOrCreateLabel(created);
         created.filter = res?.filter || await getOrCreateFilter(created);
         logger.verbose(`Creating document for ${created}...`);
-        await updateUserDoc(created);
+        await Promise.all([updateUserDoc(created), syncGmail(created)]);
         return { ...token, ...created };
       }
       const existing = await getUser(token.sub || '');
