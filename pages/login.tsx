@@ -1,5 +1,4 @@
 import { signIn } from 'next-auth/client';
-import { GetStaticProps } from 'next';
 import { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 

@@ -53,7 +53,7 @@ export default async function messages(
       const { docs } = await query.get();
       const messagesData = docs.map((d) => Message.fromFirestoreDoc(d));
       res.status(200).json(messagesData.map((m) => m.toJSON()));
-      logger.info(`Fetched ${messagesData.length} messages for user (${uid}).`);
+      logger.info(`Fetched ${messagesData.length} messages for ${user}.`);
       segment.track({
         userId: user.id,
         event: 'Messages Listed',
