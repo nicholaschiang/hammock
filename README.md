@@ -72,6 +72,8 @@ behind it, but we're always open to improvements!
 - [SWR](https://swr.vercel.app) - Used to manage global state. SWR fetches data
   from our back-end, stores it in a global cache, and allows local mutations of
   that cache (with or without automatic revalidation).
+- [`next-auth`](https://next-auth.js.org) - Manages authentication with JWT 
+  session cookies.
 
 #### Tooling
 
