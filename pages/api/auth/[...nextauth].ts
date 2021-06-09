@@ -34,8 +34,6 @@ export default NextAuth({
           label: '',
           filter: '',
           subscriptions: [],
-          created: new Date().toJSON(),
-          updated: new Date().toJSON(),
         };
         return user as UserJSON & Record<string, unknown>;
       },

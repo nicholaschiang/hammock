@@ -1,10 +1,3 @@
-import {
-  Resource,
-  ResourceFirestore,
-  ResourceInterface,
-  ResourceJSON,
-  isResourceJSON,
-} from 'lib/model/resource';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -33,45 +26,33 @@ export function isCategory(category: unknown): category is Category {
 
 /**
  * @typedef {Object} SubscriptionInterface
- * @extends ResourceInterface
  * @property from - Who the newsletter is from (their name, email, and photo).
  * @property [category] - Either "important" (a known newsletter listed on our
  * whitelist or with a whitelisted sender domain) or "other" (any email that
  * contains the `list-unsubscribe` header) or missing (not a newsletter).
  */
-export interface SubscriptionInterface extends ResourceInterface {
+export interface SubscriptionInterface {
   from: Contact;
   category?: Category;
 }
 
-export type SubscriptionJSON = Omit<SubscriptionInterface, keyof Resource> &
-  ResourceJSON;
-export type SubscriptionFirestore = Omit<
-  SubscriptionInterface,
-  keyof Resource
-> &
-  ResourceFirestore;
+export type SubscriptionJSON = SubscriptionInterface;
+export type SubscriptionFirestore = SubscriptionInterface; 
 
 export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
-  if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (!isContact(json.from)) return false;
   if (!isCategory(json.category)) return false;
   return true;
 }
 
-export class Subscription extends Resource implements SubscriptionInterface {
+export class Subscription implements SubscriptionInterface {
   public from = { name: '', email: '', photo: '' };
 
   public category?: Category;
 
   public constructor(subscription: Partial<SubscriptionInterface> = {}) {
-    super(subscription);
-    construct<SubscriptionInterface, ResourceInterface>(
-      this,
-      subscription,
-      new Resource()
-    );
+    construct<SubscriptionInterface>(this, subscription);
   }
 
   public get clone(): Subscription {
@@ -83,28 +64,24 @@ export class Subscription extends Resource implements SubscriptionInterface {
   }
 
   public toJSON(): SubscriptionJSON {
-    return definedVals({ ...this, ...super.toJSON() });
+    return definedVals(this);
   }
 
   public static fromJSON(json: SubscriptionJSON): Subscription {
-    return new Subscription({ ...json, ...Resource.fromJSON(json) });
+    return new Subscription(json);
   }
 
   public toFirestore(): SubscriptionFirestore {
-    return definedVals({ ...this, ...super.toFirestore() });
+    return definedVals(this);
   }
 
   public static fromFirestore(data: SubscriptionFirestore): Subscription {
-    return new Subscription({ ...data, ...Resource.fromFirestore(data) });
+    return new Subscription(data);
   }
 
   public static fromFirestoreDoc(snapshot: DocumentSnapshot): Subscription {
     if (!snapshot.exists) return new Subscription();
-    const overrides = definedVals({
-      created: snapshot.createTime?.toDate(),
-      updated: snapshot.updateTime?.toDate(),
-      id: snapshot.id,
-    });
+    const overrides = definedVals({ id: snapshot.id });
     const subscription = Subscription.fromFirestore(
       snapshot.data() as SubscriptionFirestore
     );

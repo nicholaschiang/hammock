@@ -1,10 +1,3 @@
-import {
-  Resource,
-  ResourceFirestore,
-  ResourceInterface,
-  ResourceJSON,
-  isResourceJSON,
-} from 'lib/model/resource';
 import { isJSON, isStringArray } from 'lib/model/json';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
@@ -14,7 +7,6 @@ import definedVals from 'lib/model/defined-vals';
 
 /**
  * @typedef {Object} UserInterface
- * @extends ResourceInterface
  * @property id - The user's Firebase Authentication ID.
  * @property name - The user's name.
  * @property photo - The user's avatar photo URL.
@@ -28,7 +20,7 @@ import definedVals from 'lib/model/defined-vals';
  * @property subscriptions - An array of newsletter email addresses that the
  * user has subscribed to (i.e. the newsletters that show up in their feed).
  */
-export interface UserInterface extends ResourceInterface {
+export interface UserInterface {
   id: string;
   name: string;
   photo: string;
@@ -41,9 +33,8 @@ export interface UserInterface extends ResourceInterface {
   subscriptions: string[];
 }
 
-export type UserJSON = Omit<UserInterface, keyof Resource> & ResourceJSON;
-export type UserFirestore = Omit<UserInterface, keyof Resource> &
-  ResourceFirestore;
+export type UserJSON = UserInterface;
+export type UserFirestore = UserInterface;
 
 export function isUserJSON(json: unknown): json is UserJSON {
   const stringFields = [
@@ -58,14 +49,13 @@ export function isUserJSON(json: unknown): json is UserJSON {
     'filter',
   ];
 
-  if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
   if (!isStringArray(json.subscriptions)) return false;
   return true;
 }
 
-export class User extends Resource implements UserInterface {
+export class User implements UserInterface {
   public id = '';
 
   public name = '';
@@ -87,8 +77,7 @@ export class User extends Resource implements UserInterface {
   public subscriptions: string[] = [];
 
   public constructor(user: Partial<UserInterface> = {}) {
-    super(user);
-    construct<UserInterface, ResourceInterface>(this, user, new Resource());
+    construct<UserInterface>(this, user);
   }
 
   public get firstName(): string {
@@ -105,28 +94,24 @@ export class User extends Resource implements UserInterface {
   }
 
   public toJSON(): UserJSON {
-    return definedVals({ ...this, ...super.toJSON() });
+    return definedVals(this);
   }
 
   public static fromJSON(json: UserJSON): User {
-    return new User({ ...json, ...Resource.fromJSON(json) });
+    return new User(json);
   }
 
   public toFirestore(): UserFirestore {
-    return definedVals({ ...this, ...super.toFirestore() });
+    return definedVals(this);
   }
 
   public static fromFirestore(data: UserFirestore): User {
-    return new User({ ...data, ...Resource.fromFirestore(data) });
+    return new User(data);
   }
 
   public static fromFirestoreDoc(snapshot: DocumentSnapshot): User {
     if (!snapshot.exists) return new User();
-    const overrides = definedVals({
-      created: snapshot.createTime?.toDate(),
-      updated: snapshot.updateTime?.toDate(),
-      id: snapshot.id,
-    });
+    const overrides = definedVals({ id: snapshot.id });
     const user = User.fromFirestore(snapshot.data() as UserFirestore);
     return new User({ ...user, ...overrides });
   }
