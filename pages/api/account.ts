@@ -4,7 +4,6 @@ import { User, UserJSON, isUserJSON } from 'lib/model/user';
 import { APIErrorJSON } from 'lib/model/error';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
-import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
@@ -18,12 +17,11 @@ import verifyBody from 'lib/api/verify/body';
 async function fetchAccount(req: Req, res: Res<UserJSON>): Promise<void> {
   console.time('get-account');
   try {
-    const { uid } = await verifyAuth(req.headers);
-    const user = await getUser(uid);
+    const user = await verifyAuth(req);
     res.status(200).json(user.toJSON());
     logger.info(`Fetched ${user}.`);
     segment.track({
-      userId: uid,
+      userId: user.id,
       event: 'User Fetched',
       properties: user.toSegment(),
     });
@@ -37,7 +35,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
   console.time('put-account');
   try {
     const body = verifyBody<User, UserJSON>(req.body, isUserJSON, User);
-    await verifyAuth(req.headers, body.id);
+    await verifyAuth(req, body.id);
     await Promise.all([
       updateMessages(body),
       updateUserDoc(body),

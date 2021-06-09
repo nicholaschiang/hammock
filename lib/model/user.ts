@@ -19,7 +19,6 @@ import definedVals from 'lib/model/defined-vals';
  * @property name - The user's name.
  * @property photo - The user's avatar photo URL.
  * @property locale - The user's locale code (returned by Google OAuth2).
- * @property gender - The user's gender (returned by Google OAuth2).
  * @property email - The user's email address.
  * @property phone - The user's phone number.
  * @property token - The user's OAuth token that we use to access Gmail's API.
@@ -34,7 +33,6 @@ export interface UserInterface extends ResourceInterface {
   name: string;
   photo: string;
   locale: string;
-  gender: string;
   email: string;
   phone: string;
   token: string;
@@ -53,7 +51,6 @@ export function isUserJSON(json: unknown): json is UserJSON {
     'name',
     'photo',
     'locale',
-    'gender',
     'email',
     'phone',
     'token',
@@ -76,8 +73,6 @@ export class User extends Resource implements UserInterface {
   public photo = '';
 
   public locale = '';
-
-  public gender = '';
 
   public email = '';
 

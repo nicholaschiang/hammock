@@ -37,9 +37,9 @@ export default async function messages(
         archive,
         resume,
       } = req.query as MessagesQuery;
-      const { uid } = await verifyAuth(req.headers);
-      logger.verbose(`Fetching messages for user (${uid})...`);
-      const ref = db.collection('users').doc(uid).collection('messages');
+      const user = await verifyAuth(req);
+      logger.verbose(`Fetching messages for ${user}...`);
+      const ref = db.collection('users').doc(user.id).collection('messages');
       let query = ref.where('archived', '==', archive === 'true');
       if (quickRead === 'true')
         query = query.where('time', '<=', 10).orderBy('time');
@@ -53,9 +53,9 @@ export default async function messages(
       const { docs } = await query.get();
       const messagesData = docs.map((d) => Message.fromFirestoreDoc(d));
       res.status(200).json(messagesData.map((m) => m.toJSON()));
-      logger.info(`Fetched ${messagesData.length} messages for user (${uid}).`);
+      logger.info(`Fetched ${messagesData.length} messages for ${user}.`);
       segment.track({
-        userId: uid,
+        userId: user.id,
         event: 'Messages Listed',
         properties: messagesData.map((m) => m.toSegment()),
       });

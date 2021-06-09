@@ -7,6 +7,7 @@ import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import messageFromGmail from 'lib/api/message-from-gmail';
+import segment from 'lib/api/segment';
 import verifyAuth from 'lib/api/verify/auth';
 
 export type SubscriptionsRes = {
@@ -29,9 +30,9 @@ export default async function subscriptions(
   } else {
     try {
       const { pageToken } = req.query as { pageToken?: string };
-      const { uid, token } = await verifyAuth(req.headers);
-      logger.verbose(`Fetching subscriptions for user (${uid})...`);
-      const client = gmail(token);
+      const user = await verifyAuth(req);
+      logger.verbose(`Fetching subscriptions for ${user}...`);
+      const client = gmail(user.token);
       const { data } = await client.users.messages.list({
         maxResults: 100,
         userId: 'me',
@@ -49,8 +50,13 @@ export default async function subscriptions(
         nextPageToken: data.nextPageToken || '',
       });
       logger.info(
-        `Fetched ${subscriptionsData.length} subscriptions for user (${uid}).`
+        `Fetched ${subscriptionsData.length} subscriptions for ${user}.`
       );
+      segment.track({
+        userId: user.id,
+        event: 'Subscriptions Listed',
+        properties: subscriptionsData.map((s) => s.toSegment()),
+      });
     } catch (e) {
       handle(e, res);
     }
