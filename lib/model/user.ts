@@ -1,4 +1,5 @@
-import { isJSON, isStringArray } from 'lib/model/json';
+import { Subscription, SubscriptionFirestore, SubscriptionJSON, isSubscriptionJSON } from 'lib/model/subscription';
+import { isJSON, isArray } from 'lib/model/json';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';
@@ -30,11 +31,11 @@ export interface UserInterface {
   token: string;
   label: string;
   filter: string;
-  subscriptions: string[];
+  subscriptions: Subscription[];
 }
 
-export type UserJSON = UserInterface;
-export type UserFirestore = UserInterface;
+export type UserJSON = Omit<UserInterface, 'subscriptions'> & { subscriptions: SubscriptionJSON[] };
+export type UserFirestore = Omit<UserInterface, 'subscriptions'> & { subscriptions: SubscriptionFirestore[] };
 
 export function isUserJSON(json: unknown): json is UserJSON {
   const stringFields = [
@@ -51,7 +52,7 @@ export function isUserJSON(json: unknown): json is UserJSON {
 
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (!isStringArray(json.subscriptions)) return false;
+  if (!isArray(json.subscriptions, isSubscriptionJSON)) return false; 
   return true;
 }
 
@@ -74,7 +75,7 @@ export class User implements UserInterface {
 
   public filter = '';
 
-  public subscriptions: string[] = [];
+  public subscriptions: Subscription[] = [];
 
   public constructor(user: Partial<UserInterface> = {}) {
     construct<UserInterface>(this, user);
@@ -98,7 +99,7 @@ export class User implements UserInterface {
   }
 
   public static fromJSON(json: UserJSON): User {
-    return new User(json);
+    return new User({ ...json, subscriptions: json.subscriptions.map(Subscription.fromJSON) });
   }
 
   public toFirestore(): UserFirestore {
@@ -106,7 +107,7 @@ export class User implements UserInterface {
   }
 
   public static fromFirestore(data: UserFirestore): User {
-    return new User(data);
+    return new User({ ...data, subscriptions: data.subscriptions.map(Subscription.fromFirestore) });
   }
 
   public static fromFirestoreDoc(snapshot: DocumentSnapshot): User {

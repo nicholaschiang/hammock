@@ -398,7 +398,7 @@ export default function Subscriptions() {
       // to pre-select all the important subscriptions. Right now, we only
       // pre-select if the user doesn't already have any subscriptions selected.
       if (updated.size) return prev;
-      important.forEach((i) => updated.add(i.from.email));
+      important.forEach((i) => updated.add(i));
       if (dequal([...updated], prev.subscriptions)) return prev;
       return new User({ ...prev, subscriptions: [...updated] });
     });
@@ -418,7 +418,7 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r.from.email)}
+              selected={user.subscriptions.includes(r)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
@@ -427,8 +427,8 @@ export default function Subscriptions() {
                 );
                 setUser((prev) => {
                   const updated = new Set(prev.subscriptions);
-                  if (isSelected) updated.add(r.from.email);
-                  if (!isSelected) updated.delete(r.from.email);
+                  if (isSelected) updated.add(r);
+                  if (!isSelected) updated.delete(r);
                   if (dequal([...updated], prev.subscriptions)) return prev;
                   return new User({ ...prev, subscriptions: [...updated] });
                 });
@@ -446,7 +446,7 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r.from.email)}
+              selected={user.subscriptions.includes(r)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
@@ -455,8 +455,8 @@ export default function Subscriptions() {
                 );
                 setUser((prev) => {
                   const updated = new Set(prev.subscriptions);
-                  if (isSelected) updated.add(r.from.email);
-                  if (!isSelected) updated.delete(r.from.email);
+                  if (isSelected) updated.add(r);
+                  if (!isSelected) updated.delete(r);
                   if (dequal([...updated], prev.subscriptions)) return prev;
                   return new User({ ...prev, subscriptions: [...updated] });
                 });
