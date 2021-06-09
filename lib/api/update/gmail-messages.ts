@@ -11,13 +11,14 @@ async function removeLabels(user: User, client: Gmail): Promise<void> {
     maxResults: 2500,
     userId: 'me',
   });
-  await client.users.messages.batchModify({
-    requestBody: {
-      ids: (data.messages || []).map((m) => m.id as string),
-      removeLabelIds: [user.label],
-    },
-    userId: 'me',
-  });
+  if (data.messages?.length)
+    await client.users.messages.batchModify({
+      requestBody: {
+        ids: data.messages.map((m) => m.id as string),
+        removeLabelIds: [user.label],
+      },
+      userId: 'me',
+    });
   console.timeEnd('remove-labels');
 }
 
@@ -39,14 +40,15 @@ async function addLabels(user: User, client: Gmail): Promise<void> {
     maxResults: 2500,
     userId: 'me',
   });
-  await client.users.messages.batchModify({
-    requestBody: {
-      ids: (data.messages || []).map((m) => m.id as string),
-      addLabelIds: [user.label],
-      removeLabelIds: ['INBOX'],
-    },
-    userId: 'me',
-  });
+  if (data.messages?.length)
+    await client.users.messages.batchModify({
+      requestBody: {
+        ids: data.messages.map((m) => m.id as string),
+        addLabelIds: [user.label],
+        removeLabelIds: ['INBOX'],
+      },
+      userId: 'me',
+    });
   console.timeEnd('add-labels');
 }
 
