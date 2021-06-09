@@ -1,7 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
 import { APIErrorJSON } from 'lib/model/error';
-import getUser from 'lib/api/get/user';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import syncGmail from 'lib/api/sync-gmail';
@@ -22,8 +21,7 @@ export default async function sync(
   } else {
     try {
       const { pageToken } = req.query as { pageToken?: string };
-      const { uid } = await verifyAuth(req.headers);
-      const user = await getUser(uid);
+      const user = await verifyAuth(req);
       logger.verbose(`Syncing messages for ${user}...`);
       const nextPageToken = await syncGmail(user, pageToken);
       if (nextPageToken) {

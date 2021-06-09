@@ -19,16 +19,16 @@ async function fetchMessage(
 ): Promise<void> {
   try {
     const id = verifyQueryId(req.query);
-    const { uid } = await verifyAuth(req.headers);
-    const ref = db.collection('users').doc(uid).collection('messages').doc(id);
+    const user = await verifyAuth(req);
+    const ref = db.collection('users').doc(user.id).collection('messages').doc(id);
     const doc = await ref.get();
     // TODO: Try to fetch it from Gmail's API instead.
     if (!doc.exists) throw new APIError(`Message ${id} does not exist`, 404);
     const messageData = Message.fromFirestoreDoc(doc);
     res.status(200).json(messageData.toJSON());
-    logger.info(`Fetched ${messageData} for user (${uid}).`);
+    logger.info(`Fetched ${messageData} for ${user}.`);
     segment.track({
-      userId: uid,
+      userId: user.id,
       event: 'Message Fetched',
       properties: messageData.toSegment(),
     });
@@ -47,12 +47,12 @@ async function updateMessage(
       isMessageJSON,
       Message
     );
-    const { uid } = await verifyAuth(req.headers);
-    await updateMessageDoc(uid, body);
+    const user = await verifyAuth(req);
+    await updateMessageDoc(user.id, body);
     res.status(200).json(body.toJSON());
-    logger.info(`Updated ${body} for user (${uid}).`);
+    logger.info(`Updated ${body} for ${user}.`);
     segment.track({
-      userId: uid,
+      userId: user.id,
       event: 'Message Updated',
       properties: body.toSegment(),
     });

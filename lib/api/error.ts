@@ -1,4 +1,5 @@
 import { ServerResponse } from 'http';
+
 import { GaxiosError } from 'gaxios';
 
 import { APIError } from 'lib/model/error';
@@ -14,8 +15,11 @@ function send(e: APIError, res: ServerResponse): void {
 }
 
 export function handle(e: unknown, res: ServerResponse): void {
-  if (!(e instanceof APIError) || e.code !== 401)
+  if (!(e instanceof APIError) || e.code !== 401) {
     logger.error(`API encountered: ${(e as any)?.stack}`);
+  } else {
+    logger.error(`API encountered: ${e.code} ${e.toString()}`);
+  }
   if (e instanceof GaxiosError)
     return send(new APIError(e.message, Number(e.code || 500)), res);
   if (e instanceof APIError) return send(e, res);
