@@ -450,7 +450,9 @@ export default function Subscriptions() {
         }
 
         .wrapper > :global(button) {
+          position: sticky;
           margin-top: 60px;
+          bottom: 12px;
           width: 100%;
         }
 
