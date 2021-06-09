@@ -1,9 +1,11 @@
 import NextAuth from 'next-auth';
 import Providers from 'next-auth/providers';
+import to from 'await-to-js';
 
 import { User, UserJSON } from 'lib/model/user';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
+import getUser from 'lib/api/get/user';
 import logger from 'lib/api/logger';
 import updateUserDoc from 'lib/api/update/user-doc';
 
@@ -61,10 +63,10 @@ export default NextAuth({
           locale: profile.locale || user.locale,
           token: account.refresh_token,
         });
-        logger.verbose(`Creating label for ${created}...`);
-        created.label = await getOrCreateLabel(created);
-        logger.verbose(`Creating filter for ${created}...`);
-        created.filter = await getOrCreateFilter(created);
+        const [_, res] = await to(getUser(created.id));
+        created.subscriptions = res?.subscriptions || [];
+        created.label = res?.label || await getOrCreateLabel(created);
+        created.filter = res?.filter || await getOrCreateFilter(created);
         logger.verbose(`Creating document for ${created}...`);
         await updateUserDoc(created);
         return { ...token, ...created };
