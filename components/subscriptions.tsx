@@ -2,7 +2,6 @@ import { mutate, useSWRInfinite } from 'swr';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
-import NProgress from 'nprogress';
 import Router from 'next/router';
 import cn from 'classnames';
 import { dequal } from 'dequal';
@@ -18,6 +17,7 @@ import { Subscription } from 'lib/model/subscription';
 import { User } from 'lib/model/user';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
+import { useLoading } from 'lib/nprogress';
 import { useUser } from 'lib/context/user';
 
 const LOADING_MESSAGES = [
@@ -277,21 +277,6 @@ function SubscriptionRow({
 }
 
 export default function Subscriptions() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    if (!loading) {
-      NProgress.done();
-    } else {
-      NProgress.start();
-      setError('');
-    }
-  }, [loading]);
-  useEffect(() => {
-    if (error) setLoading(false);
-  }, [error]);
-
   const getKey = useCallback(
     (pageIdx: number, prev: SubscriptionsRes | null) => {
       if (!prev || pageIdx === 0) return '/api/subscriptions';
@@ -314,6 +299,8 @@ export default function Subscriptions() {
     return subs;
   }, [data]);
 
+  // TODO: Show error message in snackbar or button help text.
+  const { loading, setLoading, setError } = useLoading(); 
   const { user, setUser, setUserMutated } = useUser();
 
   const onSave = useCallback(async () => {
@@ -328,7 +315,7 @@ export default function Subscriptions() {
     } catch (e) {
       setError(period(e.message));
     }
-  }, [user, setUserMutated]);
+  }, [user, setUserMutated, setLoading, setError]);
 
   const other = useMemo(
     () => subscriptions.filter((s) => s.category === 'other'),

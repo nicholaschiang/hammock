@@ -1,5 +1,5 @@
+import { ReactNode, useCallback, useEffect } from 'react';
 import { signIn } from 'next-auth/client';
-import { ReactNode } from 'react';
 import { useRouter } from 'next/router';
 
 import Button from 'components/button';
@@ -8,6 +8,8 @@ import LockIcon from 'components/icons/lock';
 import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
 import UndoIcon from 'components/icons/undo';
+
+import { useLoading } from 'lib/nprogress';
 
 interface SectionProps {
   icon: ReactNode;
@@ -62,26 +64,36 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
   );
 }
 
+// Next.js auth error codes and their corresponding user-facing messages.
+// @see {@link https://git.io/JZ3q4}
+const errors: Record<string, string> = {
+  Signin: 'Try signing with a different account.',
+  OAuthSignin: 'Try signing with a different account.',
+  OAuthCallback: 'Try signing with a different account.',
+  OAuthCreateAccount: 'Try signing with a different account.',
+  EmailCreateAccount: 'Try signing with a different account.',
+  Callback: 'Try signing with a different account.',
+  OAuthAccountNotLinked: 'To confirm your identity, sign in with the same account you used originally.',
+  EmailSignin: 'Check your email address.',
+  CredentialsSignin: 'Sign in failed. Check the details you provided are correct.',
+  default: 'Unable to sign in.'
+};
+
 export default function LoginPage(): JSX.Element {
-  // Next.js auth error codes and their corresponding user-facing messages.
-  // @see {@link https://git.io/JZ3q4}
-  const errors: Record<string, string> = {
-    Signin: 'Try signing with a different account.',
-    OAuthSignin: 'Try signing with a different account.',
-    OAuthCallback: 'Try signing with a different account.',
-    OAuthCreateAccount: 'Try signing with a different account.',
-    EmailCreateAccount: 'Try signing with a different account.',
-    Callback: 'Try signing with a different account.',
-    OAuthAccountNotLinked: 'To confirm your identity, sign in with the same account you used originally.',
-    EmailSignin: 'Check your email address.',
-    CredentialsSignin: 'Sign in failed. Check the details you provided are correct.',
-    default: 'Unable to sign in.'
-  };
-  
   // Next.js passes the error code to our custom `signIn` and `error` page.
   // @see {@link https://next-auth.js.org/configuration/pages}
   const { query } = useRouter();
-  const error = typeof query.error === 'string' ? errors[query.error] : undefined;
+  const { loading, setLoading, error, setError } = useLoading();
+  useEffect(() => {
+    setError((prev) => {
+      if (typeof query.error !== 'string') return prev;
+      return errors[query.error] || 'An unexpected error occurred.';
+    });
+  }, [setError, query.error]);
+  const onClick = useCallback(async () => {
+    setLoading(true);
+    await signIn('google', { callbackUrl: '/feed' });
+  }, [setLoading]);
 
   return (
     <Page name='Login'>
@@ -101,7 +113,7 @@ export default function LoginPage(): JSX.Element {
           offended.
         </Section>
         <div className='actions'>
-          <Button onClick={() => signIn('google', { callbackUrl: '/feed' })} google>
+          <Button disabled={loading} onClick={onClick} google>
             Continue signing in
           </Button>
           {error && <p className='error'>Hmm, it looks like we hit a snag. {error}</p>}
