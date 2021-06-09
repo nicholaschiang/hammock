@@ -1,11 +1,9 @@
-import { IncomingHttpHeaders } from 'http';
-
-import cookie from 'cookie';
-import to from 'await-to-js';
+import { NextApiRequest } from 'next';
+import { getSession } from 'next-auth/client';
 
 import { APIError } from 'lib/model/error';
+import { User } from 'lib/model/user';
 import logger from 'lib/api/logger';
-import oauth2Client from 'lib/api/oauth';
 
 /**
  * Verifies the authorization header by:
@@ -22,30 +20,13 @@ import oauth2Client from 'lib/api/oauth';
  * await verifyAuth(req.headers, 'student');
  */
 export default async function verifyAuth(
-  headers: IncomingHttpHeaders,
+  req: NextApiRequest,
   requiredUserId?: string
-): Promise<{ uid: string; token: string }> {
-  console.time('verify-auth');
-  logger.verbose('Verifying authentication cookie...');
-
-  if (typeof headers.cookie !== 'string')
-    throw new APIError('You must provide a valid authorization cookie', 401);
-
-  const { token } = cookie.parse(headers.cookie);
-  oauth2Client.setCredentials({ refresh_token: token });
-  const [e, res] = await to(oauth2Client.getAccessToken());
-  if (e) throw new APIError(`Your auth is invalid: ${e.message}`, 401);
-
-  const [err, info] = await to(oauth2Client.getTokenInfo(res?.token || ''));
-  if (err) throw new APIError(`Your auth is invalid: ${err.message}`, 401);
-
-  const uid = info ? info.user_id || info.sub : undefined;
-
-  if (typeof uid !== 'string')
-    throw new APIError('Could not fetch valid user ID from JWT', 401);
-  if (requiredUserId && uid !== requiredUserId)
+): Promise<User> {
+  logger.verbose('Verifying authentication session...');
+  const session = await getSession({ req });
+  if (!session) throw new APIError('You are not authenticated', 401);
+  if (requiredUserId && session.user.id !== requiredUserId)
     throw new APIError('You are not authorized to perform this action', 401);
-
-  console.timeEnd('verify-auth');
-  return { uid, token };
+  return User.fromJSON(session.user);
 }

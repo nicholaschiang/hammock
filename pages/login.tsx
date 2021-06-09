@@ -1,6 +1,7 @@
-import { ReactNode, useCallback, useEffect, useState } from 'react';
-import NProgress from 'nprogress';
-import Router from 'next/router';
+import { signIn } from 'next-auth/client';
+import { GetStaticProps } from 'next';
+import { ReactNode } from 'react';
+import { useRouter } from 'next/router';
 
 import Button from 'components/button';
 import Dialog from 'components/dialog';
@@ -8,8 +9,6 @@ import LockIcon from 'components/icons/lock';
 import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
 import UndoIcon from 'components/icons/undo';
-
-import { period } from 'lib/utils';
 
 interface SectionProps {
   icon: ReactNode;
@@ -65,36 +64,25 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
 }
 
 export default function LoginPage(): JSX.Element {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    if (!loading) {
-      NProgress.done();
-    } else {
-      NProgress.start();
-      setError('');
-    }
-  }, [loading]);
-  useEffect(() => {
-    if (error) setLoading(false);
-  }, [error]);
-
-  const onClick = useCallback(async () => {
-    setLoading(true);
-    try {
-      window?.analytics.track('Login Started');
-      // TODO: This API request isn't really necessary. I'm pretty sure that the
-      // login link won't be changing anytime soon, so we should be able to just
-      // hardcode this into the front-end or as an environment variable.
-      // See: https://github.com/googleapis/google-auth-library-nodejs/blob/241063a8c7d583df53ae616347edc532aec02165/src/auth/oauth2client.ts#L522
-      const link = await fetch('/api/login', { method: 'options' });
-      await Router.push(await link.text());
-    } catch (e) {
-      window?.analytics.track('Login Errored', period(e.message));
-      setError(`Hmm, it looks like we hit a snag. ${period(e.message)}`);
-    }
-  }, []);
+  // Next.js auth error codes and their corresponding user-facing messages.
+  // @see {@link https://git.io/JZ3q4}
+  const errors: Record<string, string> = {
+    Signin: 'Try signing with a different account.',
+    OAuthSignin: 'Try signing with a different account.',
+    OAuthCallback: 'Try signing with a different account.',
+    OAuthCreateAccount: 'Try signing with a different account.',
+    EmailCreateAccount: 'Try signing with a different account.',
+    Callback: 'Try signing with a different account.',
+    OAuthAccountNotLinked: 'To confirm your identity, sign in with the same account you used originally.',
+    EmailSignin: 'Check your email address.',
+    CredentialsSignin: 'Sign in failed. Check the details you provided are correct.',
+    default: 'Unable to sign in.'
+  };
+  
+  // Next.js passes the error code to our custom `signIn` and `error` page.
+  // @see {@link https://next-auth.js.org/configuration/pages}
+  const { query } = useRouter();
+  const error = typeof query.error === 'string' ? errors[query.error] : undefined;
 
   return (
     <Page name='Login'>
@@ -114,10 +102,10 @@ export default function LoginPage(): JSX.Element {
           offended.
         </Section>
         <div className='actions'>
-          <Button disabled={loading} onClick={onClick} google>
+          <Button onClick={() => signIn('google', { callbackUrl: '/feed' })} google>
             Continue signing in
           </Button>
-          {error && <p className='error'>{error}</p>}
+          {error && <p className='error'>Hmm, it looks like we hit a snag. {error}</p>}
         </div>
         <style jsx>{`
           h1 {
