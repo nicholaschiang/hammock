@@ -27,26 +27,32 @@ const LOADING_MESSAGES = [
   'Almost there...',
 ];
 
-function LoadingDialog(): JSX.Element {
+interface LoadingDialogProps {
+  progress: number;
+}
+
+function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
   const [message, setMessage] = useState<string>(LOADING_MESSAGES[0]);
+  const [percent, setPercent] = useState<number>(0);
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      setMessage((prev) => {
-        const idx = LOADING_MESSAGES.indexOf(prev);
-        if (idx === LOADING_MESSAGES.length - 1) {
-          clearInterval(intervalId);
-          return prev;
-        }
-        return LOADING_MESSAGES[idx + 1];
-      });
-    }, 5000);
-    return () => clearInterval(intervalId);
-  }, []);
+    setPercent(Math.min(progress, 0.99));
+  }, [progress]);
+  useEffect(() => {
+    setMessage(() => {
+      if (percent > 0.8) return 'Almost there...';
+      if (percent > 0.6) return 'One more second...';
+      if (percent > 0.3) return 'This might take a moment...';
+      return 'Getting your subscriptions...';
+    });
+  }, [percent]);
 
   return (
     <Dialog>
       <h2>{message}</h2>
       <div className='gif'>
+        <div className='progress'>
+          <div className='bar'><div className='peg' /></div>
+        </div>
         <div className='placeholder' />
         <Image
           src='/rockets.gif'
@@ -65,9 +71,46 @@ function LoadingDialog(): JSX.Element {
           text-align: center;
         }
 
+        .progress {
+          background: var(--accents-2);
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 4px;
+          width: 100%;
+          z-index: 2;
+        }
+
+        .bar {
+          background: var(--primary);
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          transition: all 150ms linear;
+          transform: translate3d(${(percent - 1) * 100}%,0,0);
+        }
+        
+        .bar > .peg {
+          display: block;
+          position: absolute;
+          right: 0px;
+          width: 100px;
+          height: 100%;
+          box-shadow: 0 0 10px var(--primary), 0 0 5px var(--primary);
+          opacity: 1;
+
+          -webkit-transform: rotate(3deg) translate(0px, -4px);
+          -ms-transform: rotate(3deg) translate(0px, -4px);
+          transform: rotate(3deg) translate(0px, -4px);
+        }
+          
         .gif {
           border: 2px solid var(--accents-2);
-          border-radius: 10px;
+          border-bottom-left-radius: 10px;
+          border-bottom-right-radius: 10px;
+          border-top: none;
           margin: 24px 0 48px;
           position: relative;
           overflow: hidden;
@@ -277,9 +320,11 @@ function SubscriptionRow({
 }
 
 export default function Subscriptions() {
+  const [progress, setProgress] = useState<number>(1);
   const getKey = useCallback(
     (pageIdx: number, prev: SubscriptionsRes | null) => {
       if (!prev || pageIdx === 0) return '/api/subscriptions';
+      setProgress((prev) => prev + 1);
       return `/api/subscriptions?pageToken=${prev.nextPageToken}`;
     },
     []
@@ -361,7 +406,7 @@ export default function Subscriptions() {
 
   return (
     <div className='wrapper'>
-      {!data && <LoadingDialog />}
+      {!data && <LoadingDialog progress={progress / 10} />}
       <Head>
         <link rel='preload' href='/api/subscriptions' as='fetch' />
       </Head>
