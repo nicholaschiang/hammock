@@ -53,6 +53,7 @@ export default NextAuth({
       return baseUrl;
     },
     async jwt(token, user, account, profile) {
+      logger.verbose(`Processing JWT for user (${token.sub})...`);
       if (user && account && profile) {
         const created = new User({
           ...User.fromJSON(user as UserJSON),
@@ -71,7 +72,8 @@ export default NextAuth({
         await updateUserDoc(created);
         return { ...token, ...created };
       }
-      return token;
+      const existing = await getUser(token.sub || '');
+      return { ...token, ...existing };
     },
     session(session, token) {
       const user = User.fromJSON(token as UserJSON);
