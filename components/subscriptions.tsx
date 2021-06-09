@@ -208,7 +208,7 @@ function SubscriptionRow({
   subscription,
   selected,
   onSelected,
-}: SubscriptionRowProps) {
+}: SubscriptionRowProps): JSX.Element {
   return (
     <li
       onClick={onSelected ? () => onSelected(!selected) : undefined}
@@ -319,7 +319,7 @@ function SubscriptionRow({
   );
 }
 
-export default function Subscriptions() {
+export default function Subscriptions(): JSX.Element {
   const [progress, setProgress] = useState<number>(1);
   const getKey = useCallback(
     (pageIdx: number, prev: SubscriptionsRes | null) => {
