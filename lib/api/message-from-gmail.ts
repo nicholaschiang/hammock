@@ -1,3 +1,5 @@
+import { JSDOM } from 'jsdom';
+import { Readability } from '@mozilla/readability';
 import atob from 'atob';
 import he from 'he';
 import { htmlToText } from 'html-to-text';
@@ -111,15 +113,16 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
       img: { format: 'skip' },
     },
   });
+  const article = new Readability(new JSDOM(html).window.document).parse();
 
   return new Message({
-    html,
     category,
+    html: article?.content || html,
     id: gmailMessage.id || '',
     date: new Date(Number(gmailMessage.internalDate)),
     from: { name, email, photo },
     subject: getHeader('subject'),
     snippet: getSnippet(gmailMessage),
-    time: Math.round(readingTime(text).minutes),
+    time: Math.round(readingTime(article?.textContent || text).minutes),
   });
 }
