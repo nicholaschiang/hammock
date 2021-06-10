@@ -14,3 +14,11 @@ export function period(str: string): string {
 export function caps(str: string): string {
   return `${str.charAt(0).toUpperCase()}${str.slice(1)}`;
 }
+
+export function isSameDay(date1: Date, date2: Date): boolean {
+  return (
+    date1.getDate() === date2.getDate() &&
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth()
+  );
+}

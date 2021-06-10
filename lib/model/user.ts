@@ -1,11 +1,5 @@
-import {
-  Resource,
-  ResourceFirestore,
-  ResourceInterface,
-  ResourceJSON,
-  isResourceJSON,
-} from 'lib/model/resource';
-import { isJSON, isStringArray } from 'lib/model/json';
+import { Subscription, SubscriptionFirestore, SubscriptionJSON, isSubscriptionJSON } from 'lib/model/subscription';
+import { isJSON, isArray } from 'lib/model/json';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';
@@ -14,7 +8,6 @@ import definedVals from 'lib/model/defined-vals';
 
 /**
  * @typedef {Object} UserInterface
- * @extends ResourceInterface
  * @property id - The user's Firebase Authentication ID.
  * @property name - The user's name.
  * @property photo - The user's avatar photo URL.
@@ -28,7 +21,7 @@ import definedVals from 'lib/model/defined-vals';
  * @property subscriptions - An array of newsletter email addresses that the
  * user has subscribed to (i.e. the newsletters that show up in their feed).
  */
-export interface UserInterface extends ResourceInterface {
+export interface UserInterface {
   id: string;
   name: string;
   photo: string;
@@ -38,12 +31,11 @@ export interface UserInterface extends ResourceInterface {
   token: string;
   label: string;
   filter: string;
-  subscriptions: string[];
+  subscriptions: Subscription[];
 }
 
-export type UserJSON = Omit<UserInterface, keyof Resource> & ResourceJSON;
-export type UserFirestore = Omit<UserInterface, keyof Resource> &
-  ResourceFirestore;
+export type UserJSON = Omit<UserInterface, 'subscriptions'> & { subscriptions: SubscriptionJSON[] };
+export type UserFirestore = Omit<UserInterface, 'subscriptions'> & { subscriptions: SubscriptionFirestore[] };
 
 export function isUserJSON(json: unknown): json is UserJSON {
   const stringFields = [
@@ -58,14 +50,13 @@ export function isUserJSON(json: unknown): json is UserJSON {
     'filter',
   ];
 
-  if (!isResourceJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (!isStringArray(json.subscriptions)) return false;
+  if (!isArray(json.subscriptions, isSubscriptionJSON)) return false; 
   return true;
 }
 
-export class User extends Resource implements UserInterface {
+export class User implements UserInterface {
   public id = '';
 
   public name = '';
@@ -84,11 +75,27 @@ export class User extends Resource implements UserInterface {
 
   public filter = '';
 
-  public subscriptions: string[] = [];
+  public subscriptions: Subscription[] = [];
 
   public constructor(user: Partial<UserInterface> = {}) {
-    super(user);
-    construct<UserInterface, ResourceInterface>(this, user, new Resource());
+    construct<UserInterface>(this, user);
+  }
+
+  private get subscriptionEmails(): string[] {
+    return this.subscriptions.map((s) => s.from.email);
+  }
+
+  public hasSubscription(sub: Subscription): boolean {
+    return this.subscriptionEmails.includes(sub.from.email);
+  }
+
+  public addSubscription(sub: Subscription): void {
+    if (!this.hasSubscription(sub)) this.subscriptions.push(sub);
+  }
+
+  public deleteSubscription(sub: Subscription): void {
+    const idx = this.subscriptionEmails.indexOf(sub.from.email);
+    if (idx >= 0) this.subscriptions.splice(idx, 1);
   }
 
   public get firstName(): string {
@@ -105,28 +112,24 @@ export class User extends Resource implements UserInterface {
   }
 
   public toJSON(): UserJSON {
-    return definedVals({ ...this, ...super.toJSON() });
+    return definedVals(this);
   }
 
   public static fromJSON(json: UserJSON): User {
-    return new User({ ...json, ...Resource.fromJSON(json) });
+    return new User({ ...json, subscriptions: json.subscriptions.map(Subscription.fromJSON) });
   }
 
   public toFirestore(): UserFirestore {
-    return definedVals({ ...this, ...super.toFirestore() });
+    return definedVals({ ...this, subscriptions: this.subscriptions.map((s) => s.toFirestore()) });
   }
 
   public static fromFirestore(data: UserFirestore): User {
-    return new User({ ...data, ...Resource.fromFirestore(data) });
+    return new User({ ...data, subscriptions: data.subscriptions.map(Subscription.fromFirestore) });
   }
 
   public static fromFirestoreDoc(snapshot: DocumentSnapshot): User {
     if (!snapshot.exists) return new User();
-    const overrides = definedVals({
-      created: snapshot.createTime?.toDate(),
-      updated: snapshot.updateTime?.toDate(),
-      id: snapshot.id,
-    });
+    const overrides = definedVals({ id: snapshot.id });
     const user = User.fromFirestore(snapshot.data() as UserFirestore);
     return new User({ ...user, ...overrides });
   }

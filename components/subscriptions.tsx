@@ -17,7 +17,7 @@ import { Subscription } from 'lib/model/subscription';
 import { User } from 'lib/model/user';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
-import { useLoading } from 'lib/nprogress';
+import useLoading from 'lib/hooks/loading';
 import { useUser } from 'lib/context/user';
 
 const LOADING_MESSAGES = [
@@ -49,10 +49,10 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
   return (
     <Dialog>
       <h2>{message}</h2>
+      <div className='progress'>
+        <div className='bar'><div className='peg' /></div>
+      </div>
       <div className='gif'>
-        <div className='progress'>
-          <div className='bar'><div className='peg' /></div>
-        </div>
         <div className='placeholder' />
         <Image
           src='/rockets.gif'
@@ -72,13 +72,18 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
         }
 
         .progress {
-          background: var(--accents-2);
           position: absolute;
           top: 0;
           left: 0;
-          height: 4px;
+          height: 2px;
           width: 100%;
           z-index: 2;
+        }
+        
+        @media (max-width: 540px) {
+          .progress {
+            position: fixed;
+          }
         }
 
         .bar {
@@ -108,9 +113,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
           
         .gif {
           border: 2px solid var(--accents-2);
-          border-bottom-left-radius: 10px;
-          border-bottom-right-radius: 10px;
-          border-top: none;
+          border-radius: 10px;
           margin: 24px 0 48px;
           position: relative;
           overflow: hidden;
@@ -208,7 +211,7 @@ function SubscriptionRow({
   subscription,
   selected,
   onSelected,
-}: SubscriptionRowProps) {
+}: SubscriptionRowProps): JSX.Element {
   return (
     <li
       onClick={onSelected ? () => onSelected(!selected) : undefined}
@@ -319,12 +322,12 @@ function SubscriptionRow({
   );
 }
 
-export default function Subscriptions() {
+export default function Subscriptions(): JSX.Element {
   const [progress, setProgress] = useState<number>(1);
   const getKey = useCallback(
     (pageIdx: number, prev: SubscriptionsRes | null) => {
       if (!prev || pageIdx === 0) return '/api/subscriptions';
-      setProgress((prev) => prev + 1);
+      setProgress((p) => p + 1);
       return `/api/subscriptions?pageToken=${prev.nextPageToken}`;
     },
     []
@@ -398,7 +401,7 @@ export default function Subscriptions() {
       // to pre-select all the important subscriptions. Right now, we only
       // pre-select if the user doesn't already have any subscriptions selected.
       if (updated.size) return prev;
-      important.forEach((i) => updated.add(i.from.email));
+      important.forEach((i) => updated.add(i));
       if (dequal([...updated], prev.subscriptions)) return prev;
       return new User({ ...prev, subscriptions: [...updated] });
     });
@@ -418,7 +421,7 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r.from.email)}
+              selected={user.hasSubscription(r)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
@@ -426,11 +429,11 @@ export default function Subscriptions() {
                   r.toSegment()
                 );
                 setUser((prev) => {
-                  const updated = new Set(prev.subscriptions);
-                  if (isSelected) updated.add(r.from.email);
-                  if (!isSelected) updated.delete(r.from.email);
-                  if (dequal([...updated], prev.subscriptions)) return prev;
-                  return new User({ ...prev, subscriptions: [...updated] });
+                  const updated = prev.clone;
+                  if (isSelected) updated.addSubscription(r);
+                  if (!isSelected) updated.deleteSubscription(r);
+                  if (dequal(updated, prev)) return prev;
+                  return updated;
                 });
               }}
             />
@@ -446,7 +449,7 @@ export default function Subscriptions() {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r.from.email)}
+              selected={user.hasSubscription(r)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
@@ -454,11 +457,13 @@ export default function Subscriptions() {
                   r.toSegment()
                 );
                 setUser((prev) => {
-                  const updated = new Set(prev.subscriptions);
-                  if (isSelected) updated.add(r.from.email);
-                  if (!isSelected) updated.delete(r.from.email);
-                  if (dequal([...updated], prev.subscriptions)) return prev;
-                  return new User({ ...prev, subscriptions: [...updated] });
+                  const updated = prev.clone;
+                  if (isSelected) updated.addSubscription(r);
+                  if (!isSelected) updated.deleteSubscription(r);
+                  if (dequal(updated, prev)) {
+                    return prev;
+                  }
+                  return updated;
                 });
               }}
             />

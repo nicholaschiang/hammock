@@ -10,7 +10,7 @@ interface Loading {
   setError: Callback<string>;
 }
 
-export function useLoading(): Loading {
+export default function useLoading(): Loading {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
 
