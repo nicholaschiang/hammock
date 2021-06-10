@@ -24,6 +24,7 @@ export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
  * @property date - When the message was sent (i.e. Gmail's `internalDate`).
  * @property subject - The message's subject line.
  * @property snippet - The message's snippet (a short part of message text).
+ * @property raw - The message's original unsanitized, un-readabilitied HTML.
  * @property html - The message's sanitized HTML (can be used directly in DOM).
  * @property archived - Whether or not the email has been archived.
  * @property scroll - The user's scroll position in reading this email.
@@ -34,6 +35,7 @@ export interface MessageInterface extends SubscriptionInterface {
   date: Date;
   subject: string;
   snippet: string;
+  raw: string;
   html: string;
   archived: boolean;
   scroll: number;
@@ -49,7 +51,7 @@ export type MessageFirestore = Omit<
   SubscriptionFirestore & { date: Timestamp };
 
 export function isMessageJSON(json: unknown): json is MessageJSON {
-  const stringFields = ['id', 'subject', 'snippet', 'html'];
+  const stringFields = ['id', 'subject', 'snippet', 'raw', 'html'];
   const numberFields = ['scroll', 'time'];
 
   if (!isSubscriptionJSON(json)) return false;
@@ -69,6 +71,8 @@ export class Message extends Subscription implements MessageInterface {
   public subject = '';
 
   public snippet = '';
+
+  public raw = '';
 
   public html = '';
 

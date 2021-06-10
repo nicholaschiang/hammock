@@ -47,7 +47,7 @@ function parseFrom(from: string): Contact {
   return { name, email, photo: getIcon(name, email) };
 }
 
-function getMessageBody(message: GmailMessage): string {
+function getRawHTML(message: GmailMessage): string {
   let bodyData = '';
   if (message?.payload?.mimeType === 'text/html') {
     bodyData = message?.payload?.body?.data || '';
@@ -83,6 +83,52 @@ function getSnippet(message: GmailMessage): string {
   return cleanedUp;
 }
 
+export function parseRawHTML(raw: string): { time: number; html: string } {
+  const window = new JSDOM('').window as unknown as Window;
+  const DOMPurify = createDOMPurify(window);
+
+  // Open all links in a new tab and prevent security issues.
+  // @see {@link https://github.com/readhammock/hammock/issues/7}
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if (node.tagName === 'A' && 'target' in node) {
+      node.setAttribute('target', '_blank');
+      node.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+
+  // If an image is >400px wide, we should set it's width to 100%.
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if (node.tagName === 'IMG' && Number(node.getAttribute('width')) > 400) 
+      node.setAttribute('width', '100%');
+  });
+
+  // Remove tags that don't contain any content. For example, Benedict Evan's
+  // newsletter uses empty `<span>` tags to increase margin. We remove those.
+  // @see {@link https://github.com/cure53/DOMPurify/issues/169}
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    const tags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'B', 'SPAN', 'STRONG', 'EM'];
+    if (tags.includes(node.tagName) && !node.hasChildNodes()) node.remove();
+  });
+
+  // Don't allow HTML table tags that essentially only used for formatting.
+  // @see {@link https://linear.app/readhammock/issue/PD-52}
+  const options = { FORBID_TAGS: ['table', 'tbody', 'tr', 'td'] };
+  const html = DOMPurify.sanitize(raw, options);
+  const text = htmlToText(html, {
+    wordwrap: false,
+    tags: {
+      a: { options: { ignoreHref: true } },
+      img: { format: 'skip' },
+    },
+  });
+  const clean = new JSDOM(html).window.document;
+  const article = new Readability(clean, { charThreshold: 10 }).parse();
+  const time = Math.round(readingTime(article?.textContent || text).minutes);
+
+  // Remove non-breaking spaces (i.e. the `&nbsp;` HTML entities).
+  return { time, html: (article?.content || html).replace(/&nbsp;/g, '') };
+}
+
 /**
  * Converts a GmailMessage into our Message data type.
  * @param gmailMessage - The GmailMessage to convert.
@@ -105,29 +151,18 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
     category = 'other';
   }
 
-  const window = new JSDOM('').window as unknown as Window;
-  const DOMPurify = createDOMPurify(window);
-  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-      if ('target' in node) node.setAttribute('target', '_blank');
-  });
-  const html = DOMPurify.sanitize(getMessageBody(gmailMessage));
-  const text = htmlToText(html, {
-    wordwrap: false,
-    tags: {
-      a: { options: { ignoreHref: true } },
-      img: { format: 'skip' },
-    },
-  });
-  const article = new Readability(new JSDOM(html).window.document).parse();
+  const raw = getRawHTML(gmailMessage);
+  const { html, time } = parseRawHTML(raw);
 
   return new Message({
+    raw,
+    html,
+    time,
     category,
-    html: article?.content || html,
     id: gmailMessage.id || '',
     date: new Date(Number(gmailMessage.internalDate)),
     from: { name, email, photo },
     subject: getHeader('subject'),
     snippet: getSnippet(gmailMessage),
-    time: Math.round(readingTime(article?.textContent || text).minutes),
   });
 }
