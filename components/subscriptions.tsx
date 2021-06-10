@@ -327,7 +327,7 @@ export default function Subscriptions(): JSX.Element {
   const getKey = useCallback(
     (pageIdx: number, prev: SubscriptionsRes | null) => {
       if (!prev || pageIdx === 0) return '/api/subscriptions';
-      setProgress((prev) => prev + 1);
+      setProgress((p) => p + 1);
       return `/api/subscriptions?pageToken=${prev.nextPageToken}`;
     },
     []
@@ -421,7 +421,7 @@ export default function Subscriptions(): JSX.Element {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r)}
+              selected={user.hasSubscription(r)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
@@ -429,11 +429,11 @@ export default function Subscriptions(): JSX.Element {
                   r.toSegment()
                 );
                 setUser((prev) => {
-                  const updated = new Set(prev.subscriptions);
-                  if (isSelected) updated.add(r);
-                  if (!isSelected) updated.delete(r);
-                  if (dequal([...updated], prev.subscriptions)) return prev;
-                  return new User({ ...prev, subscriptions: [...updated] });
+                  const updated = prev.clone;
+                  if (isSelected) updated.addSubscription(r);
+                  if (!isSelected) updated.deleteSubscription(r);
+                  if (dequal(updated, prev)) return prev;
+                  return updated;
                 });
               }}
             />
@@ -449,7 +449,7 @@ export default function Subscriptions(): JSX.Element {
             <SubscriptionRow
               key={r.from.email}
               subscription={r}
-              selected={user.subscriptions.includes(r)}
+              selected={user.hasSubscription(r)}
               onSelected={(isSelected: boolean) => {
                 hasBeenUpdated.current = true;
                 window.analytics?.track(
@@ -457,11 +457,13 @@ export default function Subscriptions(): JSX.Element {
                   r.toSegment()
                 );
                 setUser((prev) => {
-                  const updated = new Set(prev.subscriptions);
-                  if (isSelected) updated.add(r);
-                  if (!isSelected) updated.delete(r);
-                  if (dequal([...updated], prev.subscriptions)) return prev;
-                  return new User({ ...prev, subscriptions: [...updated] });
+                  const updated = prev.clone;
+                  if (isSelected) updated.addSubscription(r);
+                  if (!isSelected) updated.deleteSubscription(r);
+                  if (dequal(updated, prev)) {
+                    return prev;
+                  }
+                  return updated;
                 });
               }}
             />

@@ -81,6 +81,23 @@ export class User implements UserInterface {
     construct<UserInterface>(this, user);
   }
 
+  private get subscriptionEmails(): string[] {
+    return this.subscriptions.map((s) => s.from.email);
+  }
+
+  public hasSubscription(sub: Subscription): boolean {
+    return this.subscriptionEmails.includes(sub.from.email);
+  }
+
+  public addSubscription(sub: Subscription): void {
+    if (!this.hasSubscription(sub)) this.subscriptions.push(sub);
+  }
+
+  public deleteSubscription(sub: Subscription): void {
+    const idx = this.subscriptionEmails.indexOf(sub.from.email);
+    if (idx >= 0) this.subscriptions.splice(idx, 1);
+  }
+
   public get firstName(): string {
     return caps(this.name.split(' ')[0] || '');
   }
@@ -103,7 +120,7 @@ export class User implements UserInterface {
   }
 
   public toFirestore(): UserFirestore {
-    return definedVals(this);
+    return definedVals({ ...this, subscriptions: this.subscriptions.map((s) => s.toFirestore()) });
   }
 
   public static fromFirestore(data: UserFirestore): User {
