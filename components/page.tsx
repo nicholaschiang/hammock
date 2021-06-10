@@ -13,15 +13,8 @@ export interface PageProps {
 }
 
 export default function Page({ name, sync, login, children }: PageProps): JSX.Element {
-  // Scrappy fix to sync the user's Gmail with our database when they login.
-  // @see {@link https://github.com/readhammock/hammock/issues/38}
-  useEffect(() => {
-    if (!sync) return;
-    void fetch('/api/sync');
-  }, [sync]);
-
   // Redirect to the login page if authentication is required but missing.
-  const { loggedIn } = useUser();
+  const { loggedIn, user } = useUser();
   useEffect(() => {
     if (!login) return;
     void Router.prefetch('/login');
@@ -37,6 +30,18 @@ export default function Page({ name, sync, login, children }: PageProps): JSX.El
     window.analytics?.page('', name);
   }, [name]);
   
+  // Scrappy fix to sync the user's Gmail with our database when they login.
+  // @see {@link https://github.com/readhammock/hammock/issues/38}
+  useEffect(() => {
+    if (!sync || !user.subscriptions.length) return;
+    void fetch('/api/sync');
+  }, [sync, user.subscriptions.length]);
+  // Redirect to the subscriptions page if the user doesn't have any selected.
+  useEffect(() => {
+    if (!sync || !loggedIn || user.subscriptions.length) return;
+    void Router.replace('/subscriptions');
+  }, [sync, loggedIn, user.subscriptions.length]);
+
   return (
     <>
       <Head>
