@@ -13,6 +13,7 @@ export type MessagesQuery = {
   quickRead?: 'true' | 'false';
   archive?: 'true' | 'false';
   resume?: 'true' | 'false';
+  writer?: string;
 };
 
 export type MessagesRes = MessageJSON[];
@@ -36,11 +37,14 @@ export default async function messages(
         quickRead,
         archive,
         resume,
+        writer,
       } = req.query as MessagesQuery;
       const user = await verifyAuth(req);
       logger.verbose(`Fetching messages for ${user}...`);
       const ref = db.collection('users').doc(user.id).collection('messages');
       let query = ref.where('archived', '==', archive === 'true');
+      if (writer)
+        query = query.where('from.email', '==', writer);
       if (quickRead === 'true')
         query = query.where('time', '<=', 10).orderBy('time');
       if (resume === 'true')

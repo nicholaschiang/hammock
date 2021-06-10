@@ -17,7 +17,7 @@ import { Subscription } from 'lib/model/subscription';
 import { User } from 'lib/model/user';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
-import { useLoading } from 'lib/nprogress';
+import useLoading from 'lib/hooks/loading';
 import { useUser } from 'lib/context/user';
 
 const LOADING_MESSAGES = [

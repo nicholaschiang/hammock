@@ -9,7 +9,7 @@ import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
 import UndoIcon from 'components/icons/undo';
 
-import { useLoading } from 'lib/nprogress';
+import useLoading from 'lib/hooks/loading';
 
 interface SectionProps {
   icon: ReactNode;
