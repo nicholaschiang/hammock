@@ -5,11 +5,12 @@ import MessageRow from 'components/message-row';
 import { Message, MessageJSON } from 'lib/model/message';
 
 export interface SectionProps {
-  header: string;
   messages: MessageJSON[];
+  header: string;
+  date?: boolean;
 }
 
-export default function Section({ header, messages }: Partial<SectionProps>): JSX.Element {
+export default function Section({ messages, header, date }: Partial<SectionProps>): JSX.Element {
   return (
     <div className='section'>
       <div className='header'>
@@ -19,7 +20,8 @@ export default function Section({ header, messages }: Partial<SectionProps>): JS
       <div className='messages'>
         {(messages || Array(3).fill(null)).map((m, idx) => (
           <MessageRow 
-            loading={!m} 
+            date={date}
+            loading={!m}
             message={m ? Message.fromJSON(m) : undefined} 
             key={m ? m.id : idx} 
           />

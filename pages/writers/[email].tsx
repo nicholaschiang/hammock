@@ -51,7 +51,7 @@ export default function WritersPage(): JSX.Element {
       <Layout>
         {!loggedIn && <Section />}
         {loggedIn && (
-          <Section header={writer?.from.name} messages={data?.flat()} />
+          <Section header={writer?.from.name} messages={data?.flat()} date />
         )}
         <Button
           disabled={isValidating}
