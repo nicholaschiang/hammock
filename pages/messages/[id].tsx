@@ -1,6 +1,7 @@
 import Router, { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
+import Link from 'next/link';
 import cn from 'classnames';
 
 import { MessageRes } from 'pages/api/messages/[id]';
@@ -108,21 +109,14 @@ export default function MessagePage(): JSX.Element {
         <div className='header'>
           <header>
             <h1 className={cn({ loading: !data })}>{message.subject}</h1>
-            <a
-              target='_blank'
-              className='author'
-              rel='noopener noreferrer'
-              href={`mailto:${message.from.email}`}
-            >
-              <Avatar src={message.from.photo} loading={!data} size={24} />
-              <span className={cn('from', { loading: !data })}>
-                {message.from.name}
-              </span>
-              {data && <span className='on'>on</span>}
-              {data && message.date.toDateString() !== 'Invalid Date' && (
-                <span className='date'>{message.date.toDateString()}</span>
-              )}
-            </a>
+            <Link href={`/writers/${message.from.email}`}>
+              <a className={cn('author', { disabled: !data })}>
+                <Avatar src={message.from.photo} loading={!data} size={24} />
+                <span className={cn({ loading: !data })}>
+                  {data ? `${message.from.name} on ${message.date.toLocaleString('en', { month: 'short', day: 'numeric' })}` : ''}
+                </span>
+              </a>
+            </Link>
           </header>
         </div>
         <iframe
@@ -145,6 +139,7 @@ export default function MessagePage(): JSX.Element {
         iframe {
           border: 2px solid var(--accents-2);
           border-radius: 10px;
+          min-height: 1000px;
         }
 
         div.header {
@@ -177,6 +172,11 @@ export default function MessagePage(): JSX.Element {
           align-items: center;
           text-decoration: none;
           color: var(--accents-5);
+          cursor: pointer;
+        }
+
+        .author.disabled {
+          cursor: wait;
         }
 
         .author span {
@@ -187,25 +187,12 @@ export default function MessagePage(): JSX.Element {
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
-        }
-
-        .author .from {
           margin-left: 8px;
-          transition: color 0.1s ease 0s;
         }
 
         .author span.loading {
           width: 240px;
           border-radius: 6px;
-        }
-
-        .author:hover .from {
-          color: var(--on-background);
-        }
-
-        header .author .on {
-          margin-left: 4px;
-          margin-right: 4px;
         }
       `}</style>
     </Page>
