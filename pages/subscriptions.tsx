@@ -35,7 +35,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
   const [message, setMessage] = useState<string>(LOADING_MESSAGES[0]);
   const [percent, setPercent] = useState<number>(0);
   useEffect(() => {
-    setPercent(Math.min(progress, 0.99));
+    setPercent(Math.min(Math.max(progress, 0.05), 0.95));
   }, [progress]);
   useEffect(() => {
     setMessage(() => {
