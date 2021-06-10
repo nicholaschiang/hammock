@@ -473,7 +473,7 @@ export default function SubscriptionsPage(): JSX.Element {
         )}
         {!data && <ul>{loadingList}</ul>}
         {data && !other.length && <Empty>No subscriptions found</Empty>}
-        <Button disabled={!data || loading} onClick={onSave}>
+        <Button disabled={!data || loading || !user.subscriptions.length} onClick={onSave}>
           Save subscriptions
         </Button>
         <style jsx>{`
