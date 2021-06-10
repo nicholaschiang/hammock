@@ -1,12 +1,17 @@
-<h1 align='center'>Hammock</h1>
-
 <p align='center'>
-  <a aria-label='Website status' href='https://returnofthenewsletter.com'>
-    <img src='https://img.shields.io/website?down_color=lightgrey&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Freturnofthenewsletter.com&style=flat-square&labelColor=000000'>
+  <br />
+  <a href='https://readhammock.com' target='_blank'>
+    <img width='150px' src='https://readhammock.com/images/logo.png'>
   </a>
-  <a aria-label='Maintainability' href='https://codeclimate.com/github/nicholaschiang/hammock'>
-    <img src='https://img.shields.io/codeclimate/maintainability/nicholaschiang/hammock?style=flat-square&labelColor=000000'>
-  </a>
+  <h1 align='center'>Hammock</h1>
+  <p align='center'>
+    <a aria-label='Website status' href='https://returnofthenewsletter.com'>
+      <img src='https://img.shields.io/website?down_color=lightgrey&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Freturnofthenewsletter.com&style=flat-square&labelColor=000000'>
+    </a>
+    <a aria-label='Maintainability' href='https://codeclimate.com/github/nicholaschiang/hammock'>
+      <img src='https://img.shields.io/codeclimate/maintainability/nicholaschiang/hammock?style=flat-square&labelColor=000000'>
+    </a>
+  </p>
 </p>
 
 Hammock moves your favorite newsletters outside of your understandably cluttered
