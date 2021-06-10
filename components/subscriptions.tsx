@@ -396,14 +396,14 @@ export default function Subscriptions(): JSX.Element {
   useEffect(() => {
     if (hasBeenUpdated.current) return;
     setUser((prev) => {
-      const updated = new Set(prev.subscriptions);
+      const updated = prev.clone;
       // TODO: Perhaps I should add a URL query param that specifies if we want
       // to pre-select all the important subscriptions. Right now, we only
       // pre-select if the user doesn't already have any subscriptions selected.
-      if (updated.size) return prev;
-      important.forEach((i) => updated.add(i));
-      if (dequal([...updated], prev.subscriptions)) return prev;
-      return new User({ ...prev, subscriptions: [...updated] });
+      if (updated.subscriptions.length) return prev;
+      important.forEach((i) => updated.addSubscription(i));
+      if (dequal(updated, prev)) return prev;
+      return updated;
     });
   }, [setUser, important]);
 
