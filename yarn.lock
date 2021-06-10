@@ -1295,6 +1295,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/dompurify@npm:^2":
+  version: 2.2.2
+  resolution: "@types/dompurify@npm:2.2.2"
+  dependencies:
+    "@types/trusted-types": "*"
+  checksum: fddc8a9c905853eeceedb01b4290e1759da416f1f80166c17e1a983edc934eca94d7b98e59a598b214821170ff820eb2fdf46702d5f35823a47aa72e82ff8b45
+  languageName: node
+  linkType: hard
+
 "@types/duplexify@npm:^3.6.0":
   version: 3.6.0
   resolution: "@types/duplexify@npm:3.6.0"
@@ -1545,6 +1554,13 @@ __metadata:
   version: 4.0.0
   resolution: "@types/tough-cookie@npm:4.0.0"
   checksum: 5a0cccc6d073b84dbb48d603e692b55ac30cea1653a7fc813e97a3bcaa9edd97c703c15727378d632e416a90178e6da657151eba8175cbb201a9a98de22ac3a8
+  languageName: node
+  linkType: hard
+
+"@types/trusted-types@npm:*":
+  version: 2.0.0
+  resolution: "@types/trusted-types@npm:2.0.0"
+  checksum: 5273f017de36cdd37580d9dc1b3e82c4a7d005c1515a40145084b5155e4303a064aa7d02f4fb3ecece72d0cc62bb708487a43b4e70e9cab9a2a6fb9184f310c5
   languageName: node
   linkType: hard
 
@@ -3418,13 +3434,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:^2.20.3":
-  version: 2.20.3
-  resolution: "commander@npm:2.20.3"
-  checksum: b73428e97de7624323f81ba13f8ed9271de487017432d18b4da3f07cfc528ad754bbd199004bd5d14e0ccd67d1fdfe0ec8dbbd4c438b401df3c4cc387bfd1daa
-  languageName: node
-  linkType: hard
-
 "commander@npm:^4.0.1":
   version: 4.1.1
   resolution: "commander@npm:4.1.1"
@@ -3915,13 +3924,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cssfilter@npm:0.0.10":
-  version: 0.0.10
-  resolution: "cssfilter@npm:0.0.10"
-  checksum: 0a5cdc209e35ff0db9b0271846162ad9c0fdd7e612b217b88cfe6f1da5428b156369f17bab7f5f32f9d49b66daec912c188ef836735f499d87cafd824f3e9308
-  languageName: node
-  linkType: hard
-
 "cssnano-preset-simple@npm:^2.0.0":
   version: 2.0.0
   resolution: "cssnano-preset-simple@npm:2.0.0"
@@ -4361,6 +4363,13 @@ __metadata:
   dependencies:
     domelementtype: ^2.2.0
   checksum: 1bdb0ae6b9a93f4a2e8a77da304a435bfd35af0e52c5208f24277093b7fa2e6084cdbd4eb7fdd5c0ca5bf2c67736a19b258fe9e61588f4c49eaa0abde8d3595d
+  languageName: node
+  linkType: hard
+
+"dompurify@npm:^2.2.9":
+  version: 2.2.9
+  resolution: "dompurify@npm:2.2.9"
+  checksum: 8673be49aed95d5be99f6b92fe1f9edd70d209e8842853ccad9dd986460b03f6621d38c9e3cf63a525247c3e2be45456ce03c87d2ab1b83bd2a9617dff904069
   languageName: node
   linkType: hard
 
@@ -8847,6 +8856,7 @@ fsevents@~2.3.1:
     "@types/analytics-node": ^3.1.4
     "@types/atob": ^2.1.2
     "@types/cookie": ^0.4.0
+    "@types/dompurify": ^2
     "@types/he": ^1.1.1
     "@types/html-to-text": ^6.0.0
     "@types/jsdom": ^16
@@ -8866,6 +8876,7 @@ fsevents@~2.3.1:
     cookie: ^0.4.1
     cross-env: ^7.0.3
     dequal: ^2.0.2
+    dompurify: ^2.2.9
     eslint: ^7.28.0
     eslint-config-airbnb: ^18.2.1
     eslint-config-airbnb-typescript: ^12.3.1
@@ -8907,7 +8918,6 @@ fsevents@~2.3.1:
     utf8: ^3.0.0
     webpack-bundle-analyzer: ^4.4.2
     winston: ^3.3.3
-    xss: ^1.0.9
   languageName: unknown
   linkType: soft
 
@@ -13322,18 +13332,6 @@ typescript@^4.3.2:
   version: 2.0.0
   resolution: "xregexp@npm:2.0.0"
   checksum: a5d19c055fe9bd630ff01535d2b97ee8c20b36ef971caecdf897a193255fa0b07ac2996684d374d77d6e9f95cc69ef8b8b9d0f0c54e53a6b7dc9a6210dae2af6
-  languageName: node
-  linkType: hard
-
-"xss@npm:^1.0.9":
-  version: 1.0.9
-  resolution: "xss@npm:1.0.9"
-  dependencies:
-    commander: ^2.20.3
-    cssfilter: 0.0.10
-  bin:
-    xss: bin/xss
-  checksum: 95544f369dd740199e054810ca6124caa6fc20d806708a6dade6ca2c3277072c78197439213c1d317c9906558bec5ce8241ea433e6a0410d6ea721b86452dcb2
   languageName: node
   linkType: hard
 

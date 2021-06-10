@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { Readability } from '@mozilla/readability';
 import atob from 'atob';
+import createDOMPurify from 'dompurify';
 import he from 'he';
 import { htmlToText } from 'html-to-text';
 import readingTime from 'reading-time';
@@ -10,7 +11,6 @@ import { Category, Contact } from 'lib/model/subscription';
 import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';
-import xss from 'lib/api/xss';
 
 function getIcon(name: string, email: string): string {
   const result = whitelist[name.toLowerCase()];
@@ -105,7 +105,12 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
     category = 'other';
   }
 
-  const html = xss.process(getMessageBody(gmailMessage));
+  const window = new JSDOM('').window as unknown as Window;
+  const DOMPurify = createDOMPurify(window);
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+      if ('target' in node) node.setAttribute('target', '_blank');
+  });
+  const html = DOMPurify.sanitize(getMessageBody(gmailMessage));
   const text = htmlToText(html, {
     wordwrap: false,
     tags: {
