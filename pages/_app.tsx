@@ -80,6 +80,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
           html,
           body {
             font-family: var(--font-sans);
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: subpixel-antialiased;
+            -moz-osx-font-smoothing: grayscale;
             background-color: var(--background);
             color: var(--on-background);
           }
