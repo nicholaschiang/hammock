@@ -49,10 +49,10 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
   return (
     <Dialog>
       <h2>{message}</h2>
+      <div className='progress'>
+        <div className='bar'><div className='peg' /></div>
+      </div>
       <div className='gif'>
-        <div className='progress'>
-          <div className='bar'><div className='peg' /></div>
-        </div>
         <div className='placeholder' />
         <Image
           src='/rockets.gif'
@@ -72,13 +72,18 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
         }
 
         .progress {
-          background: var(--accents-2);
           position: absolute;
           top: 0;
           left: 0;
-          height: 4px;
+          height: 2px;
           width: 100%;
           z-index: 2;
+        }
+        
+        @media (max-width: 540px) {
+          .progress {
+            position: fixed;
+          }
         }
 
         .bar {
@@ -108,9 +113,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
           
         .gif {
           border: 2px solid var(--accents-2);
-          border-bottom-left-radius: 10px;
-          border-bottom-right-radius: 10px;
-          border-top: none;
+          border-radius: 10px;
           margin: 24px 0 48px;
           position: relative;
           overflow: hidden;

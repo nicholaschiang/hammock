@@ -30,6 +30,7 @@ export default function Dialog({ children }: DialogProps): JSX.Element {
           box-shadow: var(--shadow-large);
           overflow: auto;
           padding: 0 48px;
+          position: relative;
         }
 
         .scrim {
