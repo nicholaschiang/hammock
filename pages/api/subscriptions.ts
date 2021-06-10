@@ -52,11 +52,7 @@ export default async function subscriptions(
       logger.info(
         `Fetched ${subscriptionsData.length} subscriptions for ${user}.`
       );
-      segment.track({
-        userId: user.id,
-        event: 'Subscriptions Listed',
-        properties: subscriptionsData.map((s) => s.toSegment()),
-      });
+      segment.track({ userId: user.id, event: 'Subscriptions Listed' });
     } catch (e) {
       handle(e, res);
     }
