@@ -2,6 +2,7 @@ import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import Router, { useRouter } from 'next/router';
 import Link from 'next/link';
 import cn from 'classnames';
+import { signOut } from 'next-auth/client';
 
 import Avatar from 'components/avatar';
 
@@ -134,7 +135,7 @@ export default function NavBar(): JSX.Element {
   const [loggingOut, setLoggingOut] = useState<boolean>(false);
   const logout = useCallback(async () => {
     setLoggingOut(true);
-    await fetch('/api/logout');
+    await signOut({ redirect: false });
     await Router.push('/login');
   }, []);
 
