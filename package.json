@@ -21,6 +21,7 @@
     "url": "https://github.com/newsletterreader/newsletter/issues"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.4.1",
     "@segment/analytics.js-core": "^4.1.11",
     "analytics-node": "^4.0.1",
     "atob": "^2.1.2",
@@ -35,6 +36,7 @@
     "googleapis": "^75.0.0",
     "he": "^1.2.0",
     "html-to-text": "^7.1.1",
+    "jsdom": "^16.6.0",
     "nanoid": "^3.1.23",
     "next": "^10.2.3",
     "next-auth": "^3.25.0",
@@ -58,6 +60,7 @@
     "@types/cookie": "^0.4.0",
     "@types/he": "^1.1.1",
     "@types/html-to-text": "^6.0.0",
+    "@types/jsdom": "^16",
     "@types/node": "^15.12.2",
     "@types/nprogress": "^0.2.0",
     "@types/phone": "^2.4.1",
