@@ -8,7 +8,7 @@ import Button from 'components/button';
 import Empty from 'components/empty';
 import Section from 'components/section';
 
-import { MessageJSON } from 'lib/model/meeting';
+import { MessageJSON } from 'lib/model/message';
 import { isSameDay } from 'lib/utils';
 import useNow from 'lib/hooks/now';
 
