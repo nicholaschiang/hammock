@@ -107,7 +107,7 @@ export default function MessagePage(): JSX.Element {
   }, [message.scroll]);
 
   return (
-    <Page name='Message' login>
+    <Page title={message.subject} name='Message' login>
       <Controls
         disabled={!data || archiving}
         archived={message.archived}

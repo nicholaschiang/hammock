@@ -481,7 +481,7 @@ export default function IndexPage(): JSX.Element {
   }, [asPath, loggedIn]);
 
   return (
-    <Page name='Newsletter Reader'>
+    <Page title='Hammock - Newsletter Reader' name='Index'>
       <Header />
       <Benefits />
       <Footer />

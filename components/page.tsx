@@ -8,12 +8,13 @@ import { useUser } from 'lib/context/user';
 
 export interface PageProps {
   name: string;
+  title?: string;
   sync?: boolean;
   login?: boolean;
   children: ReactNode;
 }
 
-export default function Page({ name, sync, login, children }: PageProps): JSX.Element {
+export default function Page({ name, title, sync, login, children }: PageProps): JSX.Element {
   // Redirect to the login page if authentication is required but missing.
   const { loggedIn, user } = useUser();
   useEffect(() => {
@@ -44,7 +45,7 @@ export default function Page({ name, sync, login, children }: PageProps): JSX.El
   return (
     <>
       <Head>
-        <title>{`${name} - Hammock`}</title>
+        <title>{title || `${name} - Hammock`}</title>
         <meta
           name='description'
           content='A place where you can enjoy reading and learning from newsletters. So you spend less time in your inbox.'
