@@ -8881,6 +8881,7 @@ fsevents@~2.3.1:
     pretty-quick: ^3.1.0
     react: ^17.0.2
     react-dom: ^17.0.2
+    react-infinite-scroll-component: ^6.1.0
     reading-time: ^1.3.0
     release: ^6.3.0
     rfdc: ^1.3.0
@@ -10513,6 +10514,17 @@ fsevents@~2.3.1:
   peerDependencies:
     react: 17.0.2
   checksum: 960a74ff6670766846a73097a599115963df1574833c59ca0c2fd909758ebe7a6214cd14f5e6aa63ce846d8f39fde7f3b80474ccfcfadc45dd7f3246364718c6
+  languageName: node
+  linkType: hard
+
+"react-infinite-scroll-component@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "react-infinite-scroll-component@npm:6.1.0"
+  dependencies:
+    throttle-debounce: ^2.1.0
+  peerDependencies:
+    react: ">=16.0.0"
+  checksum: e584abd04f20de5e00ee4b3ab8f9a4af6367d393e1ffa6c6bfb078914936610afa9e624fbee1e48c8b6fa00f41694b11d0b2c3d74b7b3fa7882804fa73e04ab4
   languageName: node
   linkType: hard
 
@@ -12155,6 +12167,13 @@ resolve@^2.0.0-next.3:
   dependencies:
     any-promise: ^1.0.0
   checksum: c3cbda4f5f0ee82d6a282b3a2ed3f890fad65b5c855d61f8f1946c6daf7e0d7a1e84377ded30b16ae2bedd13f02ba35266af3ca018272b08629c85753b1cd682
+  languageName: node
+  linkType: hard
+
+"throttle-debounce@npm:^2.1.0":
+  version: 2.3.0
+  resolution: "throttle-debounce@npm:2.3.0"
+  checksum: 1181acfa57488c87cc02d42e9249f0a304ad389d4a521af630fefc639b055a88a49debd62d86f41053c18fc743783c8020dd44a41b0a35d9d661b14237023255
   languageName: node
   linkType: hard
 

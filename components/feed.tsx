@@ -1,6 +1,7 @@
 import { mutate, useSWRInfinite } from 'swr';
 import { useCallback, useEffect, useMemo } from 'react';
 import Head from 'next/head';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
@@ -72,7 +73,17 @@ export default function Feed(query: MessagesQuery): JSX.Element {
   }, [data]);
 
   return (
-    <>
+    <InfiniteScroll
+      dataLength={data?.flat().length || 0} //This is important field to render the next data
+      next={() => setSize((prev) => prev + 1)}
+      hasMore={true}
+      loader={<h4>Loading...</h4>}
+      endMessage={
+        <p style={{ textAlign: 'center' }}>
+          <b>Yay! You have seen it all</b>
+        </p>
+      }
+    >
       <Head>
         <link rel='preload' href='/api/messages' as='fetch' />
       </Head>
@@ -86,6 +97,6 @@ export default function Feed(query: MessagesQuery): JSX.Element {
       >
         Load more messages
       </Button>
-    </>
+    </InfiniteScroll>
   );
 }
