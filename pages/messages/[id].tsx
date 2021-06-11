@@ -137,8 +137,8 @@ export default function MessagePage(): JSX.Element {
       </div>
       <style jsx>{`
         .page {
-          max-width: 720px;
-          padding: 0 48px;
+          max-width: 648px;
+          padding: 0 24px;
           margin: 96px auto;
         }
 

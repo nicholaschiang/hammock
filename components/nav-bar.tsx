@@ -227,8 +227,7 @@ export default function NavBar(): JSX.Element {
       <style jsx>{`
         .wrapper {
           flex: none;
-          width: 120px;
-          margin-right: 24px;
+          width: 100px;
         }
 
         .content {

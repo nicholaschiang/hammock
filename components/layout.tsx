@@ -36,15 +36,15 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
           display: flex;
           flex-direction: row;
           justify-content: space-between;
-          max-width: 1048px;
-          padding: 0 48px;
+          max-width: 948px;
+          padding: 0 24px;
           margin: 96px auto;
         }
         
         .wrapper {
           flex: 1 1 auto;
-          max-width: 720px;
-          margin: 0 24px;
+          max-width: 700px;
+          margin-left: 24px;
           width: 0;
         }
 

@@ -37,48 +37,63 @@ export default function Controls({
 
   return (
     <div className={cn('controls', { visible })}>
-      <button
-        onClick={() => Router.back()}
-        className='reset button'
-        type='button'
-      >
-        <ArrowBackIcon />
-      </button>
-      <button
-        onClick={archive}
-        disabled={disabled}
-        className='reset button'
-        type='button'
-      >
-        {archived ? <UnarchiveIcon /> : <ArchiveIcon />}
-      </button>
+      <div className='wrapper'>
+        <button
+          onClick={() => Router.back()}
+          className='reset button'
+          type='button'
+        >
+          <ArrowBackIcon />
+        </button>
+        <button
+          onClick={archive}
+          disabled={disabled}
+          className='reset button'
+          type='button'
+        >
+          {archived ? <UnarchiveIcon /> : <ArchiveIcon />}
+        </button>
+      </div>
       <style jsx>{`
         .controls {
           position: fixed;
           opacity: 0;
-          top: 0;
+          top: 48px;
           left: 60px;
           right: 60px;
-          height: 48px;
           display: flex;
-          flex-direction: row;
-          justify-content: space-between;
+          align-items: center;
+          justify-content: center;
           transition: top 0.2s ease 0s, opacity 0.2s ease 0s;
         }
 
         .controls.visible {
           opacity: 1;
-          top: 48px;
+          top: 96px;
+        }
+
+        .wrapper {
+          width: 100%;
+          max-width: 948px;
+          padding: 0 24px;
         }
 
         .button {
           display: block;
           width: 48px;
           height: 48px;
-          padding: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           border-radius: 100%;
+          border: 1px solid var(--accents-2);
           background: var(--background);
           transition: background 0.2s ease 0s;
+          margin-bottom: 10px;
+        }
+
+        .button:last-child {
+          margin-bottom: 0;
         }
 
         .button:hover {
