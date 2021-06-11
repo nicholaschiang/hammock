@@ -1,11 +1,12 @@
 import Router, { useRouter } from 'next/router';
 import { mutate, useSWRInfinite } from 'swr';
 import { useCallback, useEffect, useMemo } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { MessagesRes } from 'pages/api/messages';
 
-import Button from 'components/button';
 import Layout from 'components/layout';
+import MessageRow from 'components/message-row';
 import Page from 'components/page';
 import Section from 'components/section';
 
@@ -36,7 +37,7 @@ export default function WritersPage(): JSX.Element {
     [query.email]
   );
 
-  const { data, isValidating, setSize } = useSWRInfinite<MessagesRes>(getKey, {
+  const { data, setSize } = useSWRInfinite<MessagesRes>(getKey, {
     revalidateAll: true,
   });
 
@@ -49,16 +50,19 @@ export default function WritersPage(): JSX.Element {
   return (
     <Page name='Writers' login sync>
       <Layout>
+        <InfiniteScroll
+          dataLength={data?.flat().length || 0}
+          next={() => setSize((prev) => prev + 1)}
+          hasMore={!data || data[data.length - 1].length === 10}
+          style={{ overflow: undefined }}
+          scrollThreshold={0.65} 
+          loader={Array(3).fill(null).map((_, idx) => <MessageRow key={idx} loading />)}
+        >
         {!loggedIn && <Section />}
         {loggedIn && (
           <Section header={writer?.from.name} messages={data?.flat()} date />
         )}
-        <Button
-          disabled={isValidating}
-          onClick={() => setSize((prev) => prev + 1)}
-        >
-          Load more messages
-        </Button>
+        </InfiniteScroll>
       </Layout>
     </Page>
   );
