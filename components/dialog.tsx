@@ -40,7 +40,8 @@ export default function Dialog({ children }: DialogProps): JSX.Element {
           width: 100%;
           height: 100%;
           z-index: -1;
-          background: rgba(0, 0, 0, 0.32);
+          background-color: rgba(0, 0, 0, 0.32);
+          backdrop-filter: blur(2px);
           opacity: 1;
         }
 
