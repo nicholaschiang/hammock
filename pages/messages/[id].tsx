@@ -6,7 +6,6 @@ import cn from 'classnames';
 
 import { MessageRes } from 'pages/api/messages/[id]';
 
-import Avatar from 'components/avatar';
 import Controls from 'components/controls';
 import Page from 'components/page';
 
