@@ -81,7 +81,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
           html,
           body {
             font-size: 16px;
-            line-height: 1.45;
+            line-height: 1.65;
             font-family: var(--font-sans);
             text-rendering: optimizeLegibility;
             -webkit-font-smoothing: subpixel-antialiased;

@@ -14,6 +14,16 @@ import { Message } from 'lib/model/message';
 import { fetcher } from 'lib/fetch';
 
 /**
+ * Extends the built-in browser `String#trim` method to account for zero-width
+ * spaces (i.e. the `\u200B` char code).
+ * @see {@link https://github.com/jprichardson/string.js/issues/182}
+ * @see {@link https://en.wikipedia.org/wiki/Zero-width_space}
+ */
+function trim(str: string): string {
+  return str.replace(/^[\s\uFEFF\xA0\u200B]+|[\s\uFEFF\xA0\u200B]+$/g, '');
+}
+
+/**
  * @param The element to get the vertical scroll percentage for.
  * @return A number between 0 to 1 relative to scroll position.
  * @see {@link https://stackoverflow.com/a/28994709/10023158}
@@ -106,13 +116,14 @@ export default function MessagePage(): JSX.Element {
       />
       <div className='page'>
         <header>
-          <h1 className={cn({ loading: !data })}>{message.subject}</h1>
+          <h1 className={cn({ loading: !data })}>{trim(message.subject)}</h1>
+          <h2 className={cn({ loading: !data })}>{trim(message.snippet.split('.')[0])}</h2>
           <Link href={`/writers/${message.from.email}`}>
             <a className={cn('author', { disabled: !data })}>
-              <Avatar src={message.from.photo} loading={!data} size={24} />
-              <span className={cn({ loading: !data })}>
-                {data ? `${message.from.name} on ${message.date.toLocaleString('en', { month: 'short', day: 'numeric' })}` : ''}
-              </span>
+              <h3 className={cn({ loading: !data })}>
+                {data && message.from.name}
+                {data && <span>·</span>}
+                {data && message.date.toLocaleString('en', { month: 'short', day: 'numeric' })}</h3>
             </a>
           </Link>
         </header>
@@ -133,19 +144,48 @@ export default function MessagePage(): JSX.Element {
         }
 
         header {
-          margin: 0 0 24px;
+          margin: 0 0 2rem;
         }
 
-        h1 {
-          font-size: 32px;
-          font-weight: 600;
-          line-height: 40px;
-          color: var(--accents-6);
+        header h1 {
+          font-size: 2rem;
+          font-weight: 700;
+          line-height: 1.35;
+          margin: 1rem 0;
         }
 
-        h1.loading {
+        header h1.loading {
           height: 80px;
           border-radius: 6px;
+        }
+
+        header h2 {
+          font-size: 1.5rem;
+          font-weight: 500;
+          line-height: 1.35;
+          margin: 1rem 0;
+          color: var(--accents-5);
+        }
+
+        header h3 {
+          font-size: 1rem;
+          font-weight: 400;
+          margin: 1rem 0;
+        }
+
+        header h3 span {
+          margin: 0 0.5rem;
+          font-weight: 700;
+        }
+
+        header .author {
+          text-decoration: none;
+          cursor: pointer;
+          color: unset;
+        }
+       
+        header .author.disabled {
+          cursor: wait;
         }
 
         p.loading {
@@ -164,34 +204,6 @@ export default function MessagePage(): JSX.Element {
           height: 500px;
         }
 
-        .author {
-          display: inline-flex;
-          align-items: center;
-          text-decoration: none;
-          color: var(--accents-5);
-          cursor: pointer;
-        }
-
-        .author.disabled {
-          cursor: wait;
-        }
-
-        .author span {
-          font-size: 16px;
-          font-weight: 400;
-          line-height: 18px;
-          height: 18px;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          margin-left: 8px;
-        }
-
-        .author span.loading {
-          width: 240px;
-          border-radius: 6px;
-        }
-
         article :global(img) {
           max-width: 100%;
           height: auto;
@@ -208,7 +220,8 @@ export default function MessagePage(): JSX.Element {
         }
 
         article :global(a) {
-          color: var(--accents-5);
+          text-decoration: none;
+          color: var(--primary);
         }
 
         article :global(strong) {
