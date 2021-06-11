@@ -44,15 +44,14 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     [loggedIn, user]
   );
 
-  const [theme, setTheme] = useState<Theme>('system');
+  const [theme, setTheme] = useState<Theme>('light');
   useEffect(() => {
-    let dark = theme === 'dark';
-    if (theme === 'system') {
-      const mq = matchMedia('(prefers-color-scheme: dark)');
-      if (mq.matches) dark = true;
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    if (theme === 'dark' || theme === 'system' && mq.matches) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-    if (dark) return document.documentElement.classList.add('dark');
-    return document.documentElement.classList.remove('dark');
   }, [theme]);
   useEffect(() => {
     setTheme((prev) => (localStorage.getItem('theme') as Theme) || prev);
