@@ -43,12 +43,9 @@ export default async function messages(
       logger.verbose(`Fetching messages for ${user}...`);
       const ref = db.collection('users').doc(user.id).collection('messages');
       let query = ref.where('archived', '==', archive === 'true');
-      if (writer)
-        query = query.where('from.email', '==', writer);
-      if (quickRead === 'true')
-        query = query.where('time', '<=', 10).orderBy('time');
-      if (resume === 'true')
-        query = query.where('scroll', '>', 0).orderBy('scroll');
+      if (quickRead === 'true') query = query.where('quickRead', '==', true);
+      if (resume === 'true') query = query.where('resume', '==', true);
+      if (writer) query = query.where('from.email', '==', writer);
       query = query.orderBy('date', 'desc').limit(10);
       if (lastMessageId) {
         const lastMessageDoc = await ref.doc(lastMessageId).get();
