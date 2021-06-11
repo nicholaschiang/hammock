@@ -102,6 +102,7 @@ function Header(): JSX.Element {
           margin-top: 40px;
           border-radius: 10px;
           background-color: var(--accents-1);
+          border: 1px solid var(--accents-2);
         }
 
         .screenshot :global(svg) {
