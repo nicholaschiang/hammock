@@ -5,7 +5,12 @@ import cn from 'classnames';
 import { signOut } from 'next-auth/client';
 
 import Avatar from 'components/avatar';
+import DarkIcon from 'components/icons/dark';
+import LightIcon from 'components/icons/light';
+import Select from 'components/select';
+import SystemIcon from 'components/icons/system';
 
+import { useTheme } from 'lib/context/theme';
 import { useUser } from 'lib/context/user';
 
 interface MenuButtonProps {
@@ -112,6 +117,7 @@ function MenuLink({ href, children }: LinkProps): JSX.Element {
             cursor: pointer;
             font-size: 16px;
             font-weight: 400;
+            line-height: 1;
           }
 
           a:hover {
@@ -157,6 +163,8 @@ export default function NavBar(): JSX.Element {
     };
   }, []);
 
+  const { theme, setTheme } = useTheme();
+
   return (
     <div className='wrapper'>
       <div className='content'>
@@ -175,9 +183,35 @@ export default function NavBar(): JSX.Element {
           <MenuLink href='https://www.notion.so/readhammock/Help-Support-9b6bb1da1d6d4887ad3631f32d7741de'>
             Help
           </MenuLink>
+          <MenuLink href='/about'>About</MenuLink>
           <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>
             Send feedback
           </MenuLink>
+          <div className='line' />
+          <Select
+            small
+            value={theme}
+            onChange={setTheme}
+            label='Change color theme'
+            options={[
+              {
+                value: 'system',
+                label: 'System',
+                icon: <SystemIcon />,
+              },
+              {
+                value: 'dark',
+                label: 'Dark',
+                icon: <DarkIcon />,
+              },
+              {
+                value: 'light',
+                label: 'Light',
+                icon: <LightIcon />,
+              },
+            ]}
+          />
+          <div className='line' />
           <MenuButton onClick={logout}>
             {loggingOut ? 'Logging out...' : 'Logout'}
           </MenuButton>
@@ -226,6 +260,10 @@ export default function NavBar(): JSX.Element {
         .menu .line {
           border-top: 1px solid var(--accents-2);
           margin: 4px 0;
+        }
+
+        .menu :global(.select) {
+          margin: 12px;
         }
 
         nav {

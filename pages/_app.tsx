@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { SWRConfig, mutate } from 'swr';
 import { AppProps } from 'next/app';
 import { dequal } from 'dequal';
@@ -45,6 +45,20 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
   );
 
   const [theme, setTheme] = useState<Theme>('light');
+  useEffect(() => {
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    if (theme === 'dark' || theme === 'system' && mq.matches) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+  useEffect(() => {
+    setTheme((prev) => (localStorage.getItem('theme') as Theme) || prev);
+  }, []);
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   return (
     <UserContext.Provider value={{ user, setUser, setUserMutated, loggedIn }}>
@@ -155,7 +169,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
             --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
             --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
 
-            --selection: #faf3dd;
+            --selection: rgba(255, 255, 0, 0.25);
           }
 
           .dark {
@@ -176,8 +190,6 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
             --shadow-small: 0 0 0 1px var(--accents-2);
             --shadow-medium: 0 0 0 1px var(--accents-2);
             --shadow-large: 0 0 0 1px var(--accents-2);
-
-            --selection: #f81ce5;
           }
         `}</style>
       </ThemeContext.Provider>

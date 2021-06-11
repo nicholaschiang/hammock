@@ -21,7 +21,7 @@ function Paragraph({ children }: { children: ReactNode }): JSX.Element {
           margin-bottom: 20px;
           padding-top: 0px;
           padding-bottom: 0px;
-          color: #626262;
+          color: var(--accents-5);
           font-size: 20px;
           line-height: 30px;
           text-align: center;
@@ -32,7 +32,7 @@ function Paragraph({ children }: { children: ReactNode }): JSX.Element {
         }
 
         p > :global(span.highlight) {
-          background-color: #faf3dd;
+          background-color: var(--selection);
         }
 
         @media (max-width: 767px) {
@@ -66,7 +66,7 @@ function Header(): JSX.Element {
       <Container>
         <div className='logo'>
           <Image
-            src='/images/hammock-webclip.png'
+            src='/images/logo.png'
             height={75}
             width={75}
             priority
@@ -88,10 +88,9 @@ function Header(): JSX.Element {
           <a
             href='https://www.notion.so/readhammock/Return-of-the-Newsletter-524563869f6242baaa60250299536654'
             rel='noopener noreferrer'
-            className='link-story'
             target='_blank'
           >
-            Read about why we&#x27;re building this &rarr;
+            Read about why we&#x27;re building this
           </a>
         </div>
         <div className='screenshot'>
@@ -102,7 +101,8 @@ function Header(): JSX.Element {
         .screenshot {
           margin-top: 40px;
           border-radius: 10px;
-          background-color: #f6f6f6;
+          background-color: var(--accents-1);
+          border: 1px solid var(--accents-2);
         }
 
         .screenshot :global(svg) {
@@ -117,15 +117,26 @@ function Header(): JSX.Element {
           display: inline-block;
         }
 
-        .link-story {
+        a {
           transition: color 0.2s ease 0s;
-          color: #626262;
+          color: var(--accents-5);
           font-size: 18px;
           text-decoration: none;
         }
+        
+        a::after {
+          content: '🡢';
+          display: inline-block;
+          transform: translate(6px);
+          transition: transform 0.2s ease 0s;
+        }
 
-        .link-story:hover {
-          color: #0c0c0c;
+        a:hover::after {
+          transform: translate(8px);
+        }
+
+        a:hover {
+          color: var(--on-background);
         }
 
         .section {
@@ -146,7 +157,6 @@ function Header(): JSX.Element {
         h1 {
           margin-top: 10px;
           margin-bottom: 40px;
-          color: #0c0c0c;
           font-size: 60px;
           line-height: 45px;
           font-weight: 700;
@@ -265,7 +275,6 @@ function Benefits(): JSX.Element {
           margin-right: -8px;
           font-size: 14px;
           line-height: 20px;
-          color: #626262;
         }
 
         .benefit-column h2 {
@@ -376,24 +385,14 @@ function Footer(): JSX.Element {
           margin-left: 0px;
           padding-right: 0px;
           padding-left: 0px;
-          color: #626262;
           text-align: left;
-        }
-
-        .text-block:hover {
-          color: #626262;
         }
 
         .text-block-right {
           margin-left: 0px;
           padding-right: 0px;
           padding-left: 0px;
-          color: #626262;
           text-align: right;
-        }
-
-        .text-block-right:hover {
-          color: #626262;
         }
 
         .footer {
@@ -473,11 +472,11 @@ export default function IndexPage(): JSX.Element {
   const { asPath } = useRouter();
   const { loggedIn } = useUser();
   useEffect(() => {
-    if (asPath === '/home') return;
+    if (asPath === '/about') return;
     void Router.prefetch('/feed');
   }, [asPath]);
   useEffect(() => {
-    if (!loggedIn || asPath === '/home') return;
+    if (!loggedIn || asPath === '/about') return;
     void Router.replace('/feed');
   }, [asPath, loggedIn]);
 
