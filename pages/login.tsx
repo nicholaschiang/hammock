@@ -49,6 +49,7 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
         h2 {
           font-size: 1rem;
           font-weight: 600;
+          line-height: 1.35;
           margin: 0 0 6px;
         }
 
@@ -119,6 +120,7 @@ export default function LoginPage(): JSX.Element {
             color: var(--accents-5);
             font-size: 1.25rem;
             font-weight: 600;
+            line-height: 1.35;
             margin: 48px 0 24px;
           }
 
