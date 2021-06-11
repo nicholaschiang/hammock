@@ -175,12 +175,12 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
           .dark {
             --primary: #5aa6ff;
             --on-primary: #000;
-            --background: #000;
+            --background: #121212;
             --on-background: #fff;
             --error: #cf6679;
             --on-error: #000;
 
-            --accents-1: #111;
+            --accents-1: #181818;
             --accents-2: #333;
             --accents-3: #444;
             --accents-4: #666;
