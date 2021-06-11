@@ -42,6 +42,7 @@ function MenuButton({
           transition: background 0.2s ease 0s;
           font-size: 16px;
           font-weight: 400;
+          line-height: 1;
         }
 
         button:hover {
