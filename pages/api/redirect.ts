@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import to from 'await-to-js';
 
 import { APIErrorJSON } from 'lib/model/error';
 import { handle } from 'lib/api/error';
@@ -20,8 +21,11 @@ export default async function redirect(
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
   } else {
     try {
-      const user = await verifyAuth(req);
-      if (user.subscriptions.length) {
+      const [err, user] = await to(verifyAuth(req));
+      if (err) {
+        logger.warn(`${err.name} verifying authentication: ${err.message}`);
+        res.redirect('/feed');
+      } else if (user?.subscriptions.length) {
         logger.info(`Redirecting ${user} to feed...`);
         res.redirect('/feed');
       } else {
