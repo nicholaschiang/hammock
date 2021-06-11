@@ -1,6 +1,7 @@
 import { User } from 'lib/model/user';
 import { db } from 'lib/api/firebase';
 import getGmailMessages from 'lib/api/get/gmail-messages';
+import getQuery from 'lib/api/query';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
 import messageFromGmail from 'lib/api/message-from-gmail';
@@ -29,7 +30,7 @@ export default async function syncGmail(
 
   logger.verbose(`Fetching messages for ${user}...`);
   const { data } = await client.users.messages.list({
-    q: `from:(${user.subscriptionEmails.join(' OR ')})`,
+    q: getQuery(user),
     maxResults: 10,
     userId: 'me',
     pageToken,
