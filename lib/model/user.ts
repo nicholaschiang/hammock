@@ -81,7 +81,7 @@ export class User implements UserInterface {
     construct<UserInterface>(this, user);
   }
 
-  private get subscriptionEmails(): string[] {
+  public get subscriptionEmails(): string[] {
     return this.subscriptions.map((s) => s.from.email);
   }
 

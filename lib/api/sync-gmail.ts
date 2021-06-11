@@ -29,7 +29,7 @@ export default async function syncGmail(
 
   logger.verbose(`Fetching messages for ${user}...`);
   const { data } = await client.users.messages.list({
-    q: `from:(${user.subscriptions.map((s) => s.from.email).join(' OR ')})`,
+    q: `from:(${user.subscriptionEmails.join(' OR ')})`,
     maxResults: 10,
     userId: 'me',
     pageToken,

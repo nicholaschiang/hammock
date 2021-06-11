@@ -8,7 +8,7 @@ export default async function getOrCreateFilter(user: User): Promise<string> {
   const client = gmail(user.token);
   const requestBody = {
     action: { addLabelIds: [user.label], removeLabelIds: ['INBOX'] },
-    criteria: { from: user.subscriptions.join(' OR ') },
+    criteria: { from: user.subscriptionEmails.join(' OR ') },
   };
 
   logger.verbose(`Fetching filters for ${user}...`);
