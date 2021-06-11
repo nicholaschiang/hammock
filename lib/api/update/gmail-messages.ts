@@ -1,5 +1,6 @@
 import gmail, { Gmail } from 'lib/api/gmail';
 import { User } from 'lib/model/user';
+import getQuery from 'lib/api/query';
 import logger from 'lib/api/logger';
 
 async function removeLabels(user: User, client: Gmail): Promise<void> {
@@ -36,7 +37,7 @@ async function addLabels(user: User, client: Gmail): Promise<void> {
   logger.info(`Adding labels for ${user}...`);
   console.time('add-labels');
   const { data } = await client.users.messages.list({
-    q: `from:(${user.subscriptionEmails.join(' OR ')})`,
+    q: getQuery(user),
     maxResults: 2500,
     userId: 'me',
   });
