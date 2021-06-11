@@ -1,6 +1,6 @@
 import { ReactNode, useEffect } from 'react';
+import Router, { useRouter } from 'next/router';
 import Image from 'next/image';
-import Router from 'next/router';
 
 import Button from 'components/marketing-button';
 import Container from 'components/container';
@@ -470,14 +470,16 @@ function Footer(): JSX.Element {
 }
 
 export default function IndexPage(): JSX.Element {
+  const { asPath } = useRouter();
   const { loggedIn } = useUser();
   useEffect(() => {
+    if (asPath === '/home') return;
     void Router.prefetch('/feed');
-  }, []);
+  }, [asPath]);
   useEffect(() => {
-    if (!loggedIn) return;
+    if (!loggedIn || asPath === '/home') return;
     void Router.replace('/feed');
-  }, [loggedIn]);
+  }, [asPath, loggedIn]);
 
   return (
     <Page name='Newsletter Reader'>

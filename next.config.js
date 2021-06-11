@@ -9,6 +9,14 @@ module.exports = {
       'www.google.com',
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+      },
+    ];
+  },
   async redirects() {
     return [
       {
