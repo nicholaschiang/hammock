@@ -13,12 +13,12 @@ export default function FooterLink({
       <style jsx>{`
         a {
           transition: color 0.2s ease 0s;
-          color: #626262;
+          color: var(--accents-5);
           text-decoration: none;
         }
 
         a:hover {
-          color: #0c0c0c;
+          color: var(--on-background);
         }
 
         @media (max-width: 479px) {

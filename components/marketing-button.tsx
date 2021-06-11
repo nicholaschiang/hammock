@@ -19,7 +19,7 @@ export default function Button({ href, children }: ButtonProps): JSX.Element {
             margin-top: 10px;
             margin-bottom: 20px;
             border-radius: 6px;
-            background-color: #0c0c0c;
+            background-color: var(--on-background);
             box-shadow: 0 6px 10px 0 transparent;
             transition: transform 350ms ease, box-shadow 350ms ease;
             font-size: 18px;
@@ -27,7 +27,7 @@ export default function Button({ href, children }: ButtonProps): JSX.Element {
             text-decoration: none;
             display: inline-block;
             padding: 10px 15px;
-            color: white;
+            color: var(--background);
             border: 0;
             line-height: 20px;
             cursor: pointer;

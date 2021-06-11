@@ -170,7 +170,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
             --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
             --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
 
-            --selection: #faf3dd;
+            --selection: rgba(255, 255, 0, 0.25);
           }
 
           .dark {
@@ -191,8 +191,6 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
             --shadow-small: 0 0 0 1px var(--accents-2);
             --shadow-medium: 0 0 0 1px var(--accents-2);
             --shadow-large: 0 0 0 1px var(--accents-2);
-
-            --selection: #f81ce5;
           }
         `}</style>
       </ThemeContext.Provider>

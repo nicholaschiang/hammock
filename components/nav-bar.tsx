@@ -183,6 +183,10 @@ export default function NavBar(): JSX.Element {
           <MenuLink href='https://www.notion.so/readhammock/Help-Support-9b6bb1da1d6d4887ad3631f32d7741de'>
             Help
           </MenuLink>
+          <MenuLink href='/about'>About</MenuLink>
+          <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>
+            Send feedback
+          </MenuLink>
           <div className='line' />
           <Select
             small
@@ -208,9 +212,6 @@ export default function NavBar(): JSX.Element {
             ]}
           />
           <div className='line' />
-          <MenuLink href='https://form.typeform.com/to/oTBbAI6z'>
-            Send feedback
-          </MenuLink>
           <MenuButton onClick={logout}>
             {loggingOut ? 'Logging out...' : 'Logout'}
           </MenuButton>
