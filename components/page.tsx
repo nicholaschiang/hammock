@@ -1,9 +1,10 @@
 import { ReactNode, useEffect } from 'react';
 import Head from 'next/head';
 import Router from 'next/router';
+import useSWR from 'swr';
 
-import { useUser } from 'lib/context/user';
 import segmentSnippet from 'lib/segment-snippet';
+import { useUser } from 'lib/context/user';
 
 export interface PageProps {
   name: string;
@@ -32,10 +33,8 @@ export default function Page({ name, sync, login, children }: PageProps): JSX.El
   
   // Scrappy fix to sync the user's Gmail with our database when they login.
   // @see {@link https://github.com/readhammock/hammock/issues/38}
-  useEffect(() => {
-    if (!sync || !user.subscriptions.length) return;
-    void fetch('/api/sync');
-  }, [sync, user.subscriptions.length]);
+  useSWR(sync && user.subscriptions.length ? '/api/sync' : null);
+  
   // Redirect to the subscriptions page if the user doesn't have any selected.
   useEffect(() => {
     if (!sync || !loggedIn || user.subscriptions.length) return;
