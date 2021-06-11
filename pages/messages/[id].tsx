@@ -154,7 +154,7 @@ export default function MessagePage(): JSX.Element {
         }
 
         header h1.loading {
-          height: 80px;
+          height: calc(1.35 * 2rem * 2);
           border-radius: 6px;
         }
 
@@ -166,10 +166,21 @@ export default function MessagePage(): JSX.Element {
           color: var(--accents-5);
         }
 
+        header h2.loading {
+          height: calc(1.35 * 1.5rem * 2);
+          border-radius: 6px;
+        }
+
         header h3 {
           font-size: 1rem;
           font-weight: 400;
           margin: 1rem 0;
+        }
+
+        header h3.loading {
+          height: 1.65rem;
+          border-radius: 6px;
+          max-width: 250px;
         }
 
         header h3 span {
@@ -219,8 +230,7 @@ export default function MessagePage(): JSX.Element {
         }
 
         article :global(a) {
-          text-decoration: none;
-          color: var(--primary);
+          color: var(--accents-5);
         }
 
         article :global(strong) {
