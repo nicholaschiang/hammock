@@ -96,7 +96,7 @@ export default function WritersPage(): JSX.Element {
           </ul>
         )}
         {loggedIn && !user.subscriptions.length && (
-          <Empty>No writers to show</Empty>
+          <Empty>No writers to show.</Empty>
         )}
         <style jsx>{`
           ul {

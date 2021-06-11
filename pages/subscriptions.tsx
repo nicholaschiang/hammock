@@ -442,7 +442,7 @@ export default function SubscriptionsPage(): JSX.Element {
           </ul>
         )}
         {!data && <ul>{loadingList}</ul>}
-        {data && !important.length && <Empty>No newsletters found</Empty>}
+        {data && !important.length && <Empty>No newsletters found.</Empty>}
         <h2>Other subscriptions, including promotions</h2>
         {!!other.length && (
           <ul>
@@ -472,7 +472,7 @@ export default function SubscriptionsPage(): JSX.Element {
           </ul>
         )}
         {!data && <ul>{loadingList}</ul>}
-        {data && !other.length && <Empty>No subscriptions found</Empty>}
+        {data && !other.length && <Empty>No subscriptions found.</Empty>}
         <Button disabled={!data || loading || !user.subscriptions.length} onClick={onSave}>
           Save subscriptions
         </Button>

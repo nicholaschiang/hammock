@@ -86,7 +86,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
       {!data && <Section />}
       {!data && <Section />}
       {sections.map((s) => <FeedSection key={s.date.toJSON()} {...s} />)}
-      {data && !sections.length && <Empty>No messages to show</Empty>}
+      {data && !sections.length && <Empty>You’re all caught up with your reading!</Empty>}
     </InfiniteScroll>
   );
 }
