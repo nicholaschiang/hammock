@@ -104,7 +104,7 @@ export class Message extends Subscription implements MessageInterface {
   }
 
   public get quickRead(): boolean {
-    return this.time < 10;
+    return this.time < 5;
   }
 
   public toString(): string {
