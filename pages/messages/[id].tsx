@@ -90,12 +90,11 @@ export default function MessagePage(): JSX.Element {
 
   // TODO: Save the scroll position percent of the last visible part of
   // newsletter in viewport (scroll percent should be relative to newsletter).
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-  const onLoad = useCallback(() => {
-    const i = iframeRef.current;
-    const height = i?.contentWindow?.document.body.scrollHeight;
-    if (height) i?.setAttribute('height', `${height + 20}px`);
+  const hasScrolled = useRef<boolean>(false);
+  useEffect(() => {
+    if (hasScrolled.current) return;
     window.scrollTo(0, message.scroll * document.body.scrollHeight);
+    hasScrolled.current = true;
   }, [message.scroll]);
 
   return (
@@ -106,52 +105,35 @@ export default function MessagePage(): JSX.Element {
         archive={archive}
       />
       <div className='page'>
-        <div className='header'>
-          <header>
-            <h1 className={cn({ loading: !data })}>{message.subject}</h1>
-            <Link href={`/writers/${message.from.email}`}>
-              <a className={cn('author', { disabled: !data })}>
-                <Avatar src={message.from.photo} loading={!data} size={24} />
-                <span className={cn({ loading: !data })}>
-                  {data ? `${message.from.name} on ${message.date.toLocaleString('en', { month: 'short', day: 'numeric' })}` : ''}
-                </span>
-              </a>
-            </Link>
-          </header>
-        </div>
-        <iframe
-          width='100%'
-          height='0px'
-          ref={iframeRef}
-          onLoad={onLoad}
-          srcDoc={message.html}
-          title={message.subject}
-          sandbox='allow-same-origin allow-popups'
-        />
+        <header>
+          <h1 className={cn({ loading: !data })}>{message.subject}</h1>
+          <Link href={`/writers/${message.from.email}`}>
+            <a className={cn('author', { disabled: !data })}>
+              <Avatar src={message.from.photo} loading={!data} size={24} />
+              <span className={cn({ loading: !data })}>
+                {data ? `${message.from.name} on ${message.date.toLocaleString('en', { month: 'short', day: 'numeric' })}` : ''}
+              </span>
+            </a>
+          </Link>
+        </header>
+        {data && <article dangerouslySetInnerHTML={{ __html: message.html }} />}
+        {!data && (
+          <article>
+            <p className='loading' />
+            <p className='loading' />
+            <p className='loading' />
+          </article>
+        )}
       </div>
       <style jsx>{`
         .page {
-          max-width: 1000px;
+          max-width: 720px;
           padding: 0 48px;
           margin: 96px auto;
         }
 
-        iframe {
-          border: 2px solid var(--accents-2);
-          border-radius: 10px;
-          min-height: 1000px;
-        }
-
-        div.header {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
         header {
-          max-width: 500px;
-          text-align: center;
-          margin: 0 0 48px;
+          margin: 0 0 24px;
         }
 
         h1 {
@@ -163,8 +145,23 @@ export default function MessagePage(): JSX.Element {
 
         h1.loading {
           height: 80px;
-          width: 400px;
           border-radius: 6px;
+        }
+
+        p.loading {
+          border-radius: 6px;
+        }
+
+        p.loading:nth-child(1) {
+          height: 45px;
+        }
+
+        p.loading:nth-child(2) {
+          height: 90px;
+        }
+
+        p.loading:nth-child(3) {
+          height: 500px;
         }
 
         .author {
@@ -193,6 +190,56 @@ export default function MessagePage(): JSX.Element {
         .author span.loading {
           width: 240px;
           border-radius: 6px;
+        }
+
+        article :global(img) {
+          max-width: 100%;
+          height: auto;
+          border: 1px solid var(--accents-2);
+          background-color: var(--accents-1);
+          display: block;
+          margin: 1rem 0;
+        }
+
+        article :global(p) {
+          font-size: 1rem;
+          font-weight: 400;
+          margin: 1rem 0;
+        }
+
+        article :global(a) {
+          color: var(--accents-5);
+        }
+
+        article :global(strong) {
+          font-weight: 600;
+        }
+        
+        article :global(b) {
+          font-weight: 600;
+        }
+        
+        article :global(h1),
+        article :global(h2),
+        article :global(h3),
+        article :global(h4),
+        article :global(h5),
+        article :global(h6) {
+          font-size: 1rem;
+          font-weight: 600;
+          margin: 1rem 0;
+        }
+
+        article :global(h1) {
+          font-size: 1.3rem;
+        }
+
+        article :global(h2) {
+          font-size: 1.2rem;
+        }
+
+        article :global(h3) {
+          font-size: 1.1rem;
         }
       `}</style>
     </Page>

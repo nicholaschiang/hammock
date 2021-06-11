@@ -21,6 +21,7 @@
     "url": "https://github.com/newsletterreader/newsletter/issues"
   },
   "dependencies": {
+    "@mozilla/readability": "^0.4.1",
     "@segment/analytics.js-core": "^4.1.11",
     "analytics-node": "^4.0.1",
     "atob": "^2.1.2",
@@ -29,12 +30,14 @@
     "classnames": "^2.3.1",
     "cookie": "^0.4.1",
     "dequal": "^2.0.2",
+    "dompurify": "^2.2.9",
     "firebase": "^8.6.5",
     "firebase-admin": "^9.9.0",
     "gaxios": "^4.3.0",
     "googleapis": "^75.0.0",
     "he": "^1.2.0",
     "html-to-text": "^7.1.1",
+    "jsdom": "^16.6.0",
     "nanoid": "^3.1.23",
     "next": "^10.2.3",
     "next-auth": "^3.25.0",
@@ -47,8 +50,7 @@
     "styled-jsx": "^3.4.4",
     "swr": "^0.5.6",
     "utf8": "^3.0.0",
-    "winston": "^3.3.3",
-    "xss": "^1.0.9"
+    "winston": "^3.3.3"
   },
   "devDependencies": {
     "@plaiceholder/base64": "^1.0.0",
@@ -56,8 +58,10 @@
     "@types/analytics-node": "^3.1.4",
     "@types/atob": "^2.1.2",
     "@types/cookie": "^0.4.0",
+    "@types/dompurify": "^2",
     "@types/he": "^1.1.1",
     "@types/html-to-text": "^6.0.0",
+    "@types/jsdom": "^16",
     "@types/node": "^15.12.2",
     "@types/nprogress": "^0.2.0",
     "@types/phone": "^2.4.1",

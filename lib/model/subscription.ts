@@ -12,7 +12,6 @@ export interface Contact {
 
 export function isContact(contact: unknown): contact is Contact {
   const stringFields = ['name', 'email', 'photo'];
-
   if (!isJSON(contact)) return false;
   return stringFields.every((key) => typeof contact[key] === 'string');
 }
@@ -42,7 +41,7 @@ export type SubscriptionFirestore = SubscriptionInterface;
 export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
   if (!isJSON(json)) return false;
   if (!isContact(json.from)) return false;
-  if (!isCategory(json.category)) return false;
+  if (json.category && !isCategory(json.category)) return false;
   return true;
 }
 
