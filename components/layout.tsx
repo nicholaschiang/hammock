@@ -3,8 +3,8 @@ import cn from 'classnames';
 
 import NavBar from 'components/nav-bar';
 
-import { useUser } from 'lib/context/user';
 import useNow from 'lib/hooks/now';
+import { useUser } from 'lib/context/user';
 
 export interface LayoutProps {
   children: ReactNode;
@@ -43,18 +43,17 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
         
         .wrapper {
           flex: 1 1 auto;
-          max-width: 768px;
+          max-width: 720px;
+          margin: 0 24px;
           width: 0;
         }
 
         .wrapper > :global(.empty) {
           height: 400px;
-          margin: 24px;
         }
         
         .wrapper > :global(button) {
-          width: calc(100% - 48px);
-          margin: 24px;
+          width: 100%;
         }
         
         .spacer {
@@ -65,10 +64,6 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
           z-index: 2;
           left: 0;
           top: 0;
-        }
-        
-        header {
-          margin: 0 24px;
         }
 
         header > h1 {

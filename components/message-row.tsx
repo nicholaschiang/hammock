@@ -35,20 +35,16 @@ export default function MessageRow({
             display: block;
             text-decoration: none;
             transition: box-shadow 0.2s ease 0s;
-            padding: 12px 24px;
             border-radius: 10px;
-            margin: 0;
+            margin: 40px 0;
           }
 
           .row.disabled {
             cursor: wait;
           }
 
-          .row:hover {
-            box-shadow: var(--shadow-medium);
-          }
-
-          .row > div {
+          .row .from,
+          .row .header {
             margin: 8px 0;
           }
 
