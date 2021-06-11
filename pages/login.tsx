@@ -36,9 +36,9 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
         .icon {
           background: var(--accents-2);
           border-radius: 100%;
-          padding: 12px;
-          height: 48px;
-          width: 48px;
+          padding: 1rem;
+          height: calc(24px + 2rem);
+          width: calc(24px + 2rem);
           flex: none;
         }
 
@@ -47,16 +47,12 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
         }
 
         h2 {
-          line-height: 20px;
-          font-size: 16px;
-          font-weight: 700;
+          font-size: 1rem;
+          font-weight: 600;
           margin: 0 0 6px;
         }
 
         p {
-          line-height: 16px;
-          font-size: 14px;
-          font-weight: 400;
           margin: 0;
         }
       `}</style>
@@ -121,9 +117,8 @@ export default function LoginPage(): JSX.Element {
         <style jsx>{`
           h1 {
             color: var(--accents-5);
-            line-height: 24px;
-            font-size: 20px;
-            font-weight: 700;
+            font-size: 1.25rem;
+            font-weight: 600;
             margin: 48px 0 24px;
           }
 
