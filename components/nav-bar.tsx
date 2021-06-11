@@ -117,6 +117,7 @@ function MenuLink({ href, children }: LinkProps): JSX.Element {
             cursor: pointer;
             font-size: 16px;
             font-weight: 400;
+            line-height: 1;
           }
 
           a:hover {
