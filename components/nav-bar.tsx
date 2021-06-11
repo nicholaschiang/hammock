@@ -37,7 +37,6 @@ function MenuButton({
           transition: background 0.2s ease 0s;
           font-size: 16px;
           font-weight: 400;
-          line-height: 18px;
         }
 
         button:hover {
@@ -72,7 +71,6 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
             cursor: pointer;
             font-size: 18px;
             font-weight: 400;
-            line-height: 24px;
             height: 24px;
             margin: 16px 0;
             display: block;
@@ -84,7 +82,7 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
 
           a.active {
             cursor: not-allowed;
-            font-weight: 700;
+            font-weight: 600;
           }
         `}</style>
       </a>
@@ -114,7 +112,6 @@ function MenuLink({ href, children }: LinkProps): JSX.Element {
             cursor: pointer;
             font-size: 16px;
             font-weight: 400;
-            line-height: 18px;
           }
 
           a:hover {

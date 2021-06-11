@@ -40,7 +40,7 @@ export default function Section({ messages, header, date }: Partial<SectionProps
         .section > .header > h2.date {
           color: var(--accents-5);
           font-size: 18px;
-          font-weight: 700;
+          font-weight: 600;
           line-height: 24px;
           margin: 24px;
           height: 24px;

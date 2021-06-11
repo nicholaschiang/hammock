@@ -137,8 +137,7 @@ export default function LoginPage(): JSX.Element {
 
           .error {
             color: var(--error);
-            line-height: 14px;
-            font-size: 12px;
+            font-size: 0.75rem;
             font-weight: 500;
             margin-top: 12px;
           }

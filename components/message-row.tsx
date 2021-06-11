@@ -87,7 +87,7 @@ export default function MessageRow({
           .header > .subject {
             margin: 0;
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 600;
             line-height: 24px;
             height: 24px;
             color: var(--accents-6);
@@ -106,7 +106,7 @@ export default function MessageRow({
             height: 24px;
             padding: 12px;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 600;
             color: var(--accents-6);
             background: var(--accents-2);
             border-radius: 12px;
