@@ -31,8 +31,6 @@ export default function Section({ messages, header, date }: Partial<SectionProps
         .section > .header {
           background: var(--background);
           position: sticky;
-          margin: 0 -24px;
-          padding: 0 24px;
           z-index: 1;
           top: 96px;
         }
@@ -42,7 +40,7 @@ export default function Section({ messages, header, date }: Partial<SectionProps
           font-size: 18px;
           font-weight: 600;
           line-height: 24px;
-          margin: 24px;
+          margin: 24px 0;
           height: 24px;
         }
 
@@ -52,12 +50,12 @@ export default function Section({ messages, header, date }: Partial<SectionProps
         }
 
         .section > .messages {
-          padding-bottom: 48px;
+          padding-bottom: 24px;
         }
 
         .header > .line {
           border-bottom: 2px solid var(--accents-2);
-          margin: 24px;
+          margin: 24px 0;
         }
       `}</style>
     </div>
