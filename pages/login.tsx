@@ -92,7 +92,7 @@ export default function LoginPage(): JSX.Element {
   }, [setError, query.error]);
   const onClick = useCallback(async () => {
     setLoading(true);
-    await signIn('google', { callbackUrl: '/feed' });
+    await signIn('google', { callbackUrl: '/api/redirect' });
   }, [setLoading]);
 
   return (
