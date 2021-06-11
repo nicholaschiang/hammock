@@ -3,17 +3,17 @@ import Router from 'next/router';
 import cn from 'classnames';
 
 import ArchiveIcon from 'components/icons/archive';
-import UnarchiveIcon from 'components/icons/unarchive';
 import ArrowBackIcon from 'components/icons/arrow-back';
+import UnarchiveIcon from 'components/icons/unarchive';
 
 export interface ControlsProps {
-  archiving: boolean;
+  disabled: boolean;
   archived: boolean;
   archive: () => void;
 }
 
 export default function Controls({
-  archiving,
+  disabled,
   archived,
   archive,
 }: ControlsProps): JSX.Element {
@@ -46,7 +46,7 @@ export default function Controls({
       </button>
       <button
         onClick={archive}
-        disabled={archiving}
+        disabled={disabled}
         className='reset button'
         type='button'
       >
@@ -83,6 +83,10 @@ export default function Controls({
 
         .button:hover {
           background: var(--accents-2);
+        }
+
+        .button:disabled {
+          cursor: wait;
         }
 
         .button :global(svg) {

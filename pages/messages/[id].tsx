@@ -100,7 +100,7 @@ export default function MessagePage(): JSX.Element {
   return (
     <Page name='Message' login>
       <Controls
-        archiving={archiving}
+        disabled={!data || archiving}
         archived={message.archived}
         archive={archive}
       />
