@@ -95,6 +95,10 @@ export class Message extends Subscription implements MessageInterface {
     return new Message(clone(this));
   }
 
+  public set resume(resume: boolean) {}
+
+  public set quickRead(quickRead: boolean) {}
+
   public get resume(): boolean {
     return this.scroll > 0;
   }
