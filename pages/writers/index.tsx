@@ -101,8 +101,8 @@ export default function WritersPage(): JSX.Element {
         <style jsx>{`
           ul {
             list-style: none;
-            margin: 24px;
             padding: 0;
+            margin: 0;
           }
         `}</style>
       </Layout>
