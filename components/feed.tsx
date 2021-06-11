@@ -5,7 +5,6 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
-import Button from 'components/button';
 import Empty from 'components/empty';
 import Section from 'components/section';
 
@@ -44,7 +43,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     [query]
   );
 
-  const { data, isValidating, setSize } = useSWRInfinite<MessagesRes>(getKey, {
+  const { data, setSize } = useSWRInfinite<MessagesRes>(getKey, {
     revalidateAll: true,
   });
 
@@ -74,15 +73,12 @@ export default function Feed(query: MessagesQuery): JSX.Element {
 
   return (
     <InfiniteScroll
-      dataLength={data?.flat().length || 0} //This is important field to render the next data
+      dataLength={data?.flat().length || 0}
       next={() => setSize((prev) => prev + 1)}
-      hasMore={true}
-      loader={<h4>Loading...</h4>}
-      endMessage={
-        <p style={{ textAlign: 'center' }}>
-          <b>Yay! You have seen it all</b>
-        </p>
-      }
+      hasMore={!data || data[data.length - 1].length === 10}
+      style={{ overflow: undefined }}
+      scrollThreshold={0.65} 
+      loader={<Section />}
     >
       <Head>
         <link rel='preload' href='/api/messages' as='fetch' />
@@ -91,12 +87,6 @@ export default function Feed(query: MessagesQuery): JSX.Element {
       {!data && <Section />}
       {sections.map((s) => <FeedSection key={s.date.toJSON()} {...s} />)}
       {data && !sections.length && <Empty>No messages to show</Empty>}
-      <Button
-        disabled={isValidating}
-        onClick={() => setSize((prev) => prev + 1)}
-      >
-        Load more messages
-      </Button>
     </InfiniteScroll>
   );
 }

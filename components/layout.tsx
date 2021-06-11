@@ -48,12 +48,8 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
           width: 0;
         }
 
-        .wrapper > :global(.empty) {
+        .wrapper :global(.empty) {
           height: 400px;
-        }
-        
-        .wrapper > :global(button) {
-          width: 100%;
         }
         
         .spacer {
