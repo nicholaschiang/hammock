@@ -48,7 +48,7 @@ export type MessageFirestore = Omit<
   MessageInterface,
   keyof Subscription | 'date'
 > &
-  SubscriptionFirestore & { date: Timestamp };
+  SubscriptionFirestore & { date: Timestamp; quickRead: boolean; resume: boolean };
 
 export function isMessageJSON(json: unknown): json is MessageJSON {
   const stringFields = ['id', 'subject', 'snippet', 'raw', 'html'];
@@ -95,6 +95,14 @@ export class Message extends Subscription implements MessageInterface {
     return new Message(clone(this));
   }
 
+  public get resume(): boolean {
+    return this.scroll > 0;
+  }
+
+  public get quickRead(): boolean {
+    return this.time < 10;
+  }
+
   public toString(): string {
     return `Message (${this.id})`;
   }
@@ -120,6 +128,8 @@ export class Message extends Subscription implements MessageInterface {
       ...this,
       ...super.toFirestore(),
       date: (this.date as unknown) as Timestamp,
+      quickRead: this.quickRead,
+      resume: this.resume,
     });
   }
 
