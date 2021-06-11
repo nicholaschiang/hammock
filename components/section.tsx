@@ -53,6 +53,10 @@ export default function Section({ messages, header, date }: Partial<SectionProps
           padding-bottom: 24px;
         }
 
+        .section:last-of-type > .messages {
+          padding-bottom: 0;
+        }
+
         .header > .line {
           border-bottom: 2px solid var(--accents-2);
           margin: 24px 0;
