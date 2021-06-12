@@ -62,7 +62,7 @@ export default function Button({
         button:not(:disabled):hover {
           --border-color: var(--primary);
           color: var(--primary);
-          background: transparent;
+          background: var(--background);
           border-color: var(--border-color);
         }
 
