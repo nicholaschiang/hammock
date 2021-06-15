@@ -9,7 +9,7 @@ const confirmSubjects = [
 
 export default function getQuery(user: User): string {
   const filters = [
-    `-subject:(${confirmSubjects.join(' OR ')})`,
+    `-subject:(${confirmSubjects.map((s) => `"${s}"`).join(' OR ')})`,
     `from:(${user.subscriptionEmails.join(' OR ')})`,
   ];
   return filters.join(' ');
