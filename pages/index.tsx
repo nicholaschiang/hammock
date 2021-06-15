@@ -125,7 +125,7 @@ function Header(): JSX.Element {
         }
         
         a::after {
-          content: '🡢';
+          content: '->';
           display: inline-block;
           transform: translate(6px);
           transition: transform 0.2s ease 0s;
