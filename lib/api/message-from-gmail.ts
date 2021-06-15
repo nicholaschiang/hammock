@@ -28,7 +28,7 @@ function hasWhitelistDomain(email: string) {
 }
 
 function getIcon(name: string, email: string): string {
-  const result = whitelist.find((l) => l.name.toLowerCase() === name.toLowerCase());
+  const result = whitelist.find((l) => l.email.toLowerCase() === email.toLowerCase() || l.name.toLowerCase() === name.toLowerCase());
   if (result?.icon) return result.icon;
   let domain = email.slice(email.indexOf('@') + 1);
   if (domain.startsWith('e.')) {
@@ -160,7 +160,7 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
 
   const { name, email, photo } = parseFrom(getHeader('from'));
   let category: Category | undefined;
-  if (whitelist[name.toLowerCase()] || hasWhitelistDomain(email)) {
+  if (whitelist.some((l) => l.email.toLowerCase() === email.toLowerCase() || l.name.toLowerCase() === name.toLowerCase()) || hasWhitelistDomain(email)) {
     category = 'important';
   } else if (getHeader('list-unsubscribe')) {
     category = 'other';
