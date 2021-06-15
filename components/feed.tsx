@@ -1,15 +1,16 @@
-import { mutate, useSWRInfinite } from 'swr';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { mutate } from 'swr';
 
-import { MessagesQuery, MessagesRes } from 'pages/api/messages';
+import { MessagesQuery } from 'pages/api/messages';
 
 import Empty from 'components/empty';
 import Section from 'components/section';
 
 import { MessageJSON } from 'lib/model/message';
 import { isSameDay } from 'lib/utils';
+import useMessages from 'lib/hooks/messages';
 import useNow from 'lib/hooks/now';
 
 interface FeedSectionProps {
@@ -29,23 +30,7 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
 }
 
 export default function Feed(query: MessagesQuery): JSX.Element {
-  const getKey = useCallback(
-    (pageIdx: number, prev: MessagesRes | null) => {
-      const params = new URLSearchParams(query);
-      if (prev && !prev.length) return null;
-      if (!prev || pageIdx === 0) {
-        const queryString = params.toString();
-        return queryString ? `/api/messages?${queryString}` : '/api/messages';
-      }
-      params.append('lastMessageId', prev[prev.length - 1].id);
-      return `/api/messages?${params.toString()}`;
-    },
-    [query]
-  );
-
-  const { data, setSize } = useSWRInfinite<MessagesRes>(getKey, {
-    revalidateAll: true,
-  });
+  const { data, setSize } = useMessages(query);
 
   useEffect(() => {
     data?.flat().forEach((message) => {
