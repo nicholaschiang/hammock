@@ -4,6 +4,7 @@ module.exports = {
   i18n: { locales: ['en-US'], defaultLocale: 'en-US' },
   images: {
     domains: [
+      'cdn.substack.com',
       'assets.tutorbook.org',
       'lh3.googleusercontent.com',
       'www.google.com',
