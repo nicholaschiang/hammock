@@ -8,13 +8,28 @@ import readingTime from 'reading-time';
 import utf8 from 'utf8';
 
 import { Category, Contact } from 'lib/model/subscription';
-import { hasWhitelistDomain, whitelist } from 'lib/whitelist';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';
+import whitelist from 'lib/whitelist.json';
+
+function hasWhitelistDomain(email: string) {
+  const domain = email.slice(email.indexOf('@') + 1);
+  return [
+    'substack.com',
+    'every.to',
+    'stratechery.com',
+    '2pml.com',
+    'cassidoo.co',
+    'e.newyorktimes.com',
+    'atlasobscura.com',
+    'e.economist.com',
+    'getrevue.co',
+  ].includes(domain.toLowerCase());
+}
 
 function getIcon(name: string, email: string): string {
-  const result = whitelist[name.toLowerCase()];
-  if (result && result !== true && result.asset_url) return result.asset_url;
+  const result = whitelist.find((l) => l.name.toLowerCase() === name.toLowerCase());
+  if (result?.icon) return result.icon;
   let domain = email.slice(email.indexOf('@') + 1);
   if (domain.startsWith('e.')) {
     domain = domain.slice(2);
