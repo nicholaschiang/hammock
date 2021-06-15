@@ -2545,6 +2545,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bluebird@npm:^3.5.1":
+  version: 3.7.2
+  resolution: "bluebird@npm:3.7.2"
+  checksum: 4f2288662f3d4eadbb82d4daa4a7d7976a28fa3c7eb4102c9b4033b03e5be4574ba123ac52a7c103cde4cb7b2d2afc1dbe41817ca15a29ff21ecd258d0286047
+  languageName: node
+  linkType: hard
+
 "bluebird@npm:~3.4.1":
   version: 3.4.7
   resolution: "bluebird@npm:3.4.7"
@@ -3958,6 +3965,19 @@ __metadata:
   bin:
     csv-streamify: cli.js
   checksum: a61ab1ebd35fcde52b1d2d6bd634044ee27e95e10babe28bb1b811ebd3bfff878e0554a8e6cb9de64240c889cf82f9fee00869c5545c7bbb60ab5814c6a1a711
+  languageName: node
+  linkType: hard
+
+"csvtojson@npm:^2.0.10":
+  version: 2.0.10
+  resolution: "csvtojson@npm:2.0.10"
+  dependencies:
+    bluebird: ^3.5.1
+    lodash: ^4.17.3
+    strip-bom: ^2.0.0
+  bin:
+    csvtojson: ./bin/csvtojson
+  checksum: 44c83d3a0b2171905c1edb616c97945f9135c996e5a0c1250fb16030a6ceae60be0074419e5658d29ce901c8657759cb48fad8114cbe87b2144e2c3490f9ab7f
   languageName: node
   linkType: hard
 
@@ -7390,6 +7410,13 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
+"is-utf8@npm:^0.2.0":
+  version: 0.2.1
+  resolution: "is-utf8@npm:0.2.1"
+  checksum: c72f604d72b72f6a57f9b2e22c9b6f480e869b3f0efe141bd1dfbc36655225043ca8c1316ff8e343ef641cf80868c9e4a37345492f31402abd5ab68e09367977
+  languageName: node
+  linkType: hard
+
 "is-windows@npm:^0.2.0":
   version: 0.2.0
   resolution: "is-windows@npm:0.2.0"
@@ -8186,7 +8213,7 @@ fsevents@~2.3.1:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.21, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
+"lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.21, lodash@npm:^4.17.3, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.3.0, lodash@npm:^4.7.0":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 4983720b9abca930a4a46f18db163d7dad8dd00dbed6db0cc7b499b33b717cce69f80928b27bbb1ff2cbd3b19d251ee90669a8b5ea466072ca81c2ebe91e7468
@@ -8849,6 +8876,7 @@ fsevents@~2.3.1:
     classnames: ^2.3.1
     cookie: ^0.4.1
     cross-env: ^7.0.3
+    csvtojson: ^2.0.10
     dequal: ^2.0.2
     dompurify: ^2.2.9
     eslint: ^7.28.0
@@ -11806,6 +11834,15 @@ resolve@^2.0.0-next.3:
   dependencies:
     ansi-regex: ^4.1.0
   checksum: 44a0d0d354f5f7b15f83323879a9112ea746daae7bef0b68238a27626ee757d9a04ce6590433841e14b325e8e7c5d62b8442885e50497e21b7cbca6da40d54ea
+  languageName: node
+  linkType: hard
+
+"strip-bom@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "strip-bom@npm:2.0.0"
+  dependencies:
+    is-utf8: ^0.2.0
+  checksum: d488310c44b2a089d1d2ff54e90198eb8d32e6d2016ae811c732b1a6472dea15ae72dc21ee35ee6729cf71e9b663b3216d3e48cd1e5fba3b6093fd0b19ae7d0b
   languageName: node
   linkType: hard
 
