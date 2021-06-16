@@ -213,57 +213,60 @@ function SubscriptionRow({
   onSelected,
 }: SubscriptionRowProps): JSX.Element {
   return (
-    <li
-      onClick={onSelected ? () => onSelected(!selected) : undefined}
-      className={cn({ disabled: !onSelected })}
-    >
-      <Avatar
-        src={subscription?.from.photo}
-        loading={!subscription}
-        size={36}
-      />
-      {!subscription && <span className='name loading' />}
-      {subscription && (
-        <span className='name nowrap'>{subscription.from.name}</span>
-      )}
-      <span className='check'>
-        <input
-          disabled={!onSelected}
-          checked={selected}
-          type='checkbox'
-          readOnly
+    <li>
+      <button type='button' className='reset' disabled={!onSelected} onClick={onSelected ? () => onSelected(!selected) : undefined}>
+        <Avatar
+          src={subscription?.from.photo}
+          loading={!subscription}
+          size={36}
         />
-        <span className='icon' aria-hidden='true'>
-          <svg viewBox='0 0 24 24' height='24' width='24' fill='none'>
-            {selected && (
-              <path
-                d='M14 7L8.5 12.5L6 10'
-                stroke='var(--on-primary)'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              />
-            )}
-          </svg>
+        {!subscription && <span className='name loading' />}
+        {subscription && (
+          <span className='name nowrap'>{subscription.from.name}</span>
+        )}
+        <span className='check'>
+          <input
+            disabled={!onSelected}
+            checked={selected}
+            type='checkbox'
+            readOnly
+          />
+          <span className='icon' aria-hidden='true'>
+            <svg viewBox='0 0 24 24' height='24' width='24' fill='none'>
+              {selected && (
+                <path
+                  d='M14 7L8.5 12.5L6 10'
+                  stroke='var(--on-primary)'
+                  strokeWidth='2'
+                  strokeLinecap='round'
+                  strokeLinejoin='round'
+                />
+              )}
+            </svg>
+          </span>
         </span>
-      </span>
+      </button>
       <style jsx>{`
         li {
-          display: flex;
-          align-items: center;
           margin: 16px 0;
-          cursor: pointer;
-        }
-
-        li.disabled {
-          cursor: wait;
         }
 
         li:first-child {
           margin-top: 0;
         }
 
-        li > :global(.avatar) {
+        button {
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          width: 100%;
+        }
+
+        button:disabled {
+          cursor: wait;
+        }
+
+        button > :global(.avatar) {
           flex: none;
         }
 
