@@ -84,8 +84,9 @@ export default function WritersPage(): JSX.Element {
       if (a.from.name > b.from.name) return 1;
       return 0;
     }
-    const idxA = data.flat().findIndex((l) => l.from.email === a.from.email);
-    const idxB = data.flat().findIndex((l) => l.from.email === b.from.email);
+    const messages = data.flat().sort((c, d) => new Date(d.date).valueOf() - new Date(c.date).valueOf());
+    const idxA = messages.findIndex((l) => l.from.email === a.from.email);
+    const idxB = messages.findIndex((l) => l.from.email === b.from.email);
     // B goes after A because B isn't in the feed
     if (idxA !== -1 && idxB === -1) return -1;
     // A goes after B because A isn't in the feed
