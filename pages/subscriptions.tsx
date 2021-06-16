@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Router from 'next/router';
-import cn from 'classnames';
 import { dequal } from 'dequal';
 
 import { SubscriptionsRes } from 'pages/api/subscriptions';
