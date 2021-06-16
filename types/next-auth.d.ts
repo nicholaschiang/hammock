@@ -11,7 +11,6 @@ declare module 'next-auth' {
    * @see {@link https://next-auth.js.org/getting-started/typescript}
    */
   interface User extends UserJSON {};
-  interface JWT extends UserJSON {};
  
   /**
    * @typedef {Object} Session
