@@ -79,10 +79,26 @@ export default function WritersPage(): JSX.Element {
   const { data } = useMessages();
 
   const subscriptions = useMemo(() => user.subscriptions.sort((a, b) => {
-    const idxA = data?.flat().findIndex((l) => l.from.email === a.from.email);
-    const idxB = data?.flat().findIndex((l) => l.from.email === b.from.email);
-    if (!idxA || !idxB) return 0;
+    if (!data) {
+      if (a.from.name < b.from.name) return -1;
+      if (a.from.name > b.from.name) return 1;
+      return 0;
+    }
+    const idxA = data.flat().findIndex((l) => l.from.email === a.from.email);
+    const idxB = data.flat().findIndex((l) => l.from.email === b.from.email);
+    // B goes after A because B isn't in the feed
+    if (idxA !== -1 && idxB === -1) return -1;
+    // A goes after B because A isn't in the feed
+    if (idxA === -1 && idxB !== -1) return 1;
+    // Neither are in the feed; sort alphabetically.
+    if (idxA === -1 && idxB === -1) {
+      if (a.from.name < b.from.name) return -1;
+      if (a.from.name > b.from.name) return 1;
+      return 0;
+    }
+    // B goes after A because it appears later in the feed
     if (idxA < idxB) return -1;
+    // A goes after B because it appears later in the feed
     if (idxA > idxB) return 1;
     return 0;
   }), [data, user.subscriptions]);
