@@ -69,13 +69,18 @@ export default NextAuth({
         created.filter = res?.filter || await getOrCreateFilter(created);
         logger.verbose(`Creating document for ${created}...`);
         await Promise.all([updateUserDoc(created), syncGmail(created)]);
-        return { ...token, ...created };
       }
-      const existing = await getUser(token.sub || '');
-      return { ...token, ...existing };
+      // Don't include user data in the JWT because it's larger than the max
+      // cookie payload size supported by most browsers (~4096 bytes).
+      // @see {@link https://next-auth.js.org/faq#what-are-the-disadvantages-of-json-web-tokens}
+      // @see {@link http://browsercookielimits.iain.guru/}
+      return token;
     },
-    session(session, token) {
-      const user = User.fromJSON(token as UserJSON);
+    async session(session, token) {
+      // Instead of including user data in the JWT itself (because of cookie
+      // payload size limits), I fetch that data from our database here.
+      // @see {@link https://next-auth.js.org/configuration/callbacks#session-callback}
+      const user = await getUser((token as { sub: string }).sub);
       logger.verbose(`Fetching session for ${user}...`);
       return { ...session, user: user.toJSON() };
     },
