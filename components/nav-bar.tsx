@@ -185,7 +185,7 @@ export default function NavBar(): JSX.Element {
             Send feedback
           </MenuLink>
           <MenuLink href='https://www.notion.so/readhammock/Help-Support-9b6bb1da1d6d4887ad3631f32d7741de'>
-            Help center
+            Help
           </MenuLink>
           <MenuLink href='/about'>About</MenuLink>
           <div className='line' />
