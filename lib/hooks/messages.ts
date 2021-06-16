@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
-export default function useMessages(query: MessagesQuery): SWRInfiniteResponse<MessagesRes> {
+export default function useMessages(query: MessagesQuery = {}): SWRInfiniteResponse<MessagesRes> {
   const getKey = useCallback(
     (pageIdx: number, prev: MessagesRes | null) => {
       const params = new URLSearchParams(query);
