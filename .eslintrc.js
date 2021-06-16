@@ -8,12 +8,12 @@ module.exports = {
     project: [path.resolve(__dirname, 'tsconfig.json')],
   },
   extends: [
-    'next',
     'airbnb-typescript',
     'airbnb/hooks',
     'plugin:@typescript-eslint/eslint-recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:@next/next/recommended',
     'plugin:promise/recommended',
     'prettier',
   ],
