@@ -8,6 +8,7 @@ import Layout from 'components/layout';
 import Page from 'components/page';
 
 import { Contact } from 'lib/model/subscription';
+import useMessages from 'lib/hooks/messages';
 import { useUser } from 'lib/context/user';
 
 interface WriterRowProps {
@@ -75,7 +76,17 @@ function WriterRow({ writer }: WriterRowProps): JSX.Element {
 
 export default function WritersPage(): JSX.Element {
   const { user, loggedIn } = useUser();
-  
+  const { data } = useMessages();
+
+  const subscriptions = useMemo(() => user.subscriptions.sort((a, b) => {
+    const idxA = data?.flat().findIndex((l) => l.from.email === a.from.email);
+    const idxB = data?.flat().findIndex((l) => l.from.email === b.from.email);
+    if (!idxA || !idxB) return 0;
+    if (idxA < idxB) return -1;
+    if (idxA > idxB) return 1;
+    return 0;
+  }), [data, user.subscriptions]);
+
   const loadingList = useMemo(
     () =>
       Array(5)
@@ -88,14 +99,14 @@ export default function WritersPage(): JSX.Element {
     <Page name='Writers' login sync>
       <Layout>
         {!loggedIn && <ul>{loadingList}</ul>}
-        {loggedIn && !!user.subscriptions.length && (
+        {loggedIn && !!subscriptions.length && (
           <ul>
-            {user.subscriptions.map(({ from: writer }) => (
+            {subscriptions.map(({ from: writer }) => (
               <WriterRow key={writer.email} writer={writer} />
             ))}
           </ul>
         )}
-        {loggedIn && !user.subscriptions.length && (
+        {loggedIn && !subscriptions.length && (
           <Empty>No writers to show.</Empty>
         )}
         <style jsx>{`
