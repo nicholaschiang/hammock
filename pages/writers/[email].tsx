@@ -3,6 +3,7 @@ import { useEffect, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { mutate } from 'swr';
 
+import Empty from 'components/empty';
 import Layout from 'components/layout';
 import MessageRow from 'components/message-row';
 import Page from 'components/page';
@@ -48,6 +49,9 @@ export default function WritersPage(): JSX.Element {
         {!loggedIn && <Section />}
         {loggedIn && (
           <Section header={writer?.from.name} messages={data?.flat()} date />
+        )}
+        {loggedIn && data && !data?.flat().length && (
+          <Empty>You’re all caught up with your reading!</Empty>
         )}
         </InfiniteScroll>
       </Layout>
