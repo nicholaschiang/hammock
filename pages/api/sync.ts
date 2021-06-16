@@ -11,7 +11,7 @@ import verifyAuth from 'lib/api/verify/auth';
  *
  * Requires a JWT; will sync the Gmail messages for that user.
  */
-export default async function sync(
+export default async function syncAPI(
   req: Req,
   res: Res<APIErrorJSON>
 ): Promise<void> {

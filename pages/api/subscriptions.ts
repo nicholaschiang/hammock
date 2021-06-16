@@ -20,7 +20,7 @@ export type SubscriptionsRes = {
  *
  * Requires a JWT; will return the subscriptions for that user.
  */
-export default async function subscriptions(
+export default async function subscriptionsAPI(
   req: Req,
   res: Res<SubscriptionsRes | APIErrorJSON>
 ): Promise<void> {
@@ -39,19 +39,17 @@ export default async function subscriptions(
         pageToken,
       });
       const messageIds = (data.messages || []).map((m) => m.id as string);
-      const subscriptionsData: Subscription[] = [];
+      const subscriptions: Subscription[] = [];
       (await getGmailMessages(messageIds, client, 'METADATA')).forEach((m) => {
         const msg = messageFromGmail(m);
-        if (!subscriptionsData.some((l) => l.from.email === msg.from.email))
-          subscriptionsData.push(msg);
+        if (!subscriptions.some((l) => l.from.email === msg.from.email))
+          subscriptions.push(msg);
       });
       res.status(200).json({
-        subscriptions: subscriptionsData.map((s) => s.toJSON()),
+        subscriptions: subscriptions.map((s) => s.toJSON()),
         nextPageToken: data.nextPageToken || '',
       });
-      logger.info(
-        `Fetched ${subscriptionsData.length} subscriptions for ${user}.`
-      );
+      logger.info(`Fetched ${subscriptions.length} subscriptions for ${user}.`);
       segment.track({ userId: user.id, event: 'Subscriptions Listed' });
     } catch (e) {
       handle(e, res);

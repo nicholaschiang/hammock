@@ -28,6 +28,12 @@ export default function WritersPage(): JSX.Element {
     });
   }, [data]);
 
+  const loader = useMemo(() => {
+    const empty = Array(3).fill(null);
+    // eslint-disable-next-line react/no-array-index-key
+    return empty.map((_, idx) => <MessageRow key={idx} loading />);
+  }, []);
+
   return (
     <Page name='Writers' login sync>
       <Layout>
@@ -37,7 +43,7 @@ export default function WritersPage(): JSX.Element {
           hasMore={!data || data[data.length - 1].length === 10}
           style={{ overflow: undefined }}
           scrollThreshold={0.65} 
-          loader={Array(3).fill(null).map((_, idx) => <MessageRow key={idx} loading />)}
+          loader={loader}
         >
         {!loggedIn && <Section />}
         {loggedIn && (

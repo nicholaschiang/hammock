@@ -361,7 +361,7 @@ export default function SubscriptionsPage(): JSX.Element {
       void fetch('/api/sync');
       await Router.push('/feed');
     } catch (e) {
-      setError(period(e.message));
+      setError(period((e as Error).message));
     }
   }, [user, setUserMutated, setLoading, setError]);
 
@@ -373,13 +373,11 @@ export default function SubscriptionsPage(): JSX.Element {
     () => subscriptions.filter((s) => s.category === 'important'),
     [subscriptions]
   );
-  const loadingList = useMemo(
-    () =>
-      Array(5)
-        .fill(null)
-        .map((_, idx) => <SubscriptionRow key={idx} />),
-    []
-  );
+  const loader = useMemo(() => {
+    const empty = Array(5).fill(null);
+    // eslint-disable-next-line react/no-array-index-key
+    return empty.map((_, idx) => <SubscriptionRow key={idx} />);
+  }, []);
 
   // TODO: Ensure that all of the previously selected subscriptions show up in
   // the newsletter list so that users can unselect them as needed (i.e. even if
@@ -441,7 +439,7 @@ export default function SubscriptionsPage(): JSX.Element {
             ))}
           </ul>
         )}
-        {!data && <ul>{loadingList}</ul>}
+        {!data && <ul>{loader}</ul>}
         {data && !important.length && <Empty>No newsletters found.</Empty>}
         <h2>Other subscriptions, including promotions</h2>
         {!!other.length && (
@@ -471,7 +469,7 @@ export default function SubscriptionsPage(): JSX.Element {
             ))}
           </ul>
         )}
-        {!data && <ul>{loadingList}</ul>}
+        {!data && <ul>{loader}</ul>}
         {data && !other.length && <Empty>No subscriptions found.</Empty>}
         <Button disabled={!data || loading || !user.subscriptions.length} onClick={onSave}>
           Save subscriptions

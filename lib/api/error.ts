@@ -5,7 +5,7 @@ import { GaxiosError } from 'gaxios';
 import { APIError } from 'lib/model/error';
 import logger from 'lib/api/logger';
 
-function send(e: APIError, res: ServerResponse): void {
+export function send(e: APIError, res: ServerResponse): void {
   const stringified = JSON.stringify(e);
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Content-Length', Buffer.byteLength(stringified));
@@ -16,7 +16,7 @@ function send(e: APIError, res: ServerResponse): void {
 
 export function handle(e: unknown, res: ServerResponse): void {
   if (!(e instanceof APIError) || e.code !== 401) {
-    logger.error(`API encountered: ${(e as any)?.stack}`);
+    logger.error(`API encountered: ${(e as Error)?.stack || ''}`);
   } else {
     logger.error(`API encountered: ${e.code} ${e.toString()}`);
   }

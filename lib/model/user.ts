@@ -1,5 +1,5 @@
 import { Subscription, SubscriptionFirestore, SubscriptionJSON, isSubscriptionJSON } from 'lib/model/subscription';
-import { isJSON, isArray } from 'lib/model/json';
+import { isArray, isJSON } from 'lib/model/json';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';

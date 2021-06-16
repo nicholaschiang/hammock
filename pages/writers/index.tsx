@@ -87,18 +87,16 @@ export default function WritersPage(): JSX.Element {
     return 0;
   }), [data, user.subscriptions]);
 
-  const loadingList = useMemo(
-    () =>
-      Array(5)
-        .fill(null)
-        .map((_, idx) => <WriterRow key={idx} />),
-    []
-  );
+  const loader = useMemo(() => {
+    const empty = Array(5).fill(null);
+    // eslint-disable-next-line react/no-array-index-key
+    return empty.map((_, idx) => <WriterRow key={idx} />);
+  }, []);
   
   return (
     <Page name='Writers' login sync>
       <Layout>
-        {!loggedIn && <ul>{loadingList}</ul>}
+        {!loggedIn && <ul>{loader}</ul>}
         {loggedIn && !!subscriptions.length && (
           <ul>
             {subscriptions.map(({ from: writer }) => (

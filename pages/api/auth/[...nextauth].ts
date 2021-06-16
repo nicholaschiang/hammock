@@ -63,7 +63,7 @@ export default NextAuth({
           locale: profile.locale || user.locale,
           token: account.refresh_token,
         });
-        const [_, res] = await to(getUser(created.id));
+        const res = (await to(getUser(created.id)))[1];
         created.subscriptions = res?.subscriptions || [];
         created.label = res?.label || await getOrCreateLabel(created);
         created.filter = res?.filter || await getOrCreateFilter(created);

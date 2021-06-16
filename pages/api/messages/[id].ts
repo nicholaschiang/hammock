@@ -68,7 +68,7 @@ async function updateMessage(
  *
  * Requires a JWT; will try to fetch the message from that user's data.
  */
-export default async function message(
+export default async function messageAPI(
   req: Req,
   res: Res<MessageRes | APIErrorJSON>
 ): Promise<void> {

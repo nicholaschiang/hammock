@@ -12,7 +12,7 @@ import verifyAuth from 'lib/api/verify/auth';
  *
  * Requires a JWT.
  */
-export default async function redirect(
+export default async function redirectAPI(
   req: Req,
   res: Res<APIErrorJSON>
 ): Promise<void> {

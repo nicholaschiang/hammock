@@ -6,6 +6,6 @@
  */
 export default function definedVals<T>(obj: T): T {
   return Object.fromEntries(
-    Object.entries(obj).filter(([_, val]) => val !== undefined)
+    Object.entries(obj).filter((entry) => entry[1] !== undefined)
   ) as T;
 }

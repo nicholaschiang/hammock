@@ -64,7 +64,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
  *
  * Requires a JWT; will return the profile data of that user.
  */
-export default async function account(
+export default async function accountAPI(
   req: Req,
   res: Res<UserJSON | APIErrorJSON>
 ): Promise<void> {

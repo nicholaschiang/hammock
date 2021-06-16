@@ -23,7 +23,7 @@ export default function Section({ messages, header, date }: Partial<SectionProps
             date={date}
             loading={!m}
             message={m ? Message.fromJSON(m) : undefined} 
-            key={m ? m.id : idx} 
+            key={m ? (m as MessageJSON).id : idx} 
           />
         ))}
       </div>

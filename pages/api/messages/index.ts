@@ -23,7 +23,7 @@ export type MessagesRes = MessageJSON[];
  *
  * Requires a JWT; will return the messages for that user.
  */
-export default async function messages(
+export default async function messagesAPI(
   req: Req,
   res: Res<MessagesRes | APIErrorJSON>
 ): Promise<void> {
@@ -52,13 +52,13 @@ export default async function messages(
         query = query.startAfter(lastMessageDoc);
       }
       const { docs } = await query.get();
-      const messagesData = docs.map((d) => Message.fromFirestoreDoc(d));
-      res.status(200).json(messagesData.map((m) => m.toJSON()));
-      logger.info(`Fetched ${messagesData.length} messages for ${user}.`);
+      const messages = docs.map((d) => Message.fromFirestoreDoc(d));
+      res.status(200).json(messages.map((m) => m.toJSON()));
+      logger.info(`Fetched ${messages.length} messages for ${user}.`);
       segment.track({
         userId: user.id,
         event: 'Messages Listed',
-        properties: messagesData.map((m) => m.toSegment()),
+        properties: messages.map((m) => m.toSegment()),
       });
     } catch (e) {
       handle(e, res);

@@ -21,7 +21,7 @@ export default function construct<T extends S, S = unknown>(
         vval === undefined ||
         base[kkey] === undefined ||
         typeof vval === typeof base[kkey];
-      /* eslint-disable-next-line no-param-reassign */
+      // eslint-disable-next-line no-param-reassign
       if (valid) base[kkey] = vval;
     }
   });

@@ -9,8 +9,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "style": "pretty-quick",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "analyze": "cross-env ANALYZE=true next build"
   },
   "repository": {
@@ -75,6 +75,7 @@
     "eslint": "^7.28.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-config-next": "^11.0.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-plugin-import": "^2.23.4",

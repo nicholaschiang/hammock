@@ -95,13 +95,15 @@ export class Message extends Subscription implements MessageInterface {
     return new Message(clone(this));
   }
 
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function 
   public set resume(resume: boolean) {}
-
-  public set quickRead(quickRead: boolean) {}
-
+  
   public get resume(): boolean {
     return this.scroll > 0;
   }
+  
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function 
+  public set quickRead(quickRead: boolean) {}
 
   public get quickRead(): boolean {
     return this.time < 5;

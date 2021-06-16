@@ -84,11 +84,6 @@ export default function Page({ name, title, sync, login, children }: PageProps):
         <link rel='apple-touch-icon' href='/images/webclip.png' />
         <link rel='preconnect' href='https://cdn.segment.com' />
         <link rel='preconnect' href='https://api.segment.io' />
-        <link rel='preconnect' href='https://fonts.gstatic.com' />
-        <link
-          href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap'
-          rel='stylesheet'
-        />
         <script dangerouslySetInnerHTML={{ __html: segmentSnippet }} />
         <link rel='preload' href='/api/account' as='fetch' />
       </Head>

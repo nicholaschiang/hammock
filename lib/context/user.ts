@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-import { Callback, CallbackParam } from 'lib/model/callback';
+import { Callback } from 'lib/model/callback';
 import { User } from 'lib/model/user';
 
 export interface UserContextValue {
@@ -12,8 +12,8 @@ export interface UserContextValue {
 
 export const UserContext = createContext<UserContextValue>({
   user: new User(),
-  setUser: (param: CallbackParam<User>) => {},
-  setUserMutated: (param: CallbackParam<boolean>) => {},
+  setUser: () => {},
+  setUserMutated: () => {},
   loggedIn: undefined,
 });
 
