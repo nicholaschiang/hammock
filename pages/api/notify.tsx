@@ -43,6 +43,10 @@ export default async function notifyAPI(
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
   } else {
     try {
+      if (typeof req.query.token !== 'string') 
+        throw new APIError('Missing authentication token', 401);
+      if (req.query.token !== process.env.NOTIFY_TOKEN) 
+        throw new APIError('Invalid authentication token', 401);
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       logger.info('Fetching users...');
@@ -76,6 +80,7 @@ export default async function notifyAPI(
         throw new APIError('Missing SendGrid API key', 401);
       mail.setApiKey(process.env.SENDGRID_API_KEY);
       await mail.send(emails);
+      res.status(200).end();
     } catch (e) {
       handle(e, res);
     }
