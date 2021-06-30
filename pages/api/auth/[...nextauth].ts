@@ -16,10 +16,12 @@ export default NextAuth({
       clientId: process.env.OAUTH_CLIENT_ID,
       clientSecret: process.env.OAUTH_CLIENT_SECRET,
       authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?prompt=consent&access_type=offline&response_type=code',
+      // These are the Gmail scopes that Hammock requires in order to function.
+      // @see {@link https://developers.google.com/identity/protocols/oauth2/scopes#gmail}
       scope: [
         'https://www.googleapis.com/auth/userinfo.email',
         'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/gmail.modify',
+        'https://www.googleapis.com/auth/gmail.readonly',
         'https://www.googleapis.com/auth/gmail.settings.basic',
         'https://www.googleapis.com/auth/gmail.labels',
       ].join(' '),
