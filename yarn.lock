@@ -1540,7 +1540,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^17.0.11":
+"@types/react-dom@npm:^17.0.8":
+  version: 17.0.8
+  resolution: "@types/react-dom@npm:17.0.8"
+  dependencies:
+    "@types/react": "*"
+  checksum: 3859a6e06ec4545319c159ea71814beb3822801f0d4c41219855258557722cbcec8b5fba84551489169ec228b8817b4c05a8ef0dc87eb2bafb4d1431d1af9608
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:*, @types/react@npm:^17.0.11":
   version: 17.0.11
   resolution: "@types/react@npm:17.0.11"
   dependencies:
@@ -9002,6 +9011,7 @@ fsevents@~2.3.1:
     "@types/nprogress": ^0.2.0
     "@types/phone": ^2.4.1
     "@types/react": ^17.0.11
+    "@types/react-dom": ^17.0.8
     "@types/sharp": ^0.28.3
     "@types/utf8": ^3.0.0
     "@typescript-eslint/eslint-plugin": ^4.27.0
