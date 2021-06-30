@@ -23,6 +23,7 @@
   "dependencies": {
     "@mozilla/readability": "^0.4.1",
     "@segment/analytics.js-core": "^4.1.11",
+    "@sendgrid/mail": "^7.4.5",
     "analytics-node": "^4.0.1",
     "atob": "^2.1.2",
     "await-to-js": "^3.0.0",

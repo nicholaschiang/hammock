@@ -1223,6 +1223,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sendgrid/client@npm:^7.4.3":
+  version: 7.4.3
+  resolution: "@sendgrid/client@npm:7.4.3"
+  dependencies:
+    "@sendgrid/helpers": ^7.4.3
+    axios: ^0.21.1
+  checksum: 657418b9d34f5dfe9e60c2972a9354d73b0457578961e115e1138bcaff5491bc357242e794be4cc55b7f76d3d779449f02e10d76ef957b4995fd4540054232e2
+  languageName: node
+  linkType: hard
+
+"@sendgrid/helpers@npm:^7.4.3":
+  version: 7.4.3
+  resolution: "@sendgrid/helpers@npm:7.4.3"
+  dependencies:
+    deepmerge: ^4.2.2
+  checksum: 1528ff0a19c60e3a0219c28c693a8746b9090387a2971dd9c0a6f78b451b563ea4de6f5d3a53978278146f02db9d4064bb1ccb944a48ec811f280d445f8ca70e
+  languageName: node
+  linkType: hard
+
+"@sendgrid/mail@npm:^7.4.5":
+  version: 7.4.5
+  resolution: "@sendgrid/mail@npm:7.4.5"
+  dependencies:
+    "@sendgrid/client": ^7.4.3
+    "@sendgrid/helpers": ^7.4.3
+  checksum: 8536db1c1d5b450091dfb3593177b99580d4d8db973121088fbdb833c72274295ff12570a6ffcf6d28df736bb20df3973bd8d26dda8b51009eef7117eda452ea
+  languageName: node
+  linkType: hard
+
 "@sindresorhus/is@npm:^0.14.0":
   version: 0.14.0
   resolution: "@sindresorhus/is@npm:0.14.0"
@@ -8961,6 +8990,7 @@ fsevents@~2.3.1:
     "@plaiceholder/base64": ^1.0.0
     "@plaiceholder/css": ^1.0.0
     "@segment/analytics.js-core": ^4.1.11
+    "@sendgrid/mail": ^7.4.5
     "@types/analytics-node": ^3.1.4
     "@types/atob": ^2.1.2
     "@types/cookie": ^0.4.0
