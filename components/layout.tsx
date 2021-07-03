@@ -20,7 +20,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
     if (hourOfDay < 18) return `Good afternoon, ${user.firstName}`;
     return `Good evening, ${user.firstName}`;
   }, [now, user.firstName]);
-  
+
   return (
     <div className='page'>
       <NavBar />
@@ -40,7 +40,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
           padding: 0 24px;
           margin: 96px auto;
         }
-        
+
         .wrapper {
           flex: 1 1 auto;
           max-width: 700px;
@@ -51,7 +51,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
         .wrapper :global(.empty) {
           height: 400px;
         }
-        
+
         .spacer {
           height: 96px;
           width: 100vw;
@@ -75,6 +75,28 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
         header > h1.loading {
           border-radius: 6px;
           max-width: 500px;
+        }
+
+        @media (max-width: 800px) {
+          .page {
+            flex-direction: column;
+            margin: 0 auto 96px;
+          }
+
+          .wrapper {
+            flex: unset;
+            max-width: unset;
+            margin-left: unset;
+            width: unset;
+          }
+
+          .spacer {
+            display: none;
+          }
+
+          header {
+            display: none;
+          }
         }
       `}</style>
     </div>

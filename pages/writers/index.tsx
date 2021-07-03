@@ -20,15 +20,9 @@ function WriterRow({ writer }: WriterRowProps): JSX.Element {
     <Link href={`/writers/${writer?.email}`}>
       <a>
         <li className={cn({ disabled: !writer })}>
-          <Avatar
-            src={writer?.photo}
-            loading={!writer}
-            size={36}
-          />
+          <Avatar src={writer?.photo} loading={!writer} size={36} />
           {!writer && <span className='name loading' />}
-          {writer && (
-            <span className='name nowrap'>{writer?.name}</span>
-          )}
+          {writer && <span className='name nowrap'>{writer?.name}</span>}
         </li>
         <style jsx>{`
           a {
@@ -78,38 +72,46 @@ export default function WritersPage(): JSX.Element {
   const { user, loggedIn } = useUser();
   const { data } = useMessages();
 
-  const subscriptions = useMemo(() => user.subscriptions.sort((a, b) => {
-    if (!data) {
-      if (a.from.name < b.from.name) return -1;
-      if (a.from.name > b.from.name) return 1;
-      return 0;
-    }
-    const messages = data.flat().sort((c, d) => new Date(d.date).valueOf() - new Date(c.date).valueOf());
-    const idxA = messages.findIndex((l) => l.from.email === a.from.email);
-    const idxB = messages.findIndex((l) => l.from.email === b.from.email);
-    // B goes after A because B isn't in the feed
-    if (idxA !== -1 && idxB === -1) return -1;
-    // A goes after B because A isn't in the feed
-    if (idxA === -1 && idxB !== -1) return 1;
-    // Neither are in the feed; sort alphabetically.
-    if (idxA === -1 && idxB === -1) {
-      if (a.from.name < b.from.name) return -1;
-      if (a.from.name > b.from.name) return 1;
-      return 0;
-    }
-    // B goes after A because it appears later in the feed
-    if (idxA < idxB) return -1;
-    // A goes after B because it appears later in the feed
-    if (idxA > idxB) return 1;
-    return 0;
-  }), [data, user.subscriptions]);
+  const subscriptions = useMemo(
+    () =>
+      user.subscriptions.sort((a, b) => {
+        if (!data) {
+          if (a.from.name < b.from.name) return -1;
+          if (a.from.name > b.from.name) return 1;
+          return 0;
+        }
+        const messages = data
+          .flat()
+          .sort(
+            (c, d) => new Date(d.date).valueOf() - new Date(c.date).valueOf()
+          );
+        const idxA = messages.findIndex((l) => l.from.email === a.from.email);
+        const idxB = messages.findIndex((l) => l.from.email === b.from.email);
+        // B goes after A because B isn't in the feed
+        if (idxA !== -1 && idxB === -1) return -1;
+        // A goes after B because A isn't in the feed
+        if (idxA === -1 && idxB !== -1) return 1;
+        // Neither are in the feed; sort alphabetically.
+        if (idxA === -1 && idxB === -1) {
+          if (a.from.name < b.from.name) return -1;
+          if (a.from.name > b.from.name) return 1;
+          return 0;
+        }
+        // B goes after A because it appears later in the feed
+        if (idxA < idxB) return -1;
+        // A goes after B because it appears later in the feed
+        if (idxA > idxB) return 1;
+        return 0;
+      }),
+    [data, user.subscriptions]
+  );
 
   const loader = useMemo(() => {
     const empty = Array(5).fill(null);
     // eslint-disable-next-line react/no-array-index-key
     return empty.map((_, idx) => <WriterRow key={idx} />);
   }, []);
-  
+
   return (
     <Page name='Writers' login sync>
       <Layout>
@@ -129,6 +131,12 @@ export default function WritersPage(): JSX.Element {
             list-style: none;
             padding: 0;
             margin: 0;
+          }
+
+          @media (max-width: 800px) {
+            ul {
+              margin-top: 24px;
+            }
           }
         `}</style>
       </Layout>
