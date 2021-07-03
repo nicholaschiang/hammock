@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "newsletter",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "author": "Nicholas Chiang <nicholas.h.chiang@gmail.com>",
   "homepage": "https://readhammock.com",
   "license": "AGPL-3.0",
