@@ -123,7 +123,7 @@ function Header(): JSX.Element {
           font-size: 18px;
           text-decoration: none;
         }
-        
+
         a::after {
           content: '->';
           display: inline-block;
@@ -163,6 +163,15 @@ function Header(): JSX.Element {
           text-align: center;
           letter-spacing: -0.01px;
           white-space: normal;
+        }
+
+        @media (max-width: 728px) {
+          .screenshot {
+            width: 100%;
+            border-radius: 0;
+            border-left: none;
+            border-right: none;
+          }
         }
 
         @media (max-width: 479px) {
