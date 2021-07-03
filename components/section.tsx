@@ -10,7 +10,11 @@ export interface SectionProps {
   date?: boolean;
 }
 
-export default function Section({ messages, header, date }: Partial<SectionProps>): JSX.Element {
+export default function Section({
+  messages,
+  header,
+  date,
+}: Partial<SectionProps>): JSX.Element {
   return (
     <div className='section'>
       <div className='header'>
@@ -19,11 +23,11 @@ export default function Section({ messages, header, date }: Partial<SectionProps
       </div>
       <div className='messages'>
         {(messages || Array(3).fill(null)).map((m, idx) => (
-          <MessageRow 
+          <MessageRow
             date={date}
             loading={!m}
-            message={m ? Message.fromJSON(m) : undefined} 
-            key={m ? (m as MessageJSON).id : idx} 
+            message={m ? Message.fromJSON(m) : undefined}
+            key={m ? (m as MessageJSON).id : idx}
           />
         ))}
       </div>
@@ -33,6 +37,12 @@ export default function Section({ messages, header, date }: Partial<SectionProps
           position: sticky;
           z-index: 1;
           top: 96px;
+        }
+
+        @media (max-width: 800px) {
+          .section > .header {
+            top: 24px;
+          }
         }
 
         .section > .header > h2.date {

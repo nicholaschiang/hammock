@@ -90,6 +90,23 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
             cursor: not-allowed;
             font-weight: 600;
           }
+
+          @media (max-width: 800px) {
+            a {
+              display: inline-block;
+              margin: 0 6px;
+              height: 48px;
+              line-height: 48px;
+            }
+
+            a:first-child {
+              margin-left: 12px;
+            }
+
+            a:last-child {
+              margin-right: 24px;
+            }
+          }
         `}</style>
       </a>
     </Link>
@@ -268,6 +285,66 @@ export default function NavBar(): JSX.Element {
 
         nav {
           margin-top: 120px;
+        }
+
+        @media (max-width: 800px) {
+          .menu {
+            top: unset;
+            bottom: 60px;
+            transform: unset;
+            transition: bottom 0.2s ease 0s, opacity 0.2s ease 0s;
+          }
+
+          .menu.open {
+            top: unset;
+            bottom: 72px;
+          }
+
+          .wrapper {
+            position: fixed;
+            z-index: 4;
+            bottom: 8px;
+            right: 8px;
+            left: 8px;
+            width: unset;
+            background: var(--background);
+            box-shadow: var(--shadow-medium);
+            border-radius: 48px;
+          }
+
+          .content {
+            position: relative;
+            z-index: unset;
+            top: unset;
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+          }
+
+          button {
+            margin: 0 8px;
+          }
+
+          nav {
+            margin-top: 0;
+            height: 48px;
+            overflow: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+          }
+
+          nav::-webkit-scrollbar {
+            display: none;
+          }
+        }
+
+        @media (min-width: 600px) {
+          .wrapper {
+            bottom: 12px;
+            right: 12px;
+            left: 12px;
+          }
         }
       `}</style>
     </div>
