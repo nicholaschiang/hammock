@@ -80,7 +80,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
         @media (max-width: 800px) {
           .page {
             flex-direction: column;
-            margin: 0 auto;
+            margin: 0 auto 96px;
           }
 
           .wrapper {
@@ -91,7 +91,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
           }
 
           .spacer {
-            height: 24px;
+            display: none;
           }
 
           header {

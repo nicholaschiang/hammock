@@ -34,14 +34,15 @@ export default function Section({
       <style jsx>{`
         .section > .header {
           background: var(--background);
+          padding-top: 24px;
           position: sticky;
           z-index: 1;
-          top: 96px;
+          top: 72px;
         }
 
         @media (max-width: 800px) {
           .section > .header {
-            top: 24px;
+            top: 0;
           }
         }
 
@@ -50,7 +51,7 @@ export default function Section({
           font-size: 18px;
           font-weight: 600;
           line-height: 24px;
-          margin: 24px 0;
+          margin: 0 0 24px;
           height: 24px;
         }
 
