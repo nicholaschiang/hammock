@@ -100,11 +100,11 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
             }
 
             a:first-child {
-              margin-left: 12px;
+              margin-left: 24px;
             }
 
             a:last-child {
-              margin-right: 12px;
+              margin-right: 24px;
             }
           }
         `}</style>
@@ -290,6 +290,8 @@ export default function NavBar(): JSX.Element {
         @media (max-width: 800px) {
           .menu {
             top: unset;
+            left: unset;
+            right: 12px;
             bottom: 60px;
             transform: unset;
             transition: bottom 0.2s ease 0s, opacity 0.2s ease 0s;
@@ -305,8 +307,9 @@ export default function NavBar(): JSX.Element {
             z-index: 4;
             bottom: 8px;
             right: 8px;
-            left: 8px;
+            left: unset;
             width: unset;
+            max-width: calc(100vw - 16px);
             background: var(--background);
             box-shadow: var(--shadow-medium);
             border-radius: 48px;
@@ -317,8 +320,13 @@ export default function NavBar(): JSX.Element {
             z-index: unset;
             top: unset;
             display: flex;
+            flex-direction: row-reverse;
             align-items: center;
-            margin: 8px;
+            margin: 8px 0;
+          }
+
+          button.avatar {
+            margin-right: 8px;
           }
 
           nav {
@@ -339,7 +347,7 @@ export default function NavBar(): JSX.Element {
           .wrapper {
             bottom: 12px;
             right: 12px;
-            left: 12px;
+            max-width: calc(100vw - 24px);
           }
         }
       `}</style>

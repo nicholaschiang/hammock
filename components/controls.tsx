@@ -116,8 +116,8 @@ export default function Controls({
         @media (max-width: 800px) {
           .controls {
             bottom: -40px;
-            left: 8px;
-            right: unset;
+            left: unset;
+            right: 8px;
             top: unset;
             transition: bottom 0.2s ease 0s, opacity 0.2s ease 0s;
           }
