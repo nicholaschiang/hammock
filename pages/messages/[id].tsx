@@ -116,13 +116,20 @@ export default function MessagePage(): JSX.Element {
       <div className='page'>
         <header>
           <h1 className={cn({ loading: !data })}>{trim(message.subject)}</h1>
-          <h2 className={cn({ loading: !data })}>{trim(message.snippet.split('.')[0])}</h2>
+          <h2 className={cn({ loading: !data })}>
+            {trim(message.snippet.split('.')[0])}
+          </h2>
           <Link href={`/writers/${message.from.email}`}>
             <a className={cn('author', { disabled: !data })}>
               <h3 className={cn({ loading: !data })}>
                 {data && message.from.name}
                 {data && <span>·</span>}
-                {data && message.date.toLocaleString('en', { month: 'short', day: 'numeric' })}</h3>
+                {data &&
+                  message.date.toLocaleString('en', {
+                    month: 'short',
+                    day: 'numeric',
+                  })}
+              </h3>
             </a>
           </Link>
         </header>
@@ -140,6 +147,12 @@ export default function MessagePage(): JSX.Element {
           max-width: 648px;
           padding: 0 24px;
           margin: 96px auto;
+        }
+
+        @media (max-width: 800px) {
+          .page {
+            margin: 24px auto 96px;
+          }
         }
 
         header {
@@ -193,7 +206,7 @@ export default function MessagePage(): JSX.Element {
           cursor: pointer;
           color: unset;
         }
-       
+
         header .author.disabled {
           cursor: wait;
         }
@@ -236,11 +249,11 @@ export default function MessagePage(): JSX.Element {
         article :global(strong) {
           font-weight: 600;
         }
-        
+
         article :global(b) {
           font-weight: 600;
         }
-        
+
         article :global(h1),
         article :global(h2),
         article :global(h3),

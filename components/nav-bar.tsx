@@ -104,7 +104,7 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
             }
 
             a:last-child {
-              margin-right: 24px;
+              margin-right: 12px;
             }
           }
         `}</style>
@@ -318,11 +318,7 @@ export default function NavBar(): JSX.Element {
             top: unset;
             display: flex;
             align-items: center;
-            margin: 8px 0;
-          }
-
-          button {
-            margin: 0 8px;
+            margin: 8px;
           }
 
           nav {

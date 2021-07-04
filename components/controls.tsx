@@ -93,7 +93,7 @@ export default function Controls({
         }
 
         .button:last-child {
-          margin-bottom: 0;
+          margin-bottom: unset;
         }
 
         .button:hover {
@@ -111,6 +111,35 @@ export default function Controls({
 
         .button:hover :global(svg) {
           fill: var(--on-background);
+        }
+
+        @media (max-width: 800px) {
+          .controls {
+            bottom: -40px;
+            left: 8px;
+            right: unset;
+            top: unset;
+            transition: bottom 0.2s ease 0s, opacity 0.2s ease 0s;
+          }
+
+          .controls.visible {
+            top: unset;
+            bottom: 8px;
+          }
+
+          .wrapper {
+            padding: unset;
+            display: flex;
+            border-radius: 48px;
+            box-shadow: var(--shadow-medium);
+            background: var(--background);
+            padding: 8px;
+          }
+
+          .button {
+            margin-bottom: unset;
+            border: none;
+          }
         }
       `}</style>
     </div>
