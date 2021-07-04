@@ -1,9 +1,10 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import Router from 'next/router';
 import useSWR from 'swr';
 
 import segmentSnippet from 'lib/segment-snippet';
+import { useTheme } from 'lib/context/theme';
 import { useUser } from 'lib/context/user';
 
 export interface PageProps {
@@ -47,6 +48,16 @@ export default function Page({
     if (!sync || !loggedIn || user.subscriptions.length) return;
     void Router.replace('/subscriptions');
   }, [sync, loggedIn, user.subscriptions.length]);
+
+  // Change the web app manifest colors based on the user's theme.
+  // @see {@link https://stackoverflow.com/a/57760135/10023158}
+  const { theme } = useTheme();
+  const manifest = useMemo(() => {
+    const mq = matchMedia('(prefers-color-scheme: dark)');
+    if (theme === 'dark' || (theme === 'system' && mq.matches))
+      return '/favicon/dark-manifest.json';
+    return '/favicon/manifest.json';
+  }, [theme]);
 
   return (
     <>
@@ -145,7 +156,7 @@ export default function Page({
           sizes='16x16'
           href='/favicon/favicon-16x16.png'
         />
-        <link rel='manifest' href='/favicon/manifest.json' />
+        <link rel='manifest' href={manifest} />
         <meta name='msapplication-TileColor' content='#ffffff' />
         <meta name='msapplication-TileImage' content='/ms-icon-144x144.png' />
         <meta name='theme-color' content='#ffffff' />
