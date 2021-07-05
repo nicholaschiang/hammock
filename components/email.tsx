@@ -40,7 +40,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
           style={{ textDecoration: 'none' }}
           href={`https://readhammock.com/messages/${message.id}`}
         >
-          <li style={{ marginTop: idx === 0 ? undefined : '36px' }}>
+          <li style={{ margin: idx === 0 ? 0 : '36px 0 0' }}>
             <p
               style={{
                 fontFamily,
