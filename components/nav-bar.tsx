@@ -88,7 +88,7 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
 
           a.active {
             cursor: not-allowed;
-            font-weight: 600;
+            color: var(--on-background);
           }
 
           @media (max-width: 800px) {
@@ -285,6 +285,10 @@ export default function NavBar(): JSX.Element {
 
         nav {
           margin-top: 120px;
+        }
+
+        button.avatar {
+          border-radius: 100%;
         }
 
         @media (max-width: 800px) {
