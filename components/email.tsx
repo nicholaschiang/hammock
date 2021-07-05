@@ -15,6 +15,8 @@ const fontFamily = [
   'sans-serif',
 ].join(',');
 const colors = {
+  primary: '#0070f3',
+  onPrimary: '#ffffff',
   background: '#ffffff',
   onBackground: '#000000',
   accents1: '#fafafa',
@@ -31,14 +33,14 @@ interface MessagesProps {
 
 function Messages({ messages }: MessagesProps): JSX.Element {
   return (
-    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-      {messages.map((message) => (
+    <ul style={{ listStyle: 'none', padding: 0, margin: '36px 0' }}>
+      {messages.slice(0, 4).map((message, idx) => (
         <a
           key={message.id}
           style={{ textDecoration: 'none' }}
           href={`https://readhammock.com/messages/${message.id}`}
         >
-          <li style={{ margin: '40px 0' }}>
+          <li style={{ marginTop: idx === 0 ? undefined : '36px' }}>
             <p
               style={{
                 fontFamily,
@@ -57,7 +59,6 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                   marginRight: '8px',
                   borderRadius: '100%',
                   verticalAlign: 'middle',
-                  border: `1px solid ${colors.accents5}`,
                 }}
                 src={message.from.photo}
                 height={24}
@@ -165,7 +166,7 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
               <p
                 style={{
                   fontFamily,
-                  fontSize: '18px',
+                  fontSize: '16px',
                   lineHeight: 1.65,
                   color: colors.onBackground,
                   margin: 0,
@@ -176,7 +177,7 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
               <p
                 style={{
                   fontFamily,
-                  fontSize: '18px',
+                  fontSize: '16px',
                   lineHeight: 1.65,
                   color: colors.onBackground,
                   margin: '8px 0',
@@ -186,11 +187,56 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                 Simply click on a newsletter to open it in Hammock.
               </p>
               <Messages messages={messages} />
+              <table width='100%'>
+                <tbody>
+                  <tr>
+                    <td align='center' style={{ padding: 0 }}>
+                      <div>
+                        <a
+                          href='https://readhammock.com/feed'
+                          style={{
+                            fontFamily,
+                            borderRadius: '4px',
+                            lineHeight: '48px',
+                            fontSize: '16px',
+                            textDecoration: 'none',
+                            color: colors.onPrimary,
+                            backgroundColor: colors.primary,
+                            display: 'inline-block',
+                            fontWeight: 600,
+                            width: '100%',
+                            textAlign: 'center',
+                          }}
+                        >
+                          See more in Hammock
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <p
+                style={{
+                  fontFamily,
+                  fontSize: '16px',
+                  lineHeight: 1.65,
+                  color: colors.accents5,
+                  margin: '36px 0 24px',
+                }}
+              >
+                If you have any feedback on this email or Hammock in general,
+                simply reply to this email. To stop receiving these daily
+                newsletter summaries, you can{' '}
+                <Link href='<%asm_group_unsubscribe_raw_url%>'>
+                  unsubscribe
+                </Link>
+                .
+              </p>
               <hr
                 style={{
                   border: 'none',
                   borderTop: `1px solid ${colors.accents2}`,
-                  margin: '26px 0',
+                  margin: '24px 0',
                   width: '100%',
                 }}
               />
@@ -215,12 +261,9 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                   margin: 0,
                 }}
               >
-                If this message contains spam or unwanted messages let us know
-                at{' '}
-                <Link href='mailto:team@readhammock.com'>
-                  team@readhammock.com
-                </Link>{' '}
-                or by simply replying to this email.
+                1164 Montgomery St
+                <br />
+                San Francisco, CA 94133 USA
               </p>
             </td>
           </tr>

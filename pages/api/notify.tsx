@@ -69,6 +69,7 @@ export default async function notifyAPI(
               html: renderToStaticMarkup(
                 <Email user={user} messages={messages} />
               ),
+              asm: { groupId: 23193 },
             });
           }
         })
