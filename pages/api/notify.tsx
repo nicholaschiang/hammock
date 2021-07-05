@@ -78,7 +78,7 @@ export default async function notifyAPI(
         throw new APIError('Missing SendGrid API key', 401);
       mail.setApiKey(process.env.SENDGRID_API_KEY);
       await mail.send(emails);
-      res.status(200).end();
+      res.status(200).end(`${emails.length} Emails Sent`);
     } catch (e) {
       handle(e, res);
     }
