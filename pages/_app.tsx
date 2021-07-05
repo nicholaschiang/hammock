@@ -13,6 +13,54 @@ import { CallbackParam } from 'lib/model/callback';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
+const light = `
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: Menlo, Monaco, Lucida Console, Liberation Mono,
+    DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+
+  --primary: #0070f3;
+  --on-primary: #fff;
+  --background: #fff;
+  --on-background: #000;
+  --error: #b00020;
+  --on-error: #fff;
+
+  --accents-1: #fafafa;
+  --accents-2: #eaeaea;
+  --accents-3: #999;
+  --accents-4: #888;
+  --accents-5: #666;
+  --accents-6: #444;
+
+  --shadow-small: 0 5px 10px rgba(0, 0, 0, 0.12);
+  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
+
+  --selection: rgba(255, 255, 0, 0.25);
+`;
+
+const dark = `
+  --primary: #5aa6ff;
+  --on-primary: #000;
+  --background: #121212;
+  --on-background: #fff;
+  --error: #cf6679;
+  --on-error: #000;
+
+  --accents-1: #181818;
+  --accents-2: #333;
+  --accents-3: #444;
+  --accents-4: #666;
+  --accents-5: #888;
+  --accents-6: #999;
+
+  --shadow-small: 0 0 0 1px var(--accents-2);
+  --shadow-medium: 0 0 0 1px var(--accents-2);
+  --shadow-large: 0 0 0 1px var(--accents-2);
+`;
+
 export default function App({ Component, pageProps }: AppProps): JSX.Element {
   const [userMutated, setUserMutated] = useState<boolean>(false);
   const { data, error } = useSWR<UserJSON, APIError>('/api/account', fetcher, {
@@ -46,11 +94,18 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
 
   const [theme, setTheme] = useState<Theme>('light');
   useEffect(() => {
-    const mq = matchMedia('(prefers-color-scheme: dark)');
-    if (theme === 'dark' || theme === 'system' && mq.matches) {
+    if (theme === 'dark') {
       document.documentElement.classList.add('dark');
-    } else {
+      document.documentElement.classList.remove('light');
+      document.documentElement.classList.remove('system');
+    } else if (theme === 'light') {
+      document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('system');
+    } else {
+      document.documentElement.classList.add('system');
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove('light');
     }
   }, [theme]);
   useEffect(() => {
@@ -145,51 +200,23 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         `}</style>
         <style jsx global>{`
           :root {
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-              'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
-              'Droid Sans', 'Helvetica Neue', sans-serif;
-            --font-mono: Menlo, Monaco, Lucida Console, Liberation Mono,
-              DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-
-            --primary: #0070f3;
-            --on-primary: #fff;
-            --background: #fff;
-            --on-background: #000;
-            --error: #b00020;
-            --on-error: #fff;
-
-            --accents-1: #fafafa;
-            --accents-2: #eaeaea;
-            --accents-3: #999;
-            --accents-4: #888;
-            --accents-5: #666;
-            --accents-6: #444;
-
-            --shadow-small: 0 5px 10px rgba(0, 0, 0, 0.12);
-            --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
-            --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
-
-            --selection: rgba(255, 255, 0, 0.25);
+            ${light}
           }
-
+          @media (prefers-color-scheme: light) {
+            :root {
+              ${light}
+            }
+          }
+          @media (prefers-color-scheme: dark) {
+            :root {
+              ${dark}
+            }
+          }
+          .light {
+            ${light}
+          }
           .dark {
-            --primary: #5aa6ff;
-            --on-primary: #000;
-            --background: #121212;
-            --on-background: #fff;
-            --error: #cf6679;
-            --on-error: #000;
-
-            --accents-1: #181818;
-            --accents-2: #333;
-            --accents-3: #444;
-            --accents-4: #666;
-            --accents-5: #888;
-            --accents-6: #999;
-
-            --shadow-small: 0 0 0 1px var(--accents-2);
-            --shadow-medium: 0 0 0 1px var(--accents-2);
-            --shadow-large: 0 0 0 1px var(--accents-2);
+            ${dark}
           }
         `}</style>
       </ThemeContext.Provider>

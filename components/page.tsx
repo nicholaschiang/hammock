@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Head from 'next/head';
 import Router from 'next/router';
 import useSWR from 'swr';
@@ -52,9 +52,10 @@ export default function Page({
   // Change the web app manifest colors based on the user's theme.
   // @see {@link https://stackoverflow.com/a/57760135/10023158}
   const { theme } = useTheme();
-  const dark = useMemo(() => {
+  const [dark, setDark] = useState<boolean>(theme === 'dark');
+  useEffect(() => {
     const mq = matchMedia('(prefers-color-scheme: dark)');
-    return theme === 'dark' || (theme === 'system' && mq.matches);
+    setDark(theme === 'dark' || (theme === 'system' && mq.matches));
   }, [theme]);
 
   return (
@@ -158,9 +159,13 @@ export default function Page({
           rel='manifest'
           href={dark ? '/dark-manifest.json' : '/manifest.json'}
         />
-        <meta name='msapplication-TileColor' content='#ffffff' />
+        <meta
+          name='msapplication-TileColor'
+          content={dark ? '#121212' : '#ffffff'}
+        />
         <meta name='msapplication-TileImage' content='/ms-icon-144x144.png' />
         <meta name='apple-mobile-web-app-capable' content='yes' />
+        <meta name='apple-mobile-web-app-title' content='Hammock' />
         <meta
           name='apple-mobile-web-app-status-bar-style'
           content='black-translucent'
