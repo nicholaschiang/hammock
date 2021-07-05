@@ -60,8 +60,12 @@ export default async function notifyAPI(
             );
             emails.push({
               to: { name: user.name, email: user.email },
-              from: { name: 'Hammock', email: 'feed@readhammock.com' },
-              subject: 'See what’s new in your Hammock feed',
+              from: { name: 'Hammock', email: 'team@readhammock.com' },
+              bcc: { name: 'Hammock', email: 'team@readhammock.com' },
+              subject: `Read in Hammock: ${messages
+                .slice(0, 3)
+                .map((m) => m.from.name)
+                .join(', ')}`,
               html: renderToStaticMarkup(
                 <Email user={user} messages={messages} />
               ),
