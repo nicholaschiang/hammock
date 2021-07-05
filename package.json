@@ -23,6 +23,7 @@
   "dependencies": {
     "@mozilla/readability": "^0.4.1",
     "@segment/analytics.js-core": "^4.1.11",
+    "@sendgrid/mail": "^7.4.5",
     "analytics-node": "^4.0.1",
     "atob": "^2.1.2",
     "await-to-js": "^3.0.0",
@@ -66,6 +67,7 @@
     "@types/nprogress": "^0.2.0",
     "@types/phone": "^2.4.1",
     "@types/react": "^17.0.11",
+    "@types/react-dom": "^17.0.8",
     "@types/sharp": "^0.28.3",
     "@types/utf8": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
