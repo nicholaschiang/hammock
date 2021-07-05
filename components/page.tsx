@@ -159,6 +159,8 @@ export default function Page({
         <link rel='manifest' href={manifest} />
         <meta name='msapplication-TileColor' content='#ffffff' />
         <meta name='msapplication-TileImage' content='/ms-icon-144x144.png' />
+        <meta name='mobile-web-app-capable' content='yes' />
+        <meta name='application-name' content='Tutorbook' />
         <meta name='theme-color' content='#ffffff' />
         <link rel='preconnect' href='https://cdn.segment.com' />
         <link rel='preconnect' href='https://api.segment.io' />
