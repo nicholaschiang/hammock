@@ -44,6 +44,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                 fontFamily,
                 fontSize: '16px',
                 lineHeight: '24px',
+                height: '24px',
                 overflow: 'hidden',
                 whiteSpace: 'nowrap',
                 textOverflow: 'ellipsis',
@@ -69,7 +70,8 @@ function Messages({ messages }: MessagesProps): JSX.Element {
               style={{
                 fontFamily,
                 fontSize: '18px',
-                lineHeight: 1,
+                lineHeight: '24px',
+                height: '24px',
                 overflow: 'hidden',
                 whiteSpace: 'nowrap',
                 textOverflow: 'ellipsis',
@@ -78,6 +80,21 @@ function Messages({ messages }: MessagesProps): JSX.Element {
               }}
             >
               {message?.subject}
+              <span
+                style={{
+                  fontFamily,
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: colors.accents6,
+                  backgroundColor: colors.accents2,
+                  borderRadius: '12px',
+                  marginLeft: '12px',
+                  padding: '4px 12px',
+                  verticalAlign: 'text-bottom',
+                }}
+              >
+                {`${message.time} min`}
+              </span>
             </h3>
             <p
               style={{
@@ -137,83 +154,74 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
           display: 'table',
           marginLeft: 'auto',
           marginRight: 'auto',
-          maxWidth: '580px',
-          padding: 0,
+          maxWidth: '600px',
+          padding: '24px',
           verticalAlign: 'top',
         }}
       >
         <tbody>
           <tr style={{ padding: '0px !important', margin: '0px !important' }}>
             <td>
-              <div
+              <p
                 style={{
-                  borderRadius: '12px',
-                  border: `1px solid ${colors.accents2}`,
-                  overflow: 'hidden',
-                  paddingLeft: '40px',
-                  paddingRight: '40px',
+                  fontFamily,
+                  fontSize: '18px',
+                  lineHeight: 1.65,
+                  color: colors.onBackground,
+                  margin: 0,
                 }}
               >
-                <p
-                  style={{
-                    fontFamily,
-                    fontSize: '18px',
-                    lineHeight: 1.65,
-                    color: colors.onBackground,
-                    margin: '40px 0 0',
-                  }}
-                >
-                  Hi {user.firstName},
-                </p>
-                <p
-                  style={{
-                    fontFamily,
-                    fontSize: '18px',
-                    lineHeight: 1.65,
-                    color: colors.onBackground,
-                    margin: '8px 0',
-                  }}
-                >
-                  Here’s what’s new in Hammock today:
-                </p>
-                <Messages messages={messages} />
-                <hr
-                  style={{
-                    border: 'none',
-                    borderTop: `1px solid ${colors.accents2}`,
-                    margin: '26px 0',
-                    width: '100%',
-                  }}
-                />
-                <p
-                  style={{
-                    fontFamily,
-                    fontSize: '16px',
-                    lineHeight: 1.65,
-                    color: colors.accents5,
-                    margin: '8px 0',
-                  }}
-                >
-                  Hammock -{' '}
-                  <Link href='https://readhammock.com'>readhammock.com</Link>
-                </p>
-                <p
-                  style={{
-                    fontFamily,
-                    fontSize: '16px',
-                    lineHeight: 1.65,
-                    color: colors.accents5,
-                    margin: '8px 0 40px',
-                  }}
-                >
-                  If this message contains spam or unwanted messages let us know
-                  at{' '}
-                  <Link href='mailto:team@readhammock.com'>
-                    team@readhammock.com
-                  </Link>{' '}
-                  or by simply replying to this email.
-                </p>
-              </div>
+                Hi {user.firstName},
+              </p>
+              <p
+                style={{
+                  fontFamily,
+                  fontSize: '18px',
+                  lineHeight: 1.65,
+                  color: colors.onBackground,
+                  margin: '8px 0',
+                }}
+              >
+                Here are some of the latest newsletters from your writers.
+                Simply click on a newsletter to open it in Hammock.
+              </p>
+              <Messages messages={messages} />
+              <hr
+                style={{
+                  border: 'none',
+                  borderTop: `1px solid ${colors.accents2}`,
+                  margin: '26px 0',
+                  width: '100%',
+                }}
+              />
+              <p
+                style={{
+                  fontFamily,
+                  fontSize: '16px',
+                  lineHeight: 1.65,
+                  color: colors.accents5,
+                  margin: '8px 0',
+                }}
+              >
+                Hammock -{' '}
+                <Link href='https://readhammock.com'>readhammock.com</Link>
+              </p>
+              <p
+                style={{
+                  fontFamily,
+                  fontSize: '16px',
+                  lineHeight: 1.65,
+                  color: colors.accents5,
+                  margin: 0,
+                }}
+              >
+                If this message contains spam or unwanted messages let us know
+                at{' '}
+                <Link href='mailto:team@readhammock.com'>
+                  team@readhammock.com
+                </Link>{' '}
+                or by simply replying to this email.
+              </p>
             </td>
           </tr>
         </tbody>
