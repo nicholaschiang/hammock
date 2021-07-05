@@ -34,10 +34,11 @@ function Messages({ messages }: MessagesProps): JSX.Element {
     <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
       {messages.map((message) => (
         <a
+          key={message.id}
           style={{ textDecoration: 'none' }}
           href={`https://readhammock.com/messages/${message.id}`}
         >
-          <li key={message.id} style={{ margin: '40px 0' }}>
+          <li style={{ margin: '40px 0' }}>
             <p
               style={{
                 fontFamily,
