@@ -34,7 +34,7 @@ interface MessagesProps {
 function Messages({ messages }: MessagesProps): JSX.Element {
   return (
     <ul style={{ listStyle: 'none', padding: 0, margin: '36px 0' }}>
-      {messages.slice(0, 4).map((message, idx) => (
+      {messages.slice(0, 3).map((message, idx) => (
         <a
           key={message.id}
           style={{ textDecoration: 'none' }}
