@@ -38,7 +38,11 @@ const light = `
   --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
   --shadow-large: 0 30px 60px rgba(0, 0, 0, 0.12);
 
-  --selection: rgba(255, 255, 0, 0.25);
+  --selection: #0c5eb1;
+  --on-selection: #dfeef6;
+
+  --highlight: #fefbbe;
+  --on-highlight: #000;
 `;
 
 const dark = `
@@ -126,6 +130,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <style jsx global>{`
           ::selection {
             background-color: var(--selection);
+            color: var(--on-selection);
           }
 
           *,
