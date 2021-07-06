@@ -229,6 +229,10 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                 newsletter summaries, you can{' '}
                 <Link href='<%asm_group_unsubscribe_raw_url%>'>
                   unsubscribe
+                </Link>{' '}
+                or{' '}
+                <Link href='<%asm_preferences_raw_url%>'>
+                  manage your email preferences
                 </Link>
                 .
               </p>
