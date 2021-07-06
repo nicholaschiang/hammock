@@ -15,9 +15,23 @@ export default function Avatar({
   src,
 }: AvatarProps): JSX.Element {
   const img = src || 'https://assets.tutorbook.org/pngs/profile.png';
+  const domain = /([^:]*:\/\/)?([^\/]+\.[^\/]+)/.exec(img);
+  const domains = [
+    'cdn.substack.com',
+    'assets.tutorbook.org',
+    'lh3.googleusercontent.com',
+    'www.google.com',
+  ];
+
   return (
     <div className={cn('avatar', { loading })}>
-      {!loading && (
+      {!loading && (!domain || !domains.includes(domain[2])) && (
+        <div className='photo-wrapper'>
+          {priority && <link rel='preload' as='image' href={img} />}
+          <img className='photo' src={img} alt='' />
+        </div>
+      )}
+      {!loading && domain && domains.includes(domain[2]) && (
         <Image
           priority={priority}
           layout='fixed'
@@ -46,6 +60,29 @@ export default function Avatar({
           content: '';
           display: block;
           padding-top: 100%;
+        }
+
+        .photo-wrapper {
+          position: relative;
+          padding-bottom: 100%;
+        }
+
+        .photo {
+          visibility: visible;
+          position: absolute;
+          padding: 0;
+          border: medium none;
+          margin: auto;
+          display: block;
+          inset: 0;
+          width: 0;
+          height: 0;
+          min-width: 100%;
+          max-width: 100%;
+          min-height: 100%;
+          max-height: 100%;
+          object-fit: cover;
+          object-position: center 50%;
         }
       `}</style>
     </div>
