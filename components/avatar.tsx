@@ -15,6 +15,8 @@ export default function Avatar({
   src,
 }: AvatarProps): JSX.Element {
   const img = src || 'https://assets.tutorbook.org/pngs/profile.png';
+  // TODO: Figure out why these are useless escape characters.
+  // eslint-disable-next-line no-useless-escape
   const domain = /([^:]*:\/\/)?([^\/]+\.[^\/]+)/.exec(img);
   const domains = [
     'cdn.substack.com',
