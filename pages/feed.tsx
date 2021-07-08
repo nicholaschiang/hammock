@@ -5,7 +5,7 @@ import Page from 'components/page';
 export default function FeedPage(): JSX.Element {
   return (
     <Page name='Feed' login sync>
-      <Layout>
+      <Layout spacer>
         <Feed />
       </Layout>
     </Page>
