@@ -70,7 +70,7 @@ function WriterRow({ writer }: WriterRowProps): JSX.Element {
 
 export default function WritersPage(): JSX.Element {
   const { user, loggedIn } = useUser();
-  const { data } = useMessages();
+  const { data, mutate } = useMessages();
 
   const subscriptions = useMemo(
     () =>
@@ -105,6 +105,14 @@ export default function WritersPage(): JSX.Element {
       }),
     [data, user.subscriptions]
   );
+  const favorites = useMemo(
+    () => subscriptions.filter((s) => s.favorite),
+    [subscriptions]
+  );
+  const all = useMemo(
+    () => subscriptions.filter((s) => !s.favorite),
+    [subscriptions]
+  );
 
   const loader = useMemo(() => {
     const empty = Array(5).fill(null);
@@ -115,18 +123,42 @@ export default function WritersPage(): JSX.Element {
   return (
     <Page name='Writers' login sync>
       <Layout>
+        <h2>Favorites</h2>
         {!loggedIn && <ul>{loader}</ul>}
-        {loggedIn && !!subscriptions.length && (
+        {loggedIn && !!favorites.length && (
           <ul>
-            {subscriptions.map(({ from: writer }) => (
+            {favorites.map(({ from: writer }) => (
               <WriterRow key={writer.email} writer={writer} />
             ))}
           </ul>
         )}
-        {loggedIn && !subscriptions.length && (
-          <Empty>No writers to show.</Empty>
+        {loggedIn && !favorites.length && (
+          <Empty>
+            Click on a star next to a writer below to add them to favorites.
+          </Empty>
         )}
+        <h2>All</h2>
+        {!loggedIn && <ul>{loader}</ul>}
+        {loggedIn && !!all.length && (
+          <ul>
+            {all.map(({ from: writer }) => (
+              <WriterRow key={writer.email} writer={writer} />
+            ))}
+          </ul>
+        )}
+        {loggedIn && !all.length && <Empty>No writers to show.</Empty>}
         <style jsx>{`
+          h2 {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--accents-5);
+            margin: 48px 0 12px;
+          }
+
+          h2:first-of-type {
+            margin-top: 0;
+          }
+
           ul {
             list-style: none;
             padding: 0;
@@ -137,6 +169,11 @@ export default function WritersPage(): JSX.Element {
             ul {
               margin-top: 24px;
             }
+          }
+
+          :global(.empty) {
+            margin-top: 24px !important;
+            height: unset !important;
           }
         `}</style>
       </Layout>
