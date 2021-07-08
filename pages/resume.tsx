@@ -5,7 +5,7 @@ import Page from 'components/page';
 export default function ResumePage(): JSX.Element {
   return (
     <Page name='Resume' login sync>
-      <Layout>
+      <Layout spacer>
         <Feed resume='true' />
       </Layout>
     </Page>

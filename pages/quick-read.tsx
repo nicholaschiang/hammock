@@ -5,7 +5,7 @@ import Page from 'components/page';
 export default function QuickReadPage(): JSX.Element {
   return (
     <Page name='Quick Read' login sync>
-      <Layout>
+      <Layout spacer>
         <Feed quickRead='true' />
       </Layout>
     </Page>

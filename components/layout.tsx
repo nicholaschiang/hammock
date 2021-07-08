@@ -8,9 +8,10 @@ import { useUser } from 'lib/context/user';
 
 export interface LayoutProps {
   children: ReactNode;
+  spacer?: boolean;
 }
 
-export default function Layout({ children }: LayoutProps): JSX.Element {
+export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
   const { user } = useUser();
   const now = useNow();
   const title = useMemo(() => {
@@ -25,7 +26,7 @@ export default function Layout({ children }: LayoutProps): JSX.Element {
     <div className='page'>
       <NavBar />
       <div className='wrapper'>
-        <div className='spacer' />
+        {spacer && <div className='spacer' />}
         <header>
           <h1 className={cn('nowrap', { loading: !title })}>{title}</h1>
         </header>
