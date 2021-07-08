@@ -29,19 +29,22 @@ export function isCategory(category: unknown): category is Category {
  * @property [category] - Either "important" (a known newsletter listed on our
  * whitelist or with a whitelisted sender domain) or "other" (any email that
  * contains the `list-unsubscribe` header) or missing (not a newsletter).
+ * @property favorite - Whether or not this is a "favorite" newsletter.
  */
 export interface SubscriptionInterface {
   from: Contact;
   category?: Category;
+  favorite: boolean;
 }
 
 export type SubscriptionJSON = SubscriptionInterface;
-export type SubscriptionFirestore = SubscriptionInterface; 
+export type SubscriptionFirestore = SubscriptionInterface;
 
 export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
   if (!isJSON(json)) return false;
   if (!isContact(json.from)) return false;
   if (json.category && !isCategory(json.category)) return false;
+  if (typeof json.favorite !== 'boolean') return false;
   return true;
 }
 
@@ -49,6 +52,8 @@ export class Subscription implements SubscriptionInterface {
   public from = { name: '', email: '', photo: '' };
 
   public category?: Category;
+
+  public favorite = false;
 
   public constructor(subscription: Partial<SubscriptionInterface> = {}) {
     construct<SubscriptionInterface>(this, subscription);
