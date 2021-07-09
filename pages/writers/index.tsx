@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useMemo } from 'react';
+import { MouseEvent, useCallback, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import cn from 'classnames';
 import { mutate } from 'swr';
@@ -23,7 +23,7 @@ interface WriterRowProps {
 function WriterRow({ sub }: WriterRowProps): JSX.Element {
   const { user, setUser, setUserMutated } = useUser();
   const favorite = useCallback(
-    async (evt: MouseEvent<HTMLButtonElement>) => {
+    (evt: MouseEvent<HTMLButtonElement>) => {
       evt.preventDefault();
       evt.stopPropagation();
       if (!sub) return;
@@ -38,13 +38,21 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
         ...user.subscriptions.slice(idx + 1),
       ];
       const updated = new User({ ...user, subscriptions: subs });
-      const url = '/api/account';
       setUser(updated);
-      await mutate(url, fetcher(url, 'put', user.toJSON()));
-      setUserMutated(false);
     },
-    [sub, user, setUser, setUserMutated]
+    [sub, user, setUser]
   );
+  useEffect(() => {
+    async function save(): Promise<void> {
+      const url = '/api/account';
+      await mutate(url, fetcher(url, 'put', user.toJSON()), false);
+      setUserMutated(false);
+    }
+    const timeoutId = setTimeout(() => {
+      void save();
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [user, setUserMutated]);
 
   return (
     <Link href={sub ? `/writers/${sub.from.email}` : ''}>
