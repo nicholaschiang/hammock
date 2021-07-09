@@ -49,7 +49,9 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
     <Dialog>
       <h2>{message}</h2>
       <div className='progress'>
-        <div className='bar'><div className='peg' /></div>
+        <div className='bar'>
+          <div className='peg' />
+        </div>
       </div>
       <div className='gif'>
         <div className='placeholder' />
@@ -78,7 +80,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
           width: 100%;
           z-index: 2;
         }
-        
+
         @media (max-width: 540px) {
           .progress {
             position: fixed;
@@ -93,9 +95,9 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
           width: 100%;
           height: 100%;
           transition: all 150ms linear;
-          transform: translate3d(${(percent - 1) * 100}%,0,0);
+          transform: translate3d(${(percent - 1) * 100}%, 0, 0);
         }
-        
+
         .bar > .peg {
           display: block;
           position: absolute;
@@ -109,7 +111,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
           -ms-transform: rotate(3deg) translate(0px, -4px);
           transform: rotate(3deg) translate(0px, -4px);
         }
-          
+
         .gif {
           border: 2px solid var(--accents-2);
           border-radius: 10px;
@@ -213,7 +215,12 @@ function SubscriptionRow({
 }: SubscriptionRowProps): JSX.Element {
   return (
     <li>
-      <button type='button' className='reset' disabled={!onSelected} onClick={onSelected ? () => onSelected(!selected) : undefined}>
+      <button
+        type='button'
+        className='reset'
+        disabled={!onSelected}
+        onClick={onSelected ? () => onSelected(!selected) : undefined}
+      >
         <Avatar
           src={subscription?.from.photo}
           loading={!subscription}
@@ -350,7 +357,7 @@ export default function SubscriptionsPage(): JSX.Element {
   }, [data]);
 
   // TODO: Show error message in snackbar or button help text.
-  const { loading, setLoading, setError } = useLoading(); 
+  const { loading, setLoading, setError } = useLoading();
   const { user, setUser, setUserMutated } = useUser();
 
   const onSave = useCallback(async () => {
@@ -358,7 +365,7 @@ export default function SubscriptionsPage(): JSX.Element {
     try {
       window.analytics?.track('Subscriptions Saved');
       const url = '/api/account';
-      await mutate(url, fetcher(url, 'put', user.toJSON()));
+      await mutate(url, fetcher(url, 'put', user.toJSON()), false);
       setUserMutated(false);
       void fetch('/api/sync');
       await Router.push('/feed');
@@ -473,7 +480,10 @@ export default function SubscriptionsPage(): JSX.Element {
         )}
         {!data && <ul>{loader}</ul>}
         {data && !other.length && <Empty>No subscriptions found.</Empty>}
-        <Button disabled={!data || loading || !user.subscriptions.length} onClick={onSave}>
+        <Button
+          disabled={!data || loading || !user.subscriptions.length}
+          onClick={onSave}
+        >
           Save subscriptions
         </Button>
         <style jsx>{`
