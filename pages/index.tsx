@@ -33,6 +33,7 @@ function Paragraph({ children }: { children: ReactNode }): JSX.Element {
 
         p > :global(span.highlight) {
           background-color: var(--highlight);
+          color: var(--on-highlight);
         }
 
         @media (max-width: 767px) {

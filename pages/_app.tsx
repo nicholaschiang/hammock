@@ -42,7 +42,7 @@ const light = `
   --on-selection: #dfeef6;
 
   --highlight: #fefbbe;
-  --on-highlight: #000;
+  --on-highlight: #666;
 `;
 
 const dark = `
