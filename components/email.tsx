@@ -1,7 +1,10 @@
+import { Fragment } from 'react';
+
 import { Message } from 'lib/model/message';
 import { User } from 'lib/model/user';
 
 const fontFamily = [
+  'Google Sans',
   '-apple-system',
   'BlinkMacSystemFont',
   '"Segoe UI"',
@@ -34,82 +37,92 @@ interface MessagesProps {
 function Messages({ messages }: MessagesProps): JSX.Element {
   return (
     <ul style={{ listStyle: 'none', padding: 0, margin: '36px 0' }}>
-      {messages.slice(0, 3).map((message, idx) => (
-        <a
-          key={message.id}
-          style={{ textDecoration: 'none' }}
-          href={`https://readhammock.com/messages/${message.id}`}
-        >
-          <li style={{ margin: idx === 0 ? 0 : '36px 0 0' }}>
-            <p
-              style={{
-                fontFamily,
-                fontSize: '16px',
-                lineHeight: '24px',
-                height: '24px',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-                color: colors.accents5,
-                margin: 0,
-              }}
-            >
-              <img
-                style={{
-                  marginRight: '8px',
-                  borderRadius: '100%',
-                  verticalAlign: 'middle',
-                }}
-                src={message.from.photo}
-                height={24}
-                width={24}
-                alt=''
-              />
-              {message.from.name}
-            </p>
-            <h3
-              style={{
-                fontFamily,
-                fontSize: '18px',
-                lineHeight: '24px',
-                height: '24px',
-                overflow: 'hidden',
-                whiteSpace: 'nowrap',
-                textOverflow: 'ellipsis',
-                color: colors.accents6,
-                margin: '12px 0 8px',
-              }}
-            >
-              {message?.subject}
-              <span
+      {messages.slice(0, 3).map((message) => (
+        <Fragment key={message.id}>
+          <hr
+            style={{
+              border: 'none',
+              borderTop: `1px solid ${colors.accents2}`,
+              margin: '24px 0',
+              width: '100%',
+            }}
+          />
+          <a
+            style={{ textDecoration: 'none' }}
+            href={`https://readhammock.com/messages/${message.id}`}
+          >
+            <li style={{ margin: '36px 0 0' }}>
+              <p
                 style={{
                   fontFamily,
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  color: colors.accents6,
-                  backgroundColor: colors.accents2,
-                  borderRadius: '12px',
-                  marginLeft: '12px',
-                  padding: '4px 12px',
-                  verticalAlign: 'text-bottom',
+                  fontSize: '16px',
+                  lineHeight: '24px',
+                  height: '24px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  textOverflow: 'ellipsis',
+                  color: colors.accents5,
+                  margin: 0,
                 }}
               >
-                {`${message.time} min`}
-              </span>
-            </h3>
-            <p
-              style={{
-                fontFamily,
-                fontSize: '16px',
-                lineHeight: 1.65,
-                color: colors.accents6,
-                margin: 0,
-              }}
-            >
-              {message.snippet}
-            </p>
-          </li>
-        </a>
+                <img
+                  style={{
+                    marginRight: '8px',
+                    borderRadius: '100%',
+                    verticalAlign: 'middle',
+                  }}
+                  src={message.from.photo}
+                  height={24}
+                  width={24}
+                  alt=''
+                />
+                {message.from.name}
+              </p>
+              <h3
+                style={{
+                  fontFamily,
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  lineHeight: '24px',
+                  height: '24px',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap',
+                  textOverflow: 'ellipsis',
+                  color: colors.accents6,
+                  margin: '12px 0 8px',
+                }}
+              >
+                {message?.subject}
+                <span
+                  style={{
+                    fontFamily,
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    color: colors.accents6,
+                    backgroundColor: colors.accents2,
+                    borderRadius: '12px',
+                    marginLeft: '12px',
+                    padding: '4px 12px',
+                    verticalAlign: 'text-bottom',
+                  }}
+                >
+                  {`${message.time} min`}
+                </span>
+              </h3>
+              <p
+                style={{
+                  fontFamily,
+                  fontSize: '16px',
+                  lineHeight: 1.65,
+                  color: colors.accents6,
+                  margin: 0,
+                }}
+              >
+                {message.snippet}
+              </p>
+            </li>
+          </a>
+        </Fragment>
       ))}
     </ul>
   );
@@ -126,8 +139,7 @@ function Link({ href, children }: LinkProps): JSX.Element {
       href={href}
       style={{
         fontFamily,
-        color: '#067df7 !important',
-        textDecoration: 'none',
+        color: colors.accents5,
       }}
     >
       {children}
@@ -210,65 +222,52 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                         >
                           See more in Hammock
                         </a>
+                        <p
+                          style={{
+                            fontFamily,
+                            fontSize: '16px',
+                            lineHeight: 1.65,
+                            color: colors.accents5,
+                            margin: '24px 0 36px',
+                          }}
+                        >
+                          If you have any feedback, simply reply to this email.              
+                        </p>
                       </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              <p
-                style={{
-                  fontFamily,
-                  fontSize: '16px',
-                  lineHeight: 1.65,
-                  color: colors.accents5,
-                  margin: '36px 0 24px',
-                }}
-              >
-                If you have any feedback on this email or Hammock in general,
-                simply reply to this email. To stop receiving these daily
-                newsletter summaries, you can{' '}
-                <Link href='<%asm_group_unsubscribe_raw_url%>'>
-                  unsubscribe
-                </Link>{' '}
-                or{' '}
-                <Link href='<%asm_preferences_raw_url%>'>
-                  manage your email preferences
-                </Link>
-                .
-              </p>
-              <hr
-                style={{
-                  border: 'none',
-                  borderTop: `1px solid ${colors.accents2}`,
-                  margin: '24px 0',
-                  width: '100%',
-                }}
-              />
-              <p
-                style={{
-                  fontFamily,
-                  fontSize: '16px',
-                  lineHeight: 1.65,
-                  color: colors.accents5,
-                  margin: '8px 0',
-                }}
-              >
-                Hammock -{' '}
-                <Link href='https://readhammock.com'>readhammock.com</Link>
-              </p>
-              <p
-                style={{
-                  fontFamily,
-                  fontSize: '16px',
-                  lineHeight: 1.65,
-                  color: colors.accents5,
-                  margin: 0,
-                }}
-              >
-                1164 Montgomery St
-                <br />
-                San Francisco, CA 94133 USA
-              </p>
+              <table width='100%'>
+                <tbody>
+                  <tr>
+                    <td align='center' style={{ padding: '16px 0', backgroundColor: colors.accents1, borderRadius: '4px', border: `1px solid ${colors.accents2}` }}>
+                      <p
+                        style={{
+                          fontFamily,
+                          fontSize: '16px',
+                          lineHeight: 1.65,
+                          color: colors.accents5,
+                          margin: '8px 0',
+                        }}
+                      >
+                        Hammock - <Link href='<%asm_group_unsubscribe_raw_url%>'>Unsubscribe</Link>
+                      </p>
+                      <p
+                        style={{
+                          fontFamily,
+                          fontSize: '16px',
+                          lineHeight: 1.65,
+                          color: colors.accents5,
+                          margin: '8px 0',
+                        }}
+                      >
+                        1164 Montgomery St, San Francisco, CA 94133 USA
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
           </tr>
         </tbody>
