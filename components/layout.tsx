@@ -68,7 +68,7 @@ export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
           font-weight: 400;
           line-height: 64px;
           height: 64px;
-          margin: -12px 0 72px;
+          margin: -12px 0 48px;
           position: relative;
           z-index: 3;
         }
