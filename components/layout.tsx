@@ -70,6 +70,7 @@ export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
           height: 64px;
           margin: -12px 0 72px;
           position: relative;
+          color: var(--accents-6);
           z-index: 3;
         }
 

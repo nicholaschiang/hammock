@@ -47,9 +47,9 @@ export default function Section({
         }
 
         .section > .header > h2.date {
-          color: var(--accents-5);
+          color: var(--accents-6);
           font-size: 18px;
-          font-weight: 600;
+          font-weight: 400;
           line-height: 24px;
           margin: 0 0 24px;
           height: 24px;
