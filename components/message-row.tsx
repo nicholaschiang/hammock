@@ -64,7 +64,7 @@ export default function MessageRow({
             font-size: 14px;
             font-weight: 400;
             line-height: 24px;
-            color: var(--accents-5);
+            color: var(--accents-6);
           }
 
           .from > .name.loading {

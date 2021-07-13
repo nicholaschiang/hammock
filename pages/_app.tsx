@@ -48,17 +48,17 @@ const light = `
 const dark = `
   --primary: #5aa6ff;
   --on-primary: #000;
-  --background: #121212;
-  --on-background: #fff;
+  --background: #303030;
+  --on-background: rgba(255,255,255,0.87);
   --error: #cf6679;
   --on-error: #000;
 
-  --accents-1: #181818;
-  --accents-2: #333;
-  --accents-3: #444;
-  --accents-4: #666;
-  --accents-5: #888;
-  --accents-6: #999;
+  --accents-1: rgba(255,255,255,0.01);
+  --accents-2: rgba(255,255,255,0.1);
+  --accents-3: rgba(255,255,255,0.2);
+  --accents-4: rgba(255,255,255,0.4);
+  --accents-5: rgba(255,255,255,0.6);
+  --accents-6: rgba(255,255,255,0.87);
 
   --shadow-small: 0 0 0 1px var(--accents-2);
   --shadow-medium: 0 0 0 1px var(--accents-2);
