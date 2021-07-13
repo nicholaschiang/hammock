@@ -238,7 +238,6 @@ export default function NavBar(): JSX.Element {
           <NavLink href='/feed'>Feed</NavLink>
           <NavLink href='/writers'>Writers</NavLink>
           <NavLink href='/quick-read'>Quick read</NavLink>
-          <NavLink href='/resume'>Resume</NavLink>
         </nav>
       </div>
       <style jsx>{`
