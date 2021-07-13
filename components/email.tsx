@@ -250,9 +250,10 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                           color: colors.accents5,
                           margin: '8px 0',
                         }}
-                      >
-                        Hammock - <Link href='<%asm_group_unsubscribe_raw_url%>'>Unsubscribe</Link>
-                      </p>
+                        dangerouslySetInnerHTML={{ 
+                          __html: 'Hammock - <a href="<%asm_group_unsubscribe_raw_url%>" style="color:#666666">Unsubscribe</a>'
+                        }}
+                      />
                       <p
                         style={{
                           fontFamily,
