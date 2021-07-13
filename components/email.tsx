@@ -128,25 +128,6 @@ function Messages({ messages }: MessagesProps): JSX.Element {
   );
 }
 
-interface LinkProps {
-  href: string;
-  children: string;
-}
-
-function Link({ href, children }: LinkProps): JSX.Element {
-  return (
-    <a
-      href={href}
-      style={{
-        fontFamily,
-        color: colors.accents5,
-      }}
-    >
-      {children}
-    </a>
-  );
-}
-
 export interface EmailProps {
   user: User;
   messages: Message[];
