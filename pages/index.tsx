@@ -492,9 +492,17 @@ export default function IndexPage(): JSX.Element {
 
   return (
     <Page title='Hammock - Newsletter Reader' name='Index'>
-      <Header />
-      <Benefits />
-      <Footer />
+      <div className='light'>
+        <Header />
+        <Benefits />
+        <Footer />
+      </div>
+      <style jsx>{`
+        .light {
+          background-color: var(--background);
+          color: var(--on-background);
+        }
+      `}</style>
     </Page>
   );
 }
