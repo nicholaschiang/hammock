@@ -1,9 +1,9 @@
 import { ReactNode, useMemo } from 'react';
 import cn from 'classnames';
 
-import breakpoints from 'breakpoints';
 import NavBar from 'components/nav-bar';
 
+import breakpoints from 'lib/breakpoints';
 import useNow from 'lib/hooks/now';
 import { useUser } from 'lib/context/user';
 

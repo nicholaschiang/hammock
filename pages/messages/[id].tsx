@@ -6,11 +6,11 @@ import cn from 'classnames';
 
 import { MessageRes } from 'pages/api/messages/[id]';
 
-import breakpoints from 'breakpoints';
 import Controls from 'components/controls';
 import Page from 'components/page';
 
 import { Message } from 'lib/model/message';
+import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
 
 /**

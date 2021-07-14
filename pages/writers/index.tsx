@@ -3,7 +3,6 @@ import Link from 'next/link';
 import cn from 'classnames';
 import { mutate } from 'swr';
 
-import breakpoints from 'breakpoints';
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
 import Layout from 'components/layout';
@@ -13,6 +12,7 @@ import StarIcon from 'components/icons/star';
 
 import { Subscription } from 'lib/model/subscription';
 import { User } from 'lib/model/user';
+import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
 import useMessages from 'lib/hooks/messages';
 import { useUser } from 'lib/context/user';

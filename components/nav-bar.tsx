@@ -4,13 +4,13 @@ import Link from 'next/link';
 import cn from 'classnames';
 import { signOut } from 'next-auth/client';
 
-import breakpoints from 'breakpoints';
 import Avatar from 'components/avatar';
 import DarkIcon from 'components/icons/dark';
 import LightIcon from 'components/icons/light';
 import Select from 'components/select';
 import SystemIcon from 'components/icons/system';
 
+import breakpoints from 'lib/breakpoints';
 import { useTheme } from 'lib/context/theme';
 import { useUser } from 'lib/context/user';
 

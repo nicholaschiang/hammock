@@ -2,10 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import Router from 'next/router';
 import cn from 'classnames';
 
-import breakpoints from 'breakpoints';
 import ArchiveIcon from 'components/icons/archive';
 import ArrowBackIcon from 'components/icons/arrow-back';
 import UnarchiveIcon from 'components/icons/unarchive';
+
+import breakpoints from 'lib/breakpoints';
 
 export interface ControlsProps {
   disabled: boolean;

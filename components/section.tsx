@@ -1,9 +1,9 @@
 import cn from 'classnames';
 
-import breakpoints from 'breakpoints';
 import MessageRow from 'components/message-row';
 
 import { Message, MessageJSON } from 'lib/model/message';
+import breakpoints from 'lib/breakpoints';
 
 export interface SectionProps {
   messages: MessageJSON[];
