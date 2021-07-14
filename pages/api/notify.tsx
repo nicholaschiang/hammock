@@ -10,6 +10,7 @@ import { User } from 'lib/model/user';
 import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import syncGmail from 'lib/api/sync-gmail';
 
 /**
  * GET - Sends notification emails with a summary of all the new newsletters in
@@ -49,10 +50,14 @@ export default async function notifyAPI(
       logger.info(`Fetching messages for ${users.length} users...`);
       await Promise.all(
         users.map(async (doc) => {
-          // TODO: Sync the latest Gmail messages before fetching these.
           // TODO: Filter for message dates that are today in the user's time zone
           // (this will require us to store user time zones in our db).
           const user = User.fromFirestoreDoc(doc);
+          logger.verbose(`Syncing messages for ${user}...`);
+          // We only have to sync the latest 10 messages because that's all that 
+          // we're looking at in our email notification anyways. That's why this
+          // doesn't care about the `nextPageToken` and isn't recursive.
+          await syncGmail(user);
           logger.verbose(`Fetching messages for ${user}...`);
           const { docs } = await doc.ref
             .collection('messages')
