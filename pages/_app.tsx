@@ -96,7 +96,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     [loggedIn, user]
   );
 
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('system');
   useEffect(() => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark');
