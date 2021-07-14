@@ -21,7 +21,7 @@ function Paragraph({ children }: { children: ReactNode }): JSX.Element {
           margin-bottom: 20px;
           padding-top: 0px;
           padding-bottom: 0px;
-          color: var(--accents-5);
+          color: var(--accents-6);
           font-size: 20px;
           line-height: 30px;
           text-align: center;
