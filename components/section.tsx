@@ -3,6 +3,7 @@ import cn from 'classnames';
 import MessageRow from 'components/message-row';
 
 import { Message, MessageJSON } from 'lib/model/message';
+import breakpoints from 'lib/breakpoints';
 
 export interface SectionProps {
   messages: MessageJSON[];
@@ -40,7 +41,7 @@ export default function Section({
           top: 72px;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: ${breakpoints.mobile}) {
           .section > .header {
             top: 0;
           }

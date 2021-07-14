@@ -3,6 +3,7 @@ import cn from 'classnames';
 
 import NavBar from 'components/nav-bar';
 
+import breakpoints from 'lib/breakpoints';
 import useNow from 'lib/hooks/now';
 import { useUser } from 'lib/context/user';
 
@@ -79,7 +80,7 @@ export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
           max-width: 500px;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: ${breakpoints.mobile}) {
           .page {
             flex-direction: column;
             margin: 0 auto 96px;

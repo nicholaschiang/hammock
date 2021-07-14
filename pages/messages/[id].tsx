@@ -10,6 +10,7 @@ import Controls from 'components/controls';
 import Page from 'components/page';
 
 import { Message } from 'lib/model/message';
+import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
 
 /**
@@ -149,7 +150,7 @@ export default function MessagePage(): JSX.Element {
           margin: 96px auto;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: ${breakpoints.mobile}) {
           .page {
             margin: 24px auto 96px;
           }

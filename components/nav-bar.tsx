@@ -10,6 +10,7 @@ import LightIcon from 'components/icons/light';
 import Select from 'components/select';
 import SystemIcon from 'components/icons/system';
 
+import breakpoints from 'lib/breakpoints';
 import { useTheme } from 'lib/context/theme';
 import { useUser } from 'lib/context/user';
 
@@ -91,7 +92,7 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
             color: var(--on-background);
           }
 
-          @media (max-width: 800px) {
+          @media (max-width: ${breakpoints.mobile}) {
             a {
               display: inline-block;
               margin: 0 6px;
@@ -290,7 +291,7 @@ export default function NavBar(): JSX.Element {
           border-radius: 100%;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: ${breakpoints.mobile}) {
           .menu {
             top: unset;
             left: unset;

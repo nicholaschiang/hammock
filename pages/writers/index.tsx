@@ -12,6 +12,7 @@ import StarIcon from 'components/icons/star';
 
 import { Subscription } from 'lib/model/subscription';
 import { User } from 'lib/model/user';
+import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
 import useMessages from 'lib/hooks/messages';
 import { useUser } from 'lib/context/user';
@@ -248,7 +249,7 @@ export default function WritersPage(): JSX.Element {
             margin: 0;
           }
 
-          @media (max-width: 800px) {
+          @media (max-width: ${breakpoints.mobile}) {
             ul {
               margin-top: 24px;
             }
