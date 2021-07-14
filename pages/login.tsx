@@ -42,6 +42,10 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
           flex: none;
         }
 
+        .icon > :global(svg) {
+          fill: var(--accents-6);
+        }
+
         .content {
           margin-left: 24px;
         }
@@ -117,7 +121,7 @@ export default function LoginPage(): JSX.Element {
         </div>
         <style jsx>{`
           h1 {
-            color: var(--accents-5);
+            color: var(--accents-6);
             font-size: 1.25rem;
             font-weight: 600;
             line-height: 1.35;
