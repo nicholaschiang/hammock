@@ -64,7 +64,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
       </div>
       <style jsx>{`
         h2 {
-          color: var(--accents-5);
+          color: var(--accents-6);
           font-size: 20px;
           font-weight: 400;
           line-height: 24px;
@@ -284,6 +284,7 @@ function SubscriptionRow({
           line-height: 18px;
           height: 18px;
           margin: 0 24px;
+          color: var(--on-background);
         }
 
         .name.loading {
@@ -313,7 +314,7 @@ function SubscriptionRow({
         }
 
         .check input:checked + .icon {
-          background: var(--accents-5);
+          background: var(--accents-6);
         }
 
         .check .icon {
@@ -324,7 +325,11 @@ function SubscriptionRow({
           width: 24px;
           position: relative;
           transition: border-color 0.15s ease 0s;
-          transform: transform: rotate(0.000001deg);
+        }
+
+        .check input:checked + .icon,
+        .check .icon:hover {
+          border: 2px solid var(--accents-6);
         }
       `}</style>
     </li>
