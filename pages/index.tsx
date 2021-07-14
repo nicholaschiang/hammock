@@ -1,14 +1,125 @@
 import { ReactNode, useEffect } from 'react';
 import Router, { useRouter } from 'next/router';
 import Image from 'next/image';
+import Link from 'next/link';
+import cn from 'classnames';
 
-import Button from 'components/marketing-button';
-import Container from 'components/container';
 import FooterLink from 'components/footer-link';
 import Page from 'components/page';
 import Screenshot from 'components/screenshot';
 
 import { useUser } from 'lib/context/user';
+
+interface ContainerProps {
+  children: ReactNode;
+  className?: string;
+}
+
+function Container({
+  className,
+  children,
+}: ContainerProps): JSX.Element {
+  return (
+    <div className={cn(className, 'w-container')}>
+      {children}
+      <style jsx>{`
+        .w-container {
+          margin-left: auto;
+          margin-right: auto;
+          max-width: 940px;
+          margin-bottom: 0px;
+          padding-bottom: 0px;
+          padding-left: 0px;
+          text-align: center;
+        }
+
+        .w-container:before,
+        .w-container:after {
+          content: ' ';
+          display: table;
+          grid-column-start: 1;
+          grid-row-start: 1;
+          grid-column-end: 2;
+          grid-row-end: 2;
+        }
+
+        .w-container:after {
+          clear: both;
+        }
+
+        @media (max-width: 991px) {
+          .w-container {
+            max-width: 728px;
+          }
+        }
+
+        @media (max-width: 479px) {
+          .w-container {
+            max-width: none;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+interface ButtonProps {
+  href: string;
+  children: string;
+}
+
+function Button({ href, children }: ButtonProps): JSX.Element {
+  return (
+    <Link href={href}>
+      <a
+        rel={!href.startsWith('/') ? 'noopener noreferrer' : undefined}
+        target={!href.startsWith('/') ? '_blank' : undefined}
+      >
+        {children}
+        <style jsx>{`
+          a {
+            position: static;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            background-color: var(--on-background);
+            box-shadow: 0 6px 10px 0 transparent;
+            transition: transform 350ms ease, box-shadow 350ms ease;
+            font-size: 18px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-block;
+            padding: 10px 15px;
+            color: var(--background);
+            border: 0;
+            line-height: 20px;
+            cursor: pointer;
+          }
+
+          a:hover {
+            transform: scale(0.97);
+          }
+
+          @media (max-width: 991px) {
+            a {
+              margin-top: 30px;
+              margin-bottom: 30px;
+              padding-top: 10px;
+              padding-right: 20px;
+              padding-left: 20px;
+            }
+          }
+
+          @media (max-width: 479px) {
+            a {
+              margin-bottom: 20px;
+            }
+          }
+        `}</style>
+      </a>
+    </Link>
+  );
+}
 
 function Paragraph({ children }: { children: ReactNode }): JSX.Element {
   return (
