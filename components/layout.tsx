@@ -1,6 +1,7 @@
 import { ReactNode, useMemo } from 'react';
 import cn from 'classnames';
 
+import breakpoints from 'breakpoints';
 import NavBar from 'components/nav-bar';
 
 import useNow from 'lib/hooks/now';
@@ -79,7 +80,7 @@ export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
           max-width: 500px;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: ${breakpoints.mobile}) {
           .page {
             flex-direction: column;
             margin: 0 auto 96px;

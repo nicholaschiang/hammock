@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Router from 'next/router';
 import cn from 'classnames';
 
+import breakpoints from 'breakpoints';
 import ArchiveIcon from 'components/icons/archive';
 import ArrowBackIcon from 'components/icons/arrow-back';
 import UnarchiveIcon from 'components/icons/unarchive';
@@ -113,7 +114,7 @@ export default function Controls({
           fill: var(--on-background);
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: ${breakpoints.mobile}) {
           .controls {
             bottom: -40px;
             left: unset;

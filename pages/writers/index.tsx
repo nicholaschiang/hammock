@@ -3,6 +3,7 @@ import Link from 'next/link';
 import cn from 'classnames';
 import { mutate } from 'swr';
 
+import breakpoints from 'breakpoints';
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
 import Layout from 'components/layout';
@@ -248,7 +249,7 @@ export default function WritersPage(): JSX.Element {
             margin: 0;
           }
 
-          @media (max-width: 800px) {
+          @media (max-width: ${breakpoints.mobile}) {
             ul {
               margin-top: 24px;
             }

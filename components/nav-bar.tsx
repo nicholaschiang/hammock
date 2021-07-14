@@ -4,6 +4,7 @@ import Link from 'next/link';
 import cn from 'classnames';
 import { signOut } from 'next-auth/client';
 
+import breakpoints from 'breakpoints';
 import Avatar from 'components/avatar';
 import DarkIcon from 'components/icons/dark';
 import LightIcon from 'components/icons/light';
@@ -91,7 +92,7 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
             color: var(--on-background);
           }
 
-          @media (max-width: 800px) {
+          @media (max-width: ${breakpoints.mobile}) {
             a {
               display: inline-block;
               margin: 0 6px;
@@ -290,7 +291,7 @@ export default function NavBar(): JSX.Element {
           border-radius: 100%;
         }
 
-        @media (max-width: 800px) {
+        @media (max-width: ${breakpoints.mobile}) {
           .menu {
             top: unset;
             left: unset;
