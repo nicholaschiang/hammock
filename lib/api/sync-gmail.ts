@@ -20,7 +20,7 @@ import messageFromGmail from 'lib/api/message-from-gmail';
  * @see {@link https://developers.google.com/gmail/api/reference/quota}
  *
  * @return {string} - The next page token (call `syncGmail` again with that
- * token to sync the next 10 messages).
+ * token to sync the next 10 messages). Only returned if we're not up-to-date.
  */
 export default async function syncGmail(
   user: User,
@@ -68,5 +68,10 @@ export default async function syncGmail(
     })
   );
 
+  // Only return the next page token if we need to look at the next page. If we
+  // had already synced messages fetched in this page (i.e. if there were
+  // messages returned by Gmail's API that were already in our database), then
+  // we know that we don't have to look at the next page.
+  if (toSyncMessageIds.length < messageIds.length) return '';
   return data.nextPageToken || '';
 }
