@@ -37,16 +37,7 @@ export default async function notifyAPI(
       logger.info('Fetching users...');
       // TODO: Once this lands from experimental, send notifications to everyone
       // instead of just these five beta test users.
-      const { docs: users } = await db
-        .collection('users')
-        .where('email', 'in', [
-          'martin.srna@gmail.com',
-          'juraj.pal@gmail.com',
-          'elizabeth@deepnote.com',
-          'alex.neczli@gmail.com',
-          'nicholas.h.chiang@gmail.com',
-        ])
-        .get();
+      const { docs: users } = await db.collection('users').get();
       const emails: MailDataRequired[] = [];
       logger.info(`Fetching messages for ${users.length} users...`);
       await Promise.all(
