@@ -1,6 +1,7 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import mail, { MailDataRequired } from '@sendgrid/mail';
 import { renderToStaticMarkup } from 'react-dom/server';
+import to from 'await-to-js';
 
 import Email from 'components/email';
 
@@ -57,7 +58,8 @@ export default async function notifyAPI(
           // We only have to sync the latest 10 messages because that's all that 
           // we're looking at in our email notification anyways. That's why this
           // doesn't care about the `nextPageToken` and isn't recursive.
-          await syncGmail(user);
+          const [e] = await to(syncGmail(user));
+          if (e) logger.warn(`Error syncing ${user}'s messages: ${e.message}`);
           logger.verbose(`Fetching messages for ${user}...`);
           const { docs } = await doc.ref
             .collection('messages')
