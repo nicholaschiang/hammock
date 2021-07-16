@@ -250,7 +250,7 @@ export default function WritersPage(): JSX.Element {
           }
 
           @media (max-width: ${breakpoints.mobile}) {
-            ul {
+            h2:first-of-type {
               margin-top: 24px;
             }
           }
