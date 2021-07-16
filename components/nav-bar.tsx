@@ -205,7 +205,9 @@ export default function NavBar(): JSX.Element {
           <MenuLink href='https://www.notion.so/readhammock/Help-Support-9b6bb1da1d6d4887ad3631f32d7741de'>
             Help
           </MenuLink>
-          <MenuLink href='/about'>About</MenuLink>
+          <MenuLink href='https://www.notion.so/readhammock/Changelog-565a632fc5e3466d85748a78ddeae8f6'>
+            Changelog 
+          </MenuLink>
           <div className='line' />
           <Select
             small
