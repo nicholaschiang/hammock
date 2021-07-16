@@ -1,5 +1,5 @@
+import Router, { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
-import Router from 'next/router';
 import cn from 'classnames';
 
 import ArchiveIcon from 'components/icons/archive';
@@ -37,11 +37,13 @@ export default function Controls({
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const { query } = useRouter();
+
   return (
     <div className={cn('controls', { visible })}>
       <div className='wrapper'>
         <button
-          onClick={() => Router.back()}
+          onClick={() => query.ref === 'email' ? Router.push('/feed') : Router.back()}
           className='reset button'
           type='button'
         >

@@ -49,7 +49,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
           />
           <a
             style={{ textDecoration: 'none' }}
-            href={`https://readhammock.com/messages/${message.id}`}
+            href={`https://readhammock.com/messages/${message.id}?ref=email`}
           >
             <li style={{ margin: '36px 0 0' }}>
               <p
