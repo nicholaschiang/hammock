@@ -68,11 +68,13 @@ export default function MessagePage(): JSX.Element {
       scroll,
       archived: !message.archived,
     };
-    await mutate(url, fetcher(url, 'put', updated));
+    if (!message.archived) Router.back();
+    // TODO: Investigate why this is so slow. Our API only has to update a
+    // Firestore database document (and fetch the user's Firestore database
+    // document to verify the user's JWT authentication... perhaps that's why).
+    await mutate(url, fetcher(url, 'put', updated), false);
     // TODO: Mutate the data used in `/feed` to match.
     // @see {@link https://github.com/vercel/swr/issues/1156}
-    if (!message.archived) Router.back();
-    setArchiving(false);
   }, [scroll, message]);
 
   useEffect(() => {
