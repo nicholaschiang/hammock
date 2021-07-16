@@ -61,6 +61,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                   overflow: 'hidden',
                   whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
+                  textDecoration: 'none',
                   color: colors.accents5,
                   margin: 0,
                 }}
@@ -88,6 +89,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                   overflow: 'hidden',
                   whiteSpace: 'nowrap',
                   textOverflow: 'ellipsis',
+                  textDecoration: 'none',
                   color: colors.accents6,
                   margin: '12px 0 8px',
                 }}
@@ -104,6 +106,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                     marginLeft: '12px',
                     padding: '4px 12px',
                     verticalAlign: 'text-bottom',
+                    textDecoration: 'none',
                   }}
                 >
                   {`${message.time} min`}
@@ -115,6 +118,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                   fontSize: '16px',
                   lineHeight: 1.65,
                   color: colors.accents6,
+                  textDecoration: 'none',
                   margin: 0,
                 }}
               >
