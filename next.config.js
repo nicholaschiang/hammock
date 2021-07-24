@@ -22,19 +22,19 @@ module.exports = {
       {
         source: '/terms',
         destination:
-          'https://www.notion.so/Terms-of-Service-ab660e15db814a118d908391eac43991',
+          'https://readhammock.notion.site/Terms-of-Service-ab660e15db814a118d908391eac43991',
         permanent: true,
       },
       {
         source: '/privacy',
         destination:
-          'https://www.notion.so/Privacy-Policy-4f8a21493d384592a206453492fbce4c',
+          'https://readhammock.notion.site/Privacy-Policy-4f8a21493d384592a206453492fbce4c',
         permanent: true,
       },
       {
         source: '/story',
         destination:
-          'https://www.notion.so/readhammock/Return-of-the-Newsletter-524563869f6242baaa60250299536654',
+          'https://readhammock.notion.site/Return-of-the-Newsletter-524563869f6242baaa60250299536654',
         permanent: true,
       },
     ];

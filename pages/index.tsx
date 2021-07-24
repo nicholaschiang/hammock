@@ -15,10 +15,7 @@ interface ContainerProps {
   className?: string;
 }
 
-function Container({
-  className,
-  children,
-}: ContainerProps): JSX.Element {
+function Container({ className, children }: ContainerProps): JSX.Element {
   return (
     <div className={cn(className, 'w-container')}>
       {children}
@@ -458,7 +455,7 @@ function Footer(): JSX.Element {
           </div>
           <div className='wrapper'>
             <div className='text-block'>
-              <FooterLink href='https://www.notion.so/readhammock/Terms-and-Privacy-7bab80b48fd74fe9aa9bbb72be490f27'>
+              <FooterLink href='https://readhammock.notion.site/Terms-and-Privacy-7bab80b48fd74fe9aa9bbb72be490f27'>
                 Terms &amp; Privacy
               </FooterLink>
             </div>
