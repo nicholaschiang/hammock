@@ -1,8 +1,6 @@
-process.env.NODE_ENV = 'development';
-const dev = require('./db');
-
-process.env.NODE_ENV = 'production';
-const prod = require('./db');
+const dev = require('./db')('development');
+const prod = require('./db')('production');
+const logger = require('./logger');
 
 async function migrate() {
   const { docs } = await prod.collection('users').get();
@@ -11,10 +9,10 @@ async function migrate() {
     const data = doc.data();
     data.email = `${data.email.split('@')[0]}@example.com`;
     const ref = dev.collection('users').doc(doc.id);
-    debugger;
+    logger.verbose(`Adding ${data.name} <${data.email}> to batch...`);
     batch.set(ref, data);
   });
-  debugger;
+  logger.info(`Committing batch of ${docs.length} updates...`);
   await batch.commit();
 }
 
