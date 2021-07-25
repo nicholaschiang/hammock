@@ -176,7 +176,12 @@ export default function Page({
         <link rel='preconnect' href='https://cdn.segment.com' />
         <link rel='preconnect' href='https://api.segment.io' />
         <script dangerouslySetInnerHTML={{ __html: segmentSnippet }} />
-        <link rel='preload' href='/api/account' as='fetch' />
+        <link
+          rel='preload'
+          href='/api/account'
+          as='fetch'
+          crossOrigin='anonymous'
+        />
       </Head>
       {children}
     </>

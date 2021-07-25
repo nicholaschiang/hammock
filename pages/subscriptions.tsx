@@ -304,7 +304,7 @@ function SubscriptionRow({
           padding: 0;
           margin: -1px;
           overflow: hidden;
-          clip: rect(0,0,0,0);
+          clip: rect(0, 0, 0, 0);
           white-space: nowrap;
           border-width: 0;
         }
@@ -424,7 +424,12 @@ export default function SubscriptionsPage(): JSX.Element {
       <div className='wrapper'>
         {!data && <LoadingDialog progress={progress / 10} />}
         <Head>
-          <link rel='preload' href='/api/subscriptions' as='fetch' />
+          <link
+            rel='preload'
+            href='/api/subscriptions'
+            as='fetch'
+            crossOrigin='anonymous'
+          />
         </Head>
         <h1>Choose what you want to read in your feed</h1>
         <h2>All the Substacks and popular newsletters</h2>

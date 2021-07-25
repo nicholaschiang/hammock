@@ -29,7 +29,9 @@ export default function Avatar({
     <div className={cn('avatar', { loading })}>
       {!loading && (!domain || !domains.includes(domain[2])) && (
         <div className='photo-wrapper'>
-          {priority && <link rel='preload' as='image' href={img} />}
+          {priority && (
+            <link rel='preload' as='image' href={img} crossOrigin='anonymous' />
+          )}
           <img className='photo' src={img} alt='' />
         </div>
       )}

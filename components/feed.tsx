@@ -25,7 +25,7 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
     if (isSameDay(now, date)) return 'Today';
     return date.toLocaleString('en', { month: 'short', day: 'numeric' });
   }, [date, now]);
-  
+
   return <Section header={header} messages={messages} />;
 }
 
@@ -47,7 +47,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
         section.messages.push(message);
         return true;
       });
-      if (!existingSession) 
+      if (!existingSession)
         newSections.push({
           date: createdAt,
           messages: [message],
@@ -62,16 +62,25 @@ export default function Feed(query: MessagesQuery): JSX.Element {
       next={() => setSize((prev) => prev + 1)}
       hasMore={!data || data[data.length - 1].length === 10}
       style={{ overflow: undefined }}
-      scrollThreshold={0.65} 
+      scrollThreshold={0.65}
       loader={<Section />}
     >
       <Head>
-        <link rel='preload' href='/api/messages' as='fetch' />
+        <link
+          rel='preload'
+          href='/api/messages'
+          as='fetch'
+          crossOrigin='anonymous'
+        />
       </Head>
       {!data && <Section />}
       {!data && <Section />}
-      {sections.map((s) => <FeedSection key={s.date.toJSON()} {...s} />)}
-      {data && !sections.length && <Empty>You’re all caught up with your reading!</Empty>}
+      {sections.map((s) => (
+        <FeedSection key={s.date.toJSON()} {...s} />
+      ))}
+      {data && !sections.length && (
+        <Empty>You’re all caught up with your reading!</Empty>
+      )}
     </InfiniteScroll>
   );
 }
