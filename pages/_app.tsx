@@ -49,16 +49,17 @@ const dark = `
   --primary: #5aa6ff;
   --on-primary: #000;
   --background: #303030;
-  --on-background: rgba(255,255,255,0.87);
+  --on-background: #e4e4e4; /* rgba(255,255,255,0.87) on #303030 bg */
   --error: #cf6679;
   --on-error: #000;
 
-  --accents-1: rgba(255,255,255,0.01);
-  --accents-2: rgba(255,255,255,0.1);
-  --accents-3: rgba(255,255,255,0.2);
-  --accents-4: rgba(255,255,255,0.4);
-  --accents-5: rgba(255,255,255,0.6);
-  --accents-6: rgba(255,255,255,0.87);
+  /* Convert rgba colors to hex codes with borderleft.com/toolbox/rgba */
+  --accents-1: #323232; /* rgba(255,255,255,0.01) on #303030 bg */
+  --accents-2: #454545; /* rgba(255,255,255,0.1) on #303030 bg */
+  --accents-3: #595959; /* rgba(255,255,255,0.2) on #303030 bg */
+  --accents-4: #838383; /* rgba(255,255,255,0.4) on #303030 bg */
+  --accents-5: #acacac; /* rgba(255,255,255,0.6) on #303030 bg */
+  --accents-6: #e4e4e4; /* rgba(255,255,255,0.87) on #303030 bg */
 
   --shadow-small: 0 0 0 1px var(--accents-2);
   --shadow-medium: 0 0 0 1px var(--accents-2);
