@@ -20,28 +20,51 @@ import { period } from 'lib/utils';
 import useLoading from 'lib/hooks/loading';
 import { useUser } from 'lib/context/user';
 
-const LOADING_MESSAGES = [
-  'Getting your subscriptions...',
-  'This might take a moment...',
-  'One more second...',
-  'Almost there...',
-];
-
 interface LoadingDialogProps {
   progress: number;
 }
 
 function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
-  const [message, setMessage] = useState<string>(LOADING_MESSAGES[0]);
+  const funny = useRef([
+    'Smashing the computer...',
+    'Reticulating spines...',
+    'Generating witty dialog...',
+    'Swapping time and space...',
+    'Filtering morale...',
+    'We need a new fuse...',
+    'Tokenizing real life...',
+    'The bits are breeding...',
+    'You’re not in Kansas anymore...',
+    'Spinning violently around the y-axis...',
+    'Testing your patience...',
+    'Granting wishes...',
+    'Connecting neurotoxin storage tank...',
+    'Spinning the hamster...',
+    'Roping some seaturtles...',
+    'Constructing additional pylons...',
+    'Dividing by zero...',
+    'Simulating traveling salesman...',
+    'Entangling superstrings...',
+    'Twiddling thumbs...',
+    'Searching for plot device...',
+  ]);
+  const [message, setMessage] = useState<string>(
+    'Getting your subscriptions...'
+  );
   const [percent, setPercent] = useState<number>(0);
   useEffect(() => {
     setPercent(Math.min(Math.max(progress, 0.05), 0.95));
   }, [progress]);
   useEffect(() => {
     setMessage(() => {
-      if (percent > 0.8) return 'Almost there...';
-      if (percent > 0.6) return 'One more second...';
-      if (percent > 0.3) return 'This might take a moment...';
+      if (percent > 0.9) return 'Almost there...';
+      if (percent > 0.4) {
+        const idx = Math.floor(Math.random() * funny.current.length);
+        return funny.current.splice(idx, 1)[0];
+      }
+      if (percent > 0.3) return 'Only a few more years...';
+      if (percent > 0.2) return 'Like a very long moment...';
+      if (percent > 0.1) return 'This might take a moment...';
       return 'Getting your subscriptions...';
     });
   }, [percent]);
@@ -428,8 +451,9 @@ export default function SubscriptionsPage(): JSX.Element {
           <link
             rel='preload'
             href='/api/subscriptions'
-            as='fetch'
             crossOrigin='anonymous'
+            type='application/json'
+            as='fetch'
           />
         </Head>
         <h1>Choose what you want to read in your feed</h1>
