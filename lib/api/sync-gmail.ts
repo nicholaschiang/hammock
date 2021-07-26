@@ -26,8 +26,11 @@ export default async function syncGmail(
   user: User,
   pageToken?: string
 ): Promise<string> {
+  if (!user.subscriptions.length) {
+    logger.warn(`Skipping sync for no subscriptions for ${user}...`);
+    return '';
+  }
   const client = gmail(user.token);
-
   logger.verbose(`Fetching messages for ${user}...`);
   const { data } = await client.users.messages.list({
     q: getQuery(user),
@@ -36,7 +39,6 @@ export default async function syncGmail(
     pageToken,
   });
   const messageIds = (data.messages || []).map((m) => m.id as string);
-
   logger.verbose(`Processing ${messageIds.length} messages for ${user}...`);
   const toSyncMessageIds: string[] = [];
   await Promise.all(
@@ -50,10 +52,8 @@ export default async function syncGmail(
       if (!doc.exists) toSyncMessageIds.push(id);
     })
   );
-
   logger.verbose(`Fetching ${toSyncMessageIds.length} messages for ${user}...`);
   const gmailMessages = await getGmailMessages(toSyncMessageIds, client);
-
   logger.verbose(`Saving ${gmailMessages.length} messages for ${user}...`);
   await Promise.all(
     gmailMessages.map(async (gmailMessage, idx) => {
@@ -67,7 +67,6 @@ export default async function syncGmail(
       logger.debug(`Saved ${message} to Firestore database.`);
     })
   );
-
   // Only return the next page token if we need to look at the next page. If we
   // had already synced messages fetched in this page (i.e. if there were
   // messages returned by Gmail's API that were already in our database), then
