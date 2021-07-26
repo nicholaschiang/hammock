@@ -13,6 +13,7 @@ import Dialog from 'components/dialog';
 import Empty from 'components/empty';
 import Page from 'components/page';
 
+import { APIError } from 'lib/model/error';
 import { Subscription } from 'lib/model/subscription';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
@@ -346,7 +347,7 @@ export default function SubscriptionsPage(): JSX.Element {
     },
     []
   );
-  const { data } = useSWRInfinite<SubscriptionsRes>(getKey, {
+  const { data, error } = useSWRInfinite<SubscriptionsRes, APIError>(getKey, {
     revalidateAll: true,
     initialSize: 10,
   });
@@ -360,6 +361,13 @@ export default function SubscriptionsPage(): JSX.Element {
     });
     return subs;
   }, [data]);
+
+  // Redirect to the login page if we receive a 401 error (e.g. the user hasn't
+  // signed in recently and thus Google has invalidated our OAuth2 access).
+  useEffect(() => {
+    if (error?.code !== 401) return;
+    void Router.replace('/login');
+  }, [error]);
 
   // TODO: Show error message in snackbar or button help text.
   const { loading, setLoading, setError } = useLoading();
