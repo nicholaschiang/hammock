@@ -37,7 +37,7 @@ interface MessagesProps {
 function Messages({ messages }: MessagesProps): JSX.Element {
   return (
     <ul style={{ listStyle: 'none', padding: 0, margin: '36px 0' }}>
-      {messages.slice(0, 3).map((message) => (
+      {messages.map((message) => (
         <Fragment key={message.id}>
           <hr
             style={{
@@ -216,7 +216,7 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                             margin: '24px 0 36px',
                           }}
                         >
-                          If you have any feedback, simply reply to this email.              
+                          If you have any feedback, simply reply to this email.
                         </p>
                       </div>
                     </td>
@@ -226,7 +226,15 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
               <table width='100%'>
                 <tbody>
                   <tr>
-                    <td align='center' style={{ padding: '16px 0', backgroundColor: colors.accents1, borderRadius: '4px', border: `1px solid ${colors.accents2}` }}>
+                    <td
+                      align='center'
+                      style={{
+                        padding: '16px 0',
+                        backgroundColor: colors.accents1,
+                        borderRadius: '4px',
+                        border: `1px solid ${colors.accents2}`,
+                      }}
+                    >
                       <p
                         style={{
                           fontFamily,
@@ -235,8 +243,9 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                           color: colors.accents5,
                           margin: '8px 0',
                         }}
-                        dangerouslySetInnerHTML={{ 
-                          __html: 'Hammock - <a href="<%asm_group_unsubscribe_raw_url%>" style="color:#666666">Unsubscribe</a>'
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            'Hammock - <a href="<%asm_group_unsubscribe_raw_url%>" style="color:#666666">Unsubscribe</a>',
                         }}
                       />
                       <p

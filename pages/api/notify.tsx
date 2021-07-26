@@ -6,11 +6,14 @@ import to from 'await-to-js';
 import Email from 'components/email';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
-import { Message } from 'lib/model/message';
+import { Message, MessageInterface } from 'lib/model/message';
 import { User } from 'lib/model/user';
 import { db } from 'lib/api/firebase';
+import getGmailMessages from 'lib/api/get/gmail-messages';
+import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import messageFromGmail from 'lib/api/message-from-gmail';
 import syncGmail from 'lib/api/sync-gmail';
 
 /**
@@ -41,10 +44,10 @@ export default async function notifyAPI(
       const emails: MailDataRequired[] = [];
       logger.info(`Fetching messages for ${users.length} users...`);
       await Promise.all(
-        users.map(async (doc) => {
+        users.map(async (userDoc) => {
           // TODO: Filter for message dates that are today in the user's time zone
           // (this will require us to store user time zones in our db).
-          const user = User.fromFirestoreDoc(doc);
+          const user = User.fromFirestoreDoc(userDoc);
           logger.verbose(`Syncing messages for ${user}...`);
           // We only have to sync the latest 10 messages because that's all that
           // we're looking at in our email notification anyways. That's why this
@@ -52,13 +55,38 @@ export default async function notifyAPI(
           const [e] = await to(syncGmail(user));
           if (e) logger.warn(`Error syncing ${user}'s messages: ${e.stack}`);
           logger.verbose(`Fetching messages for ${user}...`);
-          const { docs } = await doc.ref
+          const { docs } = await userDoc.ref
             .collection('messages')
             .where('date', '>=', today)
             .orderBy('date', 'desc')
-            .limit(10)
+            .limit(3)
             .get();
-          const messages = docs.map((d) => Message.fromFirestoreDoc(d));
+          const client = gmail(user.token);
+          const gmailMessages = await getGmailMessages(
+            docs.map((d) => d.id),
+            client
+          );
+          const messages = docs.map((doc, idx) => {
+            // We don't store the actual message content in our database. Instead,
+            // we fetch that data here at runtime and only store metadata.
+            const gmailMessage = messageFromGmail(gmailMessages[idx]);
+            const metadata = Message.fromFirestoreDoc(doc);
+            const combined: MessageInterface = {
+              from: metadata.from,
+              category: metadata.category,
+              favorite: metadata.favorite,
+              id: metadata.id,
+              date: metadata.date,
+              subject: gmailMessage.subject,
+              snippet: gmailMessage.snippet,
+              raw: gmailMessage.raw,
+              html: gmailMessage.html,
+              archived: metadata.archived,
+              scroll: metadata.scroll,
+              time: metadata.time,
+            };
+            return new Message(combined);
+          });
           if (!messages.length) {
             logger.verbose(
               `Skipping email for ${user} with no new messages...`
@@ -72,7 +100,6 @@ export default async function notifyAPI(
               from: { name: 'Hammock', email: 'team@readhammock.com' },
               bcc: { name: 'Hammock', email: 'team@readhammock.com' },
               subject: `Read in Hammock: ${messages
-                .slice(0, 3)
                 .map((m) => m.from.name)
                 .join(', ')}`,
               html: renderToStaticMarkup(

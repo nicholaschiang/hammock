@@ -1,11 +1,18 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { APIError, APIErrorJSON } from 'lib/model/error';
-import { Message, MessageJSON, isMessageJSON } from 'lib/model/message';
+import {
+  Message,
+  MessageInterface,
+  MessageJSON,
+  isMessageJSON,
+} from 'lib/model/message';
+import { APIErrorJSON } from 'lib/model/error';
 import { db } from 'lib/api/firebase';
+import getGmailMessage from 'lib/api/get/gmail-message';
+import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
-import { parseRawHTML } from 'lib/api/message-from-gmail';
+import messageFromGmail from 'lib/api/message-from-gmail';
 import segment from 'lib/api/segment';
 import updateMessageDoc from 'lib/api/update/message-doc';
 import verifyAuth from 'lib/api/verify/auth';
@@ -21,17 +28,37 @@ async function fetchMessage(
   try {
     const id = verifyQueryId(req.query);
     const user = await verifyAuth(req);
-    const doc = await db.collection('users').doc(user.id).collection('messages').doc(id).get();
-    // TODO: Try to fetch it from Gmail's API instead.
-    if (!doc.exists) throw new APIError(`Message ${id} does not exist`, 404);
-    const messageData = Message.fromFirestoreDoc(doc);
-    const message = new Message({ ...messageData, ...parseRawHTML(messageData.raw) });
-    res.status(200).json(message.toJSON());
-    logger.info(`Fetched ${message} for ${user}.`);
+    // We don't store the actual message content (subject, snippet, html) in our
+    // database. Instead, we fetch that data at runtime and only store metadata.
+    const doc = await db
+      .collection('users')
+      .doc(user.id)
+      .collection('messages')
+      .doc(id)
+      .get();
+    const client = gmail(user.token);
+    const metadata = Message.fromFirestoreDoc(doc);
+    const gmailMessage = messageFromGmail(await getGmailMessage(id, client));
+    const combined: MessageInterface = {
+      from: metadata.from,
+      category: metadata.category,
+      favorite: metadata.favorite,
+      id: metadata.id,
+      date: metadata.date,
+      subject: gmailMessage.subject,
+      snippet: gmailMessage.snippet,
+      raw: gmailMessage.raw,
+      html: gmailMessage.html,
+      archived: metadata.archived,
+      scroll: metadata.scroll,
+      time: metadata.time,
+    };
+    res.status(200).json(new Message(combined).toJSON());
+    logger.info(`Fetched ${metadata} for ${user}.`);
     segment.track({
       userId: user.id,
       event: 'Message Fetched',
-      properties: message.toSegment(),
+      properties: metadata.toSegment(),
     });
   } catch (e) {
     handle(e, res);
