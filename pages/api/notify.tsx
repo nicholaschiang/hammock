@@ -46,11 +46,11 @@ export default async function notifyAPI(
           // (this will require us to store user time zones in our db).
           const user = User.fromFirestoreDoc(doc);
           logger.verbose(`Syncing messages for ${user}...`);
-          // We only have to sync the latest 10 messages because that's all that 
+          // We only have to sync the latest 10 messages because that's all that
           // we're looking at in our email notification anyways. That's why this
           // doesn't care about the `nextPageToken` and isn't recursive.
           const [e] = await to(syncGmail(user));
-          if (e) logger.warn(`Error syncing ${user}'s messages: ${e.message}`);
+          if (e) logger.warn(`Error syncing ${user}'s messages: ${e.stack}`);
           logger.verbose(`Fetching messages for ${user}...`);
           const { docs } = await doc.ref
             .collection('messages')
