@@ -43,7 +43,9 @@ export default function Controls({
     <div className={cn('controls', { visible })}>
       <div className='wrapper'>
         <button
-          onClick={() => query.ref === 'email' ? Router.push('/feed') : Router.back()}
+          onClick={() =>
+            query.ref === 'email' ? Router.push('/feed') : Router.back()
+          }
           className='reset button'
           type='button'
         >
@@ -69,6 +71,7 @@ export default function Controls({
           align-items: center;
           justify-content: center;
           transition: top 0.2s ease 0s, opacity 0.2s ease 0s;
+          pointer-events: none;
         }
 
         .controls.visible {
@@ -94,6 +97,7 @@ export default function Controls({
           background: var(--background);
           transition: background 0.2s ease 0s;
           margin-bottom: 10px;
+          pointer-events: initial;
         }
 
         .button:last-child {
