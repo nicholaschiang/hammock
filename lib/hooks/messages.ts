@@ -1,10 +1,16 @@
-import { SWRInfiniteConfiguration, SWRInfiniteResponse, useSWRInfinite } from 'swr';
+import {
+  SWRInfiniteConfiguration,
+  SWRInfiniteResponse,
+  useSWRInfinite,
+} from 'swr';
 import { useCallback } from 'react';
 
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
+import { APIError } from 'lib/model/error';
+
 export default function useMessages(
-  query: MessagesQuery = {}, 
+  query: MessagesQuery = {},
   config: SWRInfiniteConfiguration = { revalidateAll: true }
 ): SWRInfiniteResponse<MessagesRes> {
   const getKey = useCallback(
@@ -20,5 +26,5 @@ export default function useMessages(
     },
     [query]
   );
-  return useSWRInfinite<MessagesRes>(getKey, config);
+  return useSWRInfinite<MessagesRes, APIError>(getKey, config);
 }

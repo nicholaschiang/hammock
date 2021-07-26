@@ -20,8 +20,10 @@ export function handle(e: unknown, res: ServerResponse): void {
   } else {
     logger.error(`API encountered: ${e.code} ${e.toString()}`);
   }
-  if (e instanceof GaxiosError)
-    return send(new APIError(e.message, Number(e.code || 500)), res);
+  // For some weird reason (I'm guessing because of different `node_modules`
+  // package versions), simply using `e instanceof GaxiosError` doesn't work.
+  if (e instanceof Error && typeof (e as GaxiosError).code === 'string')
+    return send(new APIError(e.message, Number((e as GaxiosError).code)), res);
   if (e instanceof APIError) return send(e, res);
   if (e instanceof Error) return send(new APIError(e.message, 500), res);
   if (typeof e === 'string') return send(new APIError(e, 500), res);

@@ -8,10 +8,10 @@ import Segment from 'components/segment';
 
 import { Theme, ThemeContext } from 'lib/context/theme';
 import { User, UserJSON } from 'lib/model/user';
+import { fetcher, onError } from 'lib/fetch';
 import { APIError } from 'lib/model/error';
 import { CallbackParam } from 'lib/model/callback';
 import { UserContext } from 'lib/context/user';
-import { fetcher } from 'lib/fetch';
 
 const light = `
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
@@ -122,7 +122,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
   return (
     <UserContext.Provider value={{ user, setUser, setUserMutated, loggedIn }}>
       <ThemeContext.Provider value={{ theme, setTheme }}>
-        <SWRConfig value={{ fetcher }}>
+        <SWRConfig value={{ fetcher, onError }}>
           <Segment />
           <NProgress />
           <Component {...pageProps} />

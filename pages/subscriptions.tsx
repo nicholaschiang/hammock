@@ -13,6 +13,7 @@ import Dialog from 'components/dialog';
 import Empty from 'components/empty';
 import Page from 'components/page';
 
+import { APIError } from 'lib/model/error';
 import { Subscription } from 'lib/model/subscription';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
@@ -346,7 +347,7 @@ export default function SubscriptionsPage(): JSX.Element {
     },
     []
   );
-  const { data } = useSWRInfinite<SubscriptionsRes>(getKey, {
+  const { data } = useSWRInfinite<SubscriptionsRes, APIError>(getKey, {
     revalidateAll: true,
     initialSize: 10,
   });
