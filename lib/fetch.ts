@@ -1,3 +1,4 @@
+import Router from 'next/router';
 import { mutate } from 'swr';
 import to from 'await-to-js';
 
@@ -28,4 +29,9 @@ export async function fetcher<T, D = T>(
 
 export async function prefetch(url: string): Promise<void> {
   if (url) await mutate(url, fetcher(url));
+}
+
+export function onError(error: APIError): void {
+  if (error?.code !== 401) return;
+  void Router.replace('/login');
 }

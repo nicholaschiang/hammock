@@ -347,7 +347,7 @@ export default function SubscriptionsPage(): JSX.Element {
     },
     []
   );
-  const { data, error } = useSWRInfinite<SubscriptionsRes, APIError>(getKey, {
+  const { data } = useSWRInfinite<SubscriptionsRes, APIError>(getKey, {
     revalidateAll: true,
     initialSize: 10,
   });
@@ -361,13 +361,6 @@ export default function SubscriptionsPage(): JSX.Element {
     });
     return subs;
   }, [data]);
-
-  // Redirect to the login page if we receive a 401 error (e.g. the user hasn't
-  // signed in recently and thus Google has invalidated our OAuth2 access).
-  useEffect(() => {
-    if (error?.code !== 401) return;
-    void Router.replace('/login');
-  }, [error]);
 
   // TODO: Show error message in snackbar or button help text.
   const { loading, setLoading, setError } = useLoading();
