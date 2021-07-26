@@ -48,7 +48,11 @@ export type MessageFirestore = Omit<
   MessageInterface,
   keyof Subscription | 'date'
 > &
-  SubscriptionFirestore & { date: Timestamp; quickRead: boolean; resume: boolean };
+  SubscriptionFirestore & {
+    date: Timestamp;
+    quickRead: boolean;
+    resume: boolean;
+  };
 
 export function isMessageJSON(json: unknown): json is MessageJSON {
   const stringFields = ['id', 'subject', 'snippet', 'raw', 'html'];
@@ -95,14 +99,14 @@ export class Message extends Subscription implements MessageInterface {
     return new Message(clone(this));
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function 
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
   public set resume(resume: boolean) {}
-  
+
   public get resume(): boolean {
     return this.scroll > 0;
   }
-  
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function 
+
+  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-empty-function
   public set quickRead(quickRead: boolean) {}
 
   public get quickRead(): boolean {
@@ -130,12 +134,16 @@ export class Message extends Subscription implements MessageInterface {
   }
 
   public toFirestore(): MessageFirestore {
+    // We don't store the actual message content (subject, snippet, html) in our
+    // database. Instead, we fetch that data at runtime and only store metadata.
     return definedVals({
       ...this,
       ...super.toFirestore(),
-      date: (this.date as unknown) as Timestamp,
-      quickRead: this.quickRead,
-      resume: this.resume,
+      date: this.date as unknown as Timestamp,
+      subject: '',
+      snippet: '',
+      html: '',
+      raw: '',
     });
   }
 
