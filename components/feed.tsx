@@ -69,8 +69,9 @@ export default function Feed(query: MessagesQuery): JSX.Element {
         <link
           rel='preload'
           href='/api/messages'
-          as='fetch'
           crossOrigin='anonymous'
+          type='application/json'
+          as='fetch'
         />
       </Head>
       {!data && <Section />}

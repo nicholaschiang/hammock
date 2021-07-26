@@ -179,8 +179,9 @@ export default function Page({
         <link
           rel='preload'
           href='/api/account'
-          as='fetch'
           crossOrigin='anonymous'
+          type='application/json'
+          as='fetch'
         />
       </Head>
       {children}
