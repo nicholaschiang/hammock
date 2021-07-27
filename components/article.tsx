@@ -71,6 +71,10 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   }, [range]);
   useEffect(() => console.log('Path:', xpath), [xpath]);
   useEffect(() => {
+    // TODO: Instead of having this be an effect that manipulates the DOM
+    // directly and thus uses the browser's Web APIs, I should instead simply
+    // calculate the highlighted message HTML from the raw HTML string (parsing
+    // it using `RegExp` or something lightweight like that).
     if (!ref.current || !xpath?.start) return;
     const { singleNodeValue: start } = document.evaluate(
       `.${xpath.start}`,
