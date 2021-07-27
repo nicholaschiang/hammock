@@ -193,6 +193,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
             background-size: 400% 100%;
             -webkit-animation: loadingAnimation 8s ease-in-out infinite;
             animation: loadingAnimation 8s ease-in-out infinite;
+            cursor: wait;
           }
 
           @keyframes loadingAnimation {
