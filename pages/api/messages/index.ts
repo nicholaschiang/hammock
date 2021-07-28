@@ -46,7 +46,7 @@ export default async function messagesAPI(
       if (quickRead === 'true') query = query.where('quickRead', '==', true);
       if (resume === 'true') query = query.where('resume', '==', true);
       if (writer) query = query.where('from.email', '==', writer);
-      query = query.orderBy('date', 'desc').limit(10);
+      query = query.orderBy('date', 'desc').limit(5);
       if (lastMessageId) {
         const lastMessageDoc = await ref.doc(lastMessageId).get();
         query = query.startAfter(lastMessageDoc);
