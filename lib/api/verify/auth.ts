@@ -23,8 +23,10 @@ export default async function verifyAuth(
   req: NextApiRequest,
   requiredUserId?: string
 ): Promise<User> {
+  console.time('verify-auth');
   logger.verbose('Verifying authentication session...');
   const session = await getSession({ req });
+  console.timeEnd('verify-auth');
   if (!session) throw new APIError('You are not authenticated', 401);
   if (requiredUserId && session.user.id !== requiredUserId)
     throw new APIError('You are not authorized to perform this action', 401);

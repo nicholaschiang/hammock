@@ -10,6 +10,7 @@ import utf8 from 'utf8';
 import { Category, Contact } from 'lib/model/subscription';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';
+import logger from 'lib/api/logger';
 import whitelist from 'lib/whitelist.json';
 
 function hasWhitelistDomain(email: string) {
@@ -28,7 +29,11 @@ function hasWhitelistDomain(email: string) {
 }
 
 function getIcon(name: string, email: string): string {
-  const result = whitelist.find((l) => l.email.toLowerCase() === email.toLowerCase() || l.name.toLowerCase() === name.toLowerCase());
+  const result = whitelist.find(
+    (l) =>
+      l.email.toLowerCase() === email.toLowerCase() ||
+      l.name.toLowerCase() === name.toLowerCase()
+  );
   if (result?.icon) return result.icon;
   let domain = email.slice(email.indexOf('@') + 1);
   if (domain.startsWith('e.')) {
@@ -113,7 +118,7 @@ export function parseRawHTML(raw: string): { time: number; html: string } {
 
   // If an image is >400px wide, we should set it's width to 100%.
   DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    if (node.tagName === 'IMG' && Number(node.getAttribute('width')) > 400) 
+    if (node.tagName === 'IMG' && Number(node.getAttribute('width')) > 400)
       node.setAttribute('width', '100%');
   });
 
@@ -121,7 +126,19 @@ export function parseRawHTML(raw: string): { time: number; html: string } {
   // newsletter uses empty `<span>` tags to increase margin. We remove those.
   // @see {@link https://github.com/cure53/DOMPurify/issues/169}
   DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    const tags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'P', 'B', 'SPAN', 'STRONG', 'EM'];
+    const tags = [
+      'H1',
+      'H2',
+      'H3',
+      'H4',
+      'H5',
+      'H6',
+      'P',
+      'B',
+      'SPAN',
+      'STRONG',
+      'EM',
+    ];
     if (tags.includes(node.tagName) && !node.hasChildNodes()) node.remove();
   });
 
@@ -150,6 +167,9 @@ export function parseRawHTML(raw: string): { time: number; html: string } {
  * @return The converted message (with sanitized HTML and all).
  */
 export default function messageFromGmail(gmailMessage: GmailMessage): Message {
+  console.time(`parse-gmail-message-${gmailMessage.id}`);
+  logger.verbose(`Parsing Gmail message (${gmailMessage.id})...`);
+
   function getHeader(header: string): string {
     return (
       gmailMessage.payload?.headers?.find(
@@ -160,7 +180,14 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
 
   const { name, email, photo } = parseFrom(getHeader('from'));
   let category: Category | undefined;
-  if (whitelist.some((l) => l.email.toLowerCase() === email.toLowerCase() || l.name.toLowerCase() === name.toLowerCase()) || hasWhitelistDomain(email)) {
+  if (
+    whitelist.some(
+      (l) =>
+        l.email.toLowerCase() === email.toLowerCase() ||
+        l.name.toLowerCase() === name.toLowerCase()
+    ) ||
+    hasWhitelistDomain(email)
+  ) {
     category = 'important';
   } else if (getHeader('list-unsubscribe')) {
     category = 'other';
@@ -168,6 +195,8 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
 
   const raw = getRawHTML(gmailMessage);
   const { html, time } = parseRawHTML(raw);
+
+  console.timeEnd(`parse-gmail-message-${gmailMessage.id}`);
 
   return new Message({
     raw,

@@ -15,7 +15,8 @@ export default NextAuth({
     Providers.Google({
       clientId: process.env.OAUTH_CLIENT_ID,
       clientSecret: process.env.OAUTH_CLIENT_SECRET,
-      authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth?prompt=consent&access_type=offline&response_type=code',
+      authorizationUrl:
+        'https://accounts.google.com/o/oauth2/v2/auth?prompt=consent&access_type=offline&response_type=code',
       // These are the Gmail scopes that Hammock requires in order to function.
       // @see {@link https://developers.google.com/identity/protocols/oauth2/scopes#gmail}
       scope: [
@@ -54,6 +55,7 @@ export default NextAuth({
       return baseUrl;
     },
     async jwt(token, user, account, profile) {
+      console.time('process-jwt');
       logger.verbose(`Processing JWT for user (${token.sub})...`);
       if (user && account && profile) {
         const created = new User({
@@ -67,8 +69,8 @@ export default NextAuth({
         });
         const res = (await to(getUser(created.id)))[1];
         created.subscriptions = res?.subscriptions || [];
-        created.label = res?.label || await getOrCreateLabel(created);
-        created.filter = res?.filter || await getOrCreateFilter(created);
+        created.label = res?.label || (await getOrCreateLabel(created));
+        created.filter = res?.filter || (await getOrCreateFilter(created));
         logger.verbose(`Creating document for ${created}...`);
         await Promise.all([updateUserDoc(created), syncGmail(created)]);
       }
@@ -76,20 +78,24 @@ export default NextAuth({
       // cookie payload size supported by most browsers (~4096 bytes).
       // @see {@link https://next-auth.js.org/faq#what-are-the-disadvantages-of-json-web-tokens}
       // @see {@link http://browsercookielimits.iain.guru/}
+      console.timeEnd('process-jwt');
       return token;
     },
     async session(session, token) {
       // Instead of including user data in the JWT itself (because of cookie
       // payload size limits), I fetch that data from our database here.
       // @see {@link https://next-auth.js.org/configuration/callbacks#session-callback}
+      console.time('fetch-session');
       const user = await getUser((token as { sub: string }).sub);
       logger.verbose(`Fetching session for ${user}...`);
+      console.timeEnd('fetch-session');
       return { ...session, user: user.toJSON() };
     },
   },
   secret: process.env.AUTH_SECRET,
   jwt: {
     secret: process.env.AUTH_SECRET,
-    signingKey: '{"kty":"oct","kid":"SUmM9tnlyuJA7zSaWZQ5QCvr9JOg2FcXEVHDUyRQjLA","alg":"HS512","k":"iu25tYNV3q2M1hny1LcgGKMWZCzNDowps7v8ZNDxsaFa7e7mUqG6qCnqcpOivEoJOC5SXlZXAEnxu05QtVSO9A"}',
+    signingKey:
+      '{"kty":"oct","kid":"SUmM9tnlyuJA7zSaWZQ5QCvr9JOg2FcXEVHDUyRQjLA","alg":"HS512","k":"iu25tYNV3q2M1hny1LcgGKMWZCzNDowps7v8ZNDxsaFa7e7mUqG6qCnqcpOivEoJOC5SXlZXAEnxu05QtVSO9A"}',
   },
 });

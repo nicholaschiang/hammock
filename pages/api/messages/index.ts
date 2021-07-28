@@ -35,9 +35,11 @@ export default async function messagesAPI(
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
   } else {
     try {
+      console.time('get-messages-api');
       const { lastMessageId, quickRead, archive, resume, writer } =
         req.query as MessagesQuery;
       const user = await verifyAuth(req);
+      console.time('fetch-messages');
       logger.verbose(`Fetching messages for ${user}...`);
       const ref = db.collection('users').doc(user.id).collection('messages');
       let query = ref.where('archived', '==', archive === 'true');
@@ -50,6 +52,7 @@ export default async function messagesAPI(
         query = query.startAfter(lastMessageDoc);
       }
       const { docs } = await query.get();
+      console.timeEnd('fetch-messages');
       const client = gmail(user.token);
       const gmailMessages = await getGmailMessages(
         docs.map((d) => d.id),
@@ -78,6 +81,7 @@ export default async function messagesAPI(
       });
       res.status(200).json(messages.map((m) => m.toJSON()));
       logger.info(`Fetched ${messages.length} messages for ${user}.`);
+      console.timeEnd('get-messages-api');
       segment.track({
         userId: user.id,
         event: 'Messages Listed',
