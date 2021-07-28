@@ -183,6 +183,15 @@ export default function Page({
           type='application/json'
           as='fetch'
         />
+        {sync && (
+          <link
+            rel='preload'
+            href='/api/sync'
+            crossOrigin='anonymous'
+            type='application/json'
+            as='fetch'
+          />
+        )}
       </Head>
       {children}
     </>
