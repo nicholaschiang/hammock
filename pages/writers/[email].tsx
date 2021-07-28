@@ -44,7 +44,7 @@ export default function WritersPage(): JSX.Element {
         <InfiniteScroll
           dataLength={data?.flat().length || 0}
           next={() => setSize((prev) => prev + 1)}
-          hasMore={!data || data[data.length - 1].length === 10}
+          hasMore={!data || data[data.length - 1].length === 5}
           style={{ overflow: undefined }}
           scrollThreshold={0.65}
           loader={loader}
