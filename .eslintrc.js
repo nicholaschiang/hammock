@@ -191,11 +191,4 @@ module.exports = {
     ],
   },
   reportUnusedDisableDirectives: true,
-  settings: {
-    'postcss-modules': {
-      camelCase: true,
-      include: /\.scss$/,
-      exclude: /\/node_modules\//,
-    },
-  },
 };
