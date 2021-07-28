@@ -8,7 +8,6 @@ export interface ArticleProps {
   message?: Message;
 }
 
-// Handles highlighting and other annotations.
 export default function Article({ message }: ArticleProps): JSX.Element {
   const [xpaths, setXPaths] = useState<XPath[]>([]);
   const ref = useRef<HTMLElement>(null);
@@ -21,7 +20,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         if (!range || !ref.current) return prev;
         const { startContainer, endContainer, startOffset, endOffset } = range;
         const start = fromNode(startContainer, ref.current);
+        // TODO: Determine dialog position based on the end container's x and y
+        // coordinates relative to the viewport. Then, simply store those in a
+        // state object and use them dynamically to style a dialog pop-up.
         const end = fromNode(endContainer, ref.current);
+        window.endContainer = endContainer;
         return [...prev, { start, end, startOffset, endOffset }];
       });
     }
