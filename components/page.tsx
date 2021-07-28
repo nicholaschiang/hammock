@@ -171,7 +171,7 @@ export default function Page({
           content='black-translucent'
         />
         <meta name='mobile-web-app-capable' content='yes' />
-        <meta name='application-name' content='Tutorbook' />
+        <meta name='application-name' content='Hammock' />
         <meta name='theme-color' content={dark ? '#121212' : '#ffffff'} />
         <link rel='preconnect' href='https://cdn.segment.com' />
         <link rel='preconnect' href='https://api.segment.io' />
