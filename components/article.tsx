@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { Message } from 'lib/model/message';
 
+const canUseDOM = !!(
+  typeof window !== 'undefined' &&
+  window.document &&
+  window.document.createElement
+);
+
 // Get the XPath node name.
 function getNodeName(node: Node): string {
   switch (node.nodeName) {
@@ -18,10 +24,12 @@ function getNodeName(node: Node): string {
 
 // Get the ordinal position of this node among its siblings of the same name.
 function getNodePosition(node: Node): number {
-  const name = node.nodeName;
+  const { nodeName } = node;
   let position = 1;
-  while ((node = node.previousSibling)) {
-    if (node.nodeName === name) position += 1;
+  let n = node.previousSibling;
+  while (n) {
+    if (n.nodeName === nodeName) position += 1;
+    n = n.previousSibling;
   }
   return position;
 }
@@ -33,12 +41,23 @@ function getNodePosition(node: Node): number {
  */
 export function xpathFromNode(node: Node, root: Node): string {
   let path = '/';
-  while (node !== root) {
-    if (!node) return '';
-    path = `/${getNodeName(node)}[${getNodePosition(node)}]${path}`;
-    node = node.parentNode;
+  let n: Node | null = node;
+  while (n !== root) {
+    if (!n) return '';
+    // TODO: Disallow edge case where a user's highlight overlaps with an
+    // existing highlight (this is the existing behavior over at Medium).
+    if (n.nodeName.toLowerCase() !== 'mark')
+      path = `/${getNodeName(n)}[${getNodePosition(n)}]${path}`;
+    n = n.parentNode;
   }
   return path.replace(/\/$/, '');
+}
+
+interface XPath {
+  start: string;
+  startOffset: number;
+  end: string;
+  endOffset: number;
 }
 
 export interface ArticleProps {
@@ -47,133 +66,95 @@ export interface ArticleProps {
 
 // Handles highlighting and other annotations.
 export default function Article({ message }: ArticleProps): JSX.Element {
-  const [range, setRange] = useState<Range>();
+  const [xpaths, setXPaths] = useState<XPath[]>([]);
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     function listener(): void {
       const sel = window.getSelection() || document.getSelection();
-      console.log('Range:', sel?.getRangeAt(0));
-      setRange(sel?.getRangeAt(0));
+      const range = sel?.getRangeAt(0);
+      console.log('Range:', range);
+      setXPaths((prev) => {
+        if (!range || !ref.current) return prev;
+        const { startContainer, endContainer, startOffset, endOffset } = range;
+        const start = xpathFromNode(startContainer, ref.current);
+        const end = xpathFromNode(endContainer, ref.current);
+        return [...prev, { start, end, startOffset, endOffset }];
+      });
     }
     window.addEventListener('mouseup', listener);
     return () => window.removeEventListener('mouseup', listener);
   }, []);
-  const xpath = useMemo(() => {
-    if (!range || !ref.current) return;
-    const start = xpathFromNode(range.startContainer, ref.current);
-    const end = xpathFromNode(range.endContainer, ref.current);
-    return {
-      start,
-      end,
-      startOffset: range.startOffset,
-      endOffset: range.endOffset,
-    };
-  }, [range]);
-  useEffect(() => console.log('Path:', xpath), [xpath]);
-  useEffect(() => {
-    // TODO: Instead of having this be an effect that manipulates the DOM
-    // directly and thus uses the browser's Web APIs, I should instead simply
-    // calculate the highlighted message HTML from the raw HTML string (parsing
-    // it using `RegExp` or something lightweight like that).
-    if (!ref.current || !xpath?.start) return;
-    const { singleNodeValue: start } = document.evaluate(
-      `.${xpath.start}`,
-      ref.current,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE
-    );
-    console.log('Start Node:', start);
-    const { singleNodeValue: end } = document.evaluate(
-      `.${xpath.end}`,
-      ref.current,
-      null,
-      XPathResult.FIRST_ORDERED_NODE_TYPE
-    );
-    console.log('End Node:', end);
-    window.start = start;
-    window.end = end;
-    if (!start || !end) return console.warn('No start and/or end nodes.');
-    if (start === end) {
-      const afterStart = start.splitText(xpath.startOffset);
-      const afterEnd = afterStart.splitText(
-        xpath.endOffset - xpath.startOffset
+  const html = useMemo(() => {
+    if (!canUseDOM || !xpaths.length || !message) return message?.html || '';
+    const doc = new DOMParser().parseFromString(message.html, 'text/html');
+    xpaths.forEach((xpath) => {
+      console.log('XPath:', xpath);
+      const { singleNodeValue: start } = doc.evaluate(
+        `.${xpath.start}`,
+        doc.body,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE
       );
-      const span = document.createElement('span');
-      span.className = 'highlight';
-      span.innerHTML = afterStart.nodeValue;
-      console.log('Highlighting:', afterStart);
-      afterStart.parentNode.insertBefore(span, afterStart);
-      afterStart.parentNode.removeChild(afterStart);
-      return;
-    }
-    // Highlight everything in between.
-    let next = start;
-    while (!next.nextSibling && next.parentNode) next = next.parentNode;
-    next = next.nextSibling as Node;
-    while (next !== end && !next.contains(end)) {
-      console.log('Highlighting:', next);
-      if (next instanceof Element) {
-        // TODO: Simply setting the `innerHTML` of e.g. a link overrides that
-        // link's custom e.g. color styles with the highlight styles. This is
-        // different from the behavior when an entire e.g. paragraph is wrapped
-        // with the `<span>` tag (where link colors are preserved).
-        next.innerHTML = `<span class='highlight'>${next.innerHTML}</span>`;
-        while (!next.nextSibling && next.parentNode) next = next.parentNode;
-        next = next.nextSibling as Node;
-      } else {
-        const span = document.createElement('span');
-        span.className = 'highlight';
-        span.innerHTML = next.nodeValue || '';
-        next.parentNode.insertBefore(span, next);
-        next.parentNode.removeChild(next);
-        next = span;
-        while (!next.nextSibling && next.parentNode) next = next.parentNode;
-        next = next.nextSibling as Node;
+      console.log('Start Node:', start);
+      const { singleNodeValue: end } = doc.evaluate(
+        `.${xpath.end}`,
+        doc.body,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE
+      );
+      console.log('End Node:', end);
+      if (!start || !end) return console.warn('No start and/or end nodes.');
+      if (!(start instanceof Text)) return console.warn('Start not text node.');
+      if (!(end instanceof Text)) return console.warn('End not text node.');
+      if (start === end) {
+        const afterStart = start.splitText(xpath.startOffset);
+        afterStart.splitText(xpath.endOffset - xpath.startOffset);
+        const mark = doc.createElement('mark');
+        mark.innerHTML = afterStart.nodeValue || '';
+        console.log('Highlighting:', afterStart);
+        afterStart.parentNode?.insertBefore(mark, afterStart);
+        afterStart.parentNode?.removeChild(afterStart);
+        return console.log('No highlight traversion necessary.');
       }
-      console.log('Next:', next);
-    }
-    // Highlight all the stuff before the end text node.
-    while (next !== end) {
-      const childNodes = Array.from(next.childNodes);
-      const endIdx = childNodes.findIndex((n) => n === end || n.contains(end));
-      // Highlight all the siblings that do not contain the end text node.
-      childNodes.forEach((n, idx) => {
-        if (idx >= endIdx) return; // Only highlight stuff before the end node.
-        console.log('Highlighting End:', n);
-        if (n instanceof Element) {
-          n.innerHTML = `<span class='highlight'>${n.innerHTML}</span>`;
-        } else {
-          const span = document.createElement('span');
-          span.className = 'highlight';
-          span.innerHTML = n.nodeValue || '';
-          n.parentNode.insertBefore(span, n);
-          n.parentNode.removeChild(n);
-        }
-      });
-      // Keep highlighting until we reach the end text node.
-      next = childNodes[endIdx];
-      console.log('Next End:', next);
-    }
-    // Highlight the start text node.
-    const afterStart = start.splitText(xpath.startOffset);
-    const span = document.createElement('span');
-    span.className = 'highlight';
-    span.innerHTML = afterStart.nodeValue;
-    afterStart.parentNode.insertBefore(span, afterStart);
-    afterStart.parentNode.removeChild(afterStart);
-    // Highlight the end text node.
-    const afterEnd = end.splitText(xpath.endOffset);
-    const spn = document.createElement('span');
-    spn.className = 'highlight';
-    spn.innerHTML = end.nodeValue;
-    end.parentNode.insertBefore(spn, end);
-    end.parentNode.removeChild(end);
-  }, [xpath]);
+      // Highlight everything in between.
+      let next: Node = start;
+      while (!next.nextSibling && next.parentNode) next = next.parentNode;
+      next = next.nextSibling as Node;
+      while (true) {
+        while (next.firstChild) next = next.firstChild;
+        if (next === end) break;
+        console.log('Highlighting:', next);
+        const mark = doc.createElement('mark');
+        mark.innerHTML =
+          next instanceof Element ? next.outerHTML : next.nodeValue || '';
+        next.parentNode?.insertBefore(mark, next);
+        next.parentNode?.removeChild(next);
+        next = mark;
+        while (!next.nextSibling && next.parentNode) next = next.parentNode;
+        next = next.nextSibling as Node;
+        console.log('Next:', next);
+      }
+      // Highlight the start text node.
+      const afterStart = start.splitText(xpath.startOffset);
+      const mark = doc.createElement('mark');
+      mark.innerHTML = afterStart.nodeValue || '';
+      afterStart.parentNode?.insertBefore(mark, afterStart);
+      afterStart.parentNode?.removeChild(afterStart);
+      // Highlight the end text node.
+      const afterEnd = end.splitText(xpath.endOffset);
+      const mk = doc.createElement('mark');
+      mk.innerHTML = end.nodeValue || '';
+      end.parentNode?.insertBefore(mk, afterEnd);
+      end.parentNode?.removeChild(end);
+    });
+    // Return the highlighted HTML.
+    return doc.body.innerHTML;
+  }, [xpaths, message]);
 
   return (
     <>
       {message && (
-        <article ref={ref} dangerouslySetInnerHTML={{ __html: message.html }} />
+        <article ref={ref} dangerouslySetInnerHTML={{ __html: html }} />
       )}
       {!message && (
         <article>
@@ -249,9 +230,14 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           font-size: 1.1rem;
         }
 
-        article :global(.highlight) {
+        article :global(mark) {
           color: var(--on-highlight);
           background: var(--highlight);
+          user-select: none;
+        }
+
+        article :global(a mark) {
+          color: var(--accents-5);
         }
       `}</style>
     </>
