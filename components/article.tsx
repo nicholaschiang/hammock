@@ -35,8 +35,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       setPosition({
         x: evt.offsetX,
         y: evt.offsetY,
-        containerX: evt.target.offsetLeft,
-        containerY: evt.target.offsetTop,
+        containerX: (evt.target as HTMLElement).offsetLeft,
+        containerY: (evt.target as HTMLElement).offsetTop,
       });
       setXPath(() => {
         if (!range || range.collapsed || !ref.current) return undefined;
