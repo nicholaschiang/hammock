@@ -1,10 +1,15 @@
 import { dequal } from 'dequal';
 
-import { User } from 'lib/model/user';
+import { SCOPES, User } from 'lib/model/user';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
 
 export default async function getOrCreateFilter(user: User): Promise<string> {
+  if (!user.scopes.includes(SCOPES.FILTER)) {
+    logger.error(`Skipping filter for ${user} without FILTER scope...`);
+    return '';
+  }
+
   const client = gmail(user.token);
   const requestBody = {
     action: { addLabelIds: [user.label], removeLabelIds: ['INBOX'] },

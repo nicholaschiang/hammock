@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import Providers from 'next-auth/providers';
 import to from 'await-to-js';
 
-import { User, UserJSON } from 'lib/model/user';
+import { SCOPES, User, UserJSON } from 'lib/model/user';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
 import getUser from 'lib/api/get/user';
@@ -19,13 +19,7 @@ export default NextAuth({
         'https://accounts.google.com/o/oauth2/v2/auth?prompt=consent&access_type=offline&response_type=code',
       // These are the Gmail scopes that Hammock requires in order to function.
       // @see {@link https://developers.google.com/identity/protocols/oauth2/scopes#gmail}
-      scope: [
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/userinfo.profile',
-        'https://www.googleapis.com/auth/gmail.readonly',
-        'https://www.googleapis.com/auth/gmail.settings.basic',
-        'https://www.googleapis.com/auth/gmail.labels',
-      ].join(' '),
+      scope: Object.values(SCOPES).join(' '),
       profile(profile) {
         const user: UserJSON = {
           id: profile.id,
@@ -38,6 +32,7 @@ export default NextAuth({
           label: '',
           filter: '',
           subscriptions: [],
+          scopes: [],
         };
         return user as UserJSON & Record<string, unknown>;
       },
@@ -65,6 +60,7 @@ export default NextAuth({
           photo: profile.image || user.photo || token.picture || '',
           email: profile.email || user.email || token.email || '',
           locale: profile.locale || user.locale,
+          scopes: (account.scope as string).split(' '),
           token: account.refresh_token,
         });
         const res = (await to(getUser(created.id)))[1];
