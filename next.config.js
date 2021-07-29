@@ -37,6 +37,12 @@ module.exports = {
           'https://readhammock.notion.site/Return-of-the-Newsletter-524563869f6242baaa60250299536654',
         permanent: true,
       },
+      {
+        source: '/changelog',
+        destination:
+          'https://readhammock.notion.site/Changelog-565a632fc5e3466d85748a78ddeae8f6',
+        permanent: true,
+      },
     ];
   },
   webpack(config, { isServer }) {
