@@ -25,7 +25,19 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const [xpaths, setXPaths] = useState<XPath[]>([]);
   const [position, setPosition] = useState<Position>();
   const [selection, setSelection] = useState<string>('');
-  const ref = useRef<HTMLElement>(null);
+  const articleRef = useRef<HTMLElement>(null);
+  const buttonsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function listener(evt: MouseEvent): void {
+      setPosition((prev) => {
+        if (buttonsRef.current === evt.target) return prev;
+        if (buttonsRef.current?.contains(evt.target as Node)) return prev;
+        return;
+      });
+    }
+    window.addEventListener('mousedown', listener);
+    return () => window.removeEventListener('mousedown', listener);
+  }, []);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
       const sel = window.getSelection() || document.getSelection();
@@ -39,10 +51,10 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         containerY: (evt.target as HTMLElement).offsetTop,
       });
       setXPath(() => {
-        if (!range || range.collapsed || !ref.current) return undefined;
+        if (!range || range.collapsed || !articleRef.current) return undefined;
         const { startContainer, endContainer, startOffset, endOffset } = range;
-        const start = fromNode(startContainer, ref.current);
-        const end = fromNode(endContainer, ref.current);
+        const start = fromNode(startContainer, articleRef.current);
+        const end = fromNode(endContainer, articleRef.current);
         return { start, end, startOffset, endOffset };
       });
     }
@@ -67,7 +79,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   return (
     <>
       <div className={cn('dialog', { open: position && xpath })}>
-        <div className='buttons'>
+        <div className='buttons' ref={buttonsRef}>
           <button className='reset button' type='button' onClick={onHighlight}>
             <HighlightIcon />
           </button>
@@ -92,7 +104,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         </div>
       </div>
       {message && (
-        <article ref={ref} dangerouslySetInnerHTML={{ __html: html }} />
+        <article ref={articleRef} dangerouslySetInnerHTML={{ __html: html }} />
       )}
       {!message && (
         <article>
