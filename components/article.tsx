@@ -142,20 +142,20 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           transform: translateY(0px);
         }
 
-        .button:nth-of-type(1),
-        .shadow:nth-of-type(1) {
+        .button:nth-child(1),
+        .shadow:nth-child(1) {
           transition: background 0.2s ease 0s, transform 0.2s ease-out 0s,
             opacity 0.2s ease-out 0s;
         }
 
-        .button:nth-of-type(2),
-        .shadow:nth-of-type(2) {
+        .button:nth-child(2),
+        .shadow:nth-child(2) {
           transition: background 0.2s ease 0s, transform 0.2s ease-out 0.05s,
             opacity 0.2s ease-out 0.05s;
         }
 
-        .button:nth-of-type(3),
-        .shadow:nth-of-type(3) {
+        .button:nth-child(3),
+        .shadow:nth-child(3) {
           transition: background 0.2s ease 0s, transform 0.2s ease-out 0.1s,
             opacity 0.2s ease-out 0.1s;
         }
