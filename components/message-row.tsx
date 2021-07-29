@@ -17,11 +17,18 @@ export default function MessageRow({
   date,
 }: MessageRowProps): JSX.Element {
   return (
-    <Link href={message ? `/messages/${message.id}` : ''}>
+    <Link href={message ? `/messages/${message.id}` : '#'}>
       <a className={cn('row', { disabled: loading })}>
         <div className='from'>
           <Avatar src={message?.from.photo} loading={loading} size={24} />
-          <span className={cn('name', { loading })}>{date ? message?.date.toLocaleString('en', { month: 'short', day: 'numeric' }) : message?.from.name}</span>
+          <span className={cn('name', { loading })}>
+            {date
+              ? message?.date.toLocaleString('en', {
+                  month: 'short',
+                  day: 'numeric',
+                })
+              : message?.from.name}
+          </span>
         </div>
         <div className='header'>
           <h3 className={cn('subject', { loading })}>{message?.subject}</h3>
