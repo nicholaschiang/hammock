@@ -6,6 +6,7 @@ import cn from 'classnames';
 
 import { MessageRes } from 'pages/api/messages/[id]';
 
+import Article from 'components/article';
 import Controls from 'components/controls';
 import Page from 'components/page';
 
@@ -136,14 +137,7 @@ export default function MessagePage(): JSX.Element {
             </a>
           </Link>
         </header>
-        {data && <article dangerouslySetInnerHTML={{ __html: message.html }} />}
-        {!data && (
-          <article>
-            <p className='loading' />
-            <p className='loading' />
-            <p className='loading' />
-          </article>
-        )}
+        <Article message={data ? message : undefined} />
       </div>
       <style jsx>{`
         .page {
@@ -212,72 +206,6 @@ export default function MessagePage(): JSX.Element {
 
         header .author.disabled {
           cursor: wait;
-        }
-
-        p.loading {
-          border-radius: 6px;
-        }
-
-        p.loading:nth-child(1) {
-          height: 45px;
-        }
-
-        p.loading:nth-child(2) {
-          height: 90px;
-        }
-
-        p.loading:nth-child(3) {
-          height: 500px;
-        }
-
-        article :global(img) {
-          max-width: 100%;
-          height: auto;
-          border: 1px solid var(--accents-2);
-          background-color: var(--accents-1);
-          display: block;
-          margin: 1rem 0;
-        }
-
-        article :global(p) {
-          font-size: 1rem;
-          font-weight: 400;
-          margin: 1rem 0;
-        }
-
-        article :global(a) {
-          color: var(--accents-5);
-        }
-
-        article :global(strong) {
-          font-weight: 600;
-        }
-
-        article :global(b) {
-          font-weight: 600;
-        }
-
-        article :global(h1),
-        article :global(h2),
-        article :global(h3),
-        article :global(h4),
-        article :global(h5),
-        article :global(h6) {
-          font-size: 1rem;
-          font-weight: 600;
-          margin: 1rem 0;
-        }
-
-        article :global(h1) {
-          font-size: 1.3rem;
-        }
-
-        article :global(h2) {
-          font-size: 1.2rem;
-        }
-
-        article :global(h3) {
-          font-size: 1.1rem;
         }
       `}</style>
     </Page>
