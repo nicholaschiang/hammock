@@ -18,6 +18,30 @@ import definedVals from 'lib/model/defined-vals';
 export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
 
 /**
+ * @typedef {Object} HighlightInterface
+ * @property id - The highlight's ID. Used when an xpath range has to be styled
+ * using multiple `<mark>` tags instead of just one.
+ * @property start - The xpath pointing to the range start element.
+ * @property end - The xpath pointing to the range end element.
+ * @property startOffset - The offset from the start of the start element and
+ * the start of the highlight (in characters).
+ * @property endOffset - The offset from the start of the end element and the
+ * end of the highlight (in characters).
+ * @property [deleted] - Whether or not this highlight is deleted. We have to
+ * keep these highlights and their corresponding `<mark>` tags b/c otherwise we
+ * have the possibility of messing up the xpath selectors of highlights made
+ * after this one.
+ */
+export interface Highlight {
+  start: string;
+  startOffset: number;
+  end: string;
+  endOffset: number;
+  id: string;
+  deleted?: boolean;
+}
+
+/**
  * @typedef {Object} MessageInterface
  * @extends SubscriptionInterface
  * @property id - The message's Gmail-assigned ID (we reuse it in our database).

@@ -1,4 +1,4 @@
-import { XPath } from 'lib/xpath';
+import { Highlight } from 'lib/model/message';
 
 const canUseDOM = !!(
   typeof window !== 'undefined' &&
@@ -8,21 +8,24 @@ const canUseDOM = !!(
 
 /**
  * @param html - The unhighlighted message HTML.
- * @param xpaths - An array of XPath selections to highlight.
+ * @param highlights - An array of XPath selections to highlight.
  * @return The highlighted message HTML.
  */
-export default function highlight(html: string, xpaths: XPath[]): string {
-  if (!canUseDOM || !xpaths.length || !html) return html;
+export default function highlightHTML(
+  html: string,
+  highlights: Highlight[]
+): string {
+  if (!canUseDOM || !highlights.length || !html) return html;
   const doc = new DOMParser().parseFromString(html, 'text/html');
-  xpaths.forEach((xpath) => {
+  highlights.forEach((highlight) => {
     const { singleNodeValue: start } = doc.evaluate(
-      `.${xpath.start}`,
+      `.${highlight.start}`,
       doc.body,
       null,
       XPathResult.FIRST_ORDERED_NODE_TYPE
     );
     const { singleNodeValue: end } = doc.evaluate(
-      `.${xpath.end}`,
+      `.${highlight.end}`,
       doc.body,
       null,
       XPathResult.FIRST_ORDERED_NODE_TYPE
@@ -35,11 +38,11 @@ export default function highlight(html: string, xpaths: XPath[]): string {
     if (!(start instanceof Text)) return console.warn('Start not text node.');
     if (!(end instanceof Text)) return console.warn('End not text node.');
     if (start === end) {
-      const afterStart = start.splitText(xpath.startOffset);
-      afterStart.splitText(xpath.endOffset - xpath.startOffset);
+      const afterStart = start.splitText(highlight.startOffset);
+      afterStart.splitText(highlight.endOffset - highlight.startOffset);
       const mark = doc.createElement('mark');
-      mark.dataset.xpath = xpath.id;
-      if (xpath.deleted) mark.dataset.deleted = '';
+      mark.dataset.highlight = highlight.id;
+      if (highlight.deleted) mark.dataset.deleted = '';
       mark.innerHTML = afterStart.nodeValue || '';
       afterStart.parentNode?.insertBefore(mark, afterStart);
       afterStart.parentNode?.removeChild(afterStart);
@@ -56,8 +59,8 @@ export default function highlight(html: string, xpaths: XPath[]): string {
       if (next === end) break;
       // Otherwise, highlight this node.
       const mark = doc.createElement('mark');
-      mark.dataset.xpath = xpath.id;
-      if (xpath.deleted) mark.dataset.deleted = '';
+      mark.dataset.highlight = highlight.id;
+      if (highlight.deleted) mark.dataset.deleted = '';
       mark.innerHTML =
         next instanceof Element ? next.outerHTML : next.nodeValue || '';
       next.parentNode?.insertBefore(mark, next);
@@ -69,18 +72,18 @@ export default function highlight(html: string, xpaths: XPath[]): string {
       next = next.nextSibling as Node;
     }
     // Highlight the start text node.
-    const afterStart = start.splitText(xpath.startOffset);
+    const afterStart = start.splitText(highlight.startOffset);
     const mark = doc.createElement('mark');
-    mark.dataset.xpath = xpath.id;
-    if (xpath.deleted) mark.dataset.deleted = '';
+    mark.dataset.highlight = highlight.id;
+    if (highlight.deleted) mark.dataset.deleted = '';
     mark.innerHTML = afterStart.nodeValue || '';
     afterStart.parentNode?.insertBefore(mark, afterStart);
     afterStart.parentNode?.removeChild(afterStart);
     // Highlight the end text node.
-    const afterEnd = end.splitText(xpath.endOffset);
+    const afterEnd = end.splitText(highlight.endOffset);
     const mk = doc.createElement('mark');
-    mk.dataset.xpath = xpath.id;
-    if (xpath.deleted) mk.dataset.deleted = '';
+    mk.dataset.highlight = highlight.id;
+    if (highlight.deleted) mk.dataset.deleted = '';
     mk.innerHTML = end.nodeValue || '';
     end.parentNode?.insertBefore(mk, afterEnd);
     end.parentNode?.removeChild(end);
