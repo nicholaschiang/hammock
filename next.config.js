@@ -43,6 +43,11 @@ module.exports = {
           'https://readhammock.notion.site/Changelog-565a632fc5e3466d85748a78ddeae8f6',
         permanent: true,
       },
+      {
+        source: '/waitlist',
+        destination: 'https://form.typeform.com/to/PezpoULN',
+        permanent: true,
+      },
     ];
   },
   webpack(config, { isServer }) {
