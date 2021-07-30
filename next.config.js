@@ -48,6 +48,12 @@ module.exports = {
         destination: 'https://form.typeform.com/to/PezpoULN',
         permanent: true,
       },
+      {
+        source: '/try',
+        destination:
+          'https://readhammock.notion.site/Hi-we-re-building-Hammock-1d9ac6c2e6004974ac1eafd00a53b4cd',
+        permanent: true,
+      },
     ];
   },
   webpack(config, { isServer }) {
