@@ -32,7 +32,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       setPosition((prev) => {
         if (buttonsRef.current === evt.target) return prev;
         if (buttonsRef.current?.contains(evt.target as Node)) return prev;
-        return;
+        return undefined;
       });
     }
     window.addEventListener('mousedown', listener);
