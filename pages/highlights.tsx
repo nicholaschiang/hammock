@@ -111,14 +111,14 @@ function HighlightRow({ message, highlight }: HighlightProps): JSX.Element {
   );
 }
 
-/* eslint-disable-next-line react/no-array-index-key */
+/* eslint-disable react/no-array-index-key */
 const loader = Array(5)
   .fill(null)
   .map((_, idx) => <HighlightRow key={idx} />);
+/* eslint-enable react/no-array-index-key */
 
 export default function HighlightsPage(): JSX.Element {
   const { data, setSize } = useMessages();
-  // TODO: Perhaps put this `useMemo` statement into the `useMessages` hook.
   const highlights = useMemo(
     () =>
       data
