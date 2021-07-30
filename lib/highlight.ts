@@ -39,6 +39,7 @@ export default function highlight(html: string, xpaths: XPath[]): string {
       afterStart.splitText(xpath.endOffset - xpath.startOffset);
       const mark = doc.createElement('mark');
       mark.dataset.xpath = xpath.id;
+      if (xpath.deleted) mark.dataset.deleted = '';
       mark.innerHTML = afterStart.nodeValue || '';
       afterStart.parentNode?.insertBefore(mark, afterStart);
       afterStart.parentNode?.removeChild(afterStart);
@@ -56,6 +57,7 @@ export default function highlight(html: string, xpaths: XPath[]): string {
       // Otherwise, highlight this node.
       const mark = doc.createElement('mark');
       mark.dataset.xpath = xpath.id;
+      if (xpath.deleted) mark.dataset.deleted = '';
       mark.innerHTML =
         next instanceof Element ? next.outerHTML : next.nodeValue || '';
       next.parentNode?.insertBefore(mark, next);
@@ -70,6 +72,7 @@ export default function highlight(html: string, xpaths: XPath[]): string {
     const afterStart = start.splitText(xpath.startOffset);
     const mark = doc.createElement('mark');
     mark.dataset.xpath = xpath.id;
+    if (xpath.deleted) mark.dataset.deleted = '';
     mark.innerHTML = afterStart.nodeValue || '';
     afterStart.parentNode?.insertBefore(mark, afterStart);
     afterStart.parentNode?.removeChild(afterStart);
@@ -77,6 +80,7 @@ export default function highlight(html: string, xpaths: XPath[]): string {
     const afterEnd = end.splitText(xpath.endOffset);
     const mk = doc.createElement('mark');
     mk.dataset.xpath = xpath.id;
+    if (xpath.deleted) mk.dataset.deleted = '';
     mk.innerHTML = end.nodeValue || '';
     end.parentNode?.insertBefore(mk, afterEnd);
     end.parentNode?.removeChild(end);

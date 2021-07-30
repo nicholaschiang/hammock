@@ -4,6 +4,7 @@ export interface XPath {
   end: string;
   endOffset: number;
   id: string;
+  deleted?: boolean;
 }
 
 // Get the XPath node name.
@@ -42,10 +43,7 @@ export function fromNode(node: Node, root: Node): string {
   let n: Node | null = node;
   while (n !== root) {
     if (!n) return '';
-    // TODO: Disallow edge case where a user's highlight overlaps with an
-    // existing highlight (this is the existing behavior over at Medium).
-    if (n.nodeName.toLowerCase() !== 'mark')
-      path = `/${getNodeName(n)}[${getNodePosition(n)}]${path}`;
+    path = `/${getNodeName(n)}[${getNodePosition(n)}]${path}`;
     n = n.parentNode;
   }
   return path.replace(/\/$/, '');

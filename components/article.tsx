@@ -29,23 +29,24 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
+    // when the user's mouse exits the highlight and w/in ~100px of dialog.
     function listener(evt: MouseEvent): void {
+      console.log('Mouse Over:', evt.target);
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
       if ((evt.target as HTMLElement).dataset.xpath === xpath?.id) return;
-      setXPath(undefined);
+      if ((evt.target as HTMLElement).dataset.deleted === '') return;
       setPosition({
         x: evt.offsetX,
         y: evt.offsetY,
         containerX: (evt.target as HTMLElement).offsetLeft,
         containerY: (evt.target as HTMLElement).offsetTop,
       });
-      const id = (evt.target as HTMLElement).dataset.xpath;
       // TODO: Remove this `setTimeout` but still ensure that animation plays
       // correctly. Right now, we have to wait 300ms for the reverse animation
       // to play out before we can show the dialog again.
-      setTimeout(() => {
-        setXPath((prev) => xpaths.find((x) => x.id === id) || prev);
-      }, 300);
+      const id = (evt.target as HTMLElement).dataset.xpath;
+      setXPath((prev) => xpaths.find((x) => x.id === id) || prev);
     }
     window.addEventListener('mouseover', listener);
     return () => window.removeEventListener('mouseover', listener);
@@ -85,9 +86,12 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     setXPath(undefined);
     setXPaths((prev) => {
       if (!xpath) return prev;
+      // TODO: Test if this new xpath range overlaps with any existing xpaths.
+      // If so, combine them into one new non-deleted xpath range.
       const idx = prev.findIndex((x) => x.id === xpath.id);
       if (idx < 0) return [...prev, xpath];
-      return [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+      const deleted = { ...xpath, deleted: true };
+      return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
     });
   }, [xpath]);
 
@@ -312,6 +316,12 @@ export default function Article({ message }: ArticleProps): JSX.Element {
 
         article :global(mark[data-xpath='${xpath?.id}']) {
           background: var(--highlight-hover);
+        }
+
+        article :global(mark[data-deleted='']) {
+          background: inherit;
+          cursor: inherit;
+          color: inherit;
         }
 
         article :global(a mark) {
