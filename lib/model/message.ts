@@ -6,7 +6,7 @@ import {
   SubscriptionJSON,
   isSubscriptionJSON,
 } from 'lib/model/subscription';
-import { isDateJSON, isJSON } from 'lib/model/json';
+import { isArray, isDateJSON, isJSON } from 'lib/model/json';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
@@ -41,6 +41,17 @@ export interface Highlight {
   deleted?: boolean;
 }
 
+export function isHighlight(highlight: unknown): highlight is Highlight {
+  if (!isJSON(highlight)) return false;
+  return (
+    typeof highlight.start === 'string' &&
+    typeof highlight.startOffset === 'number' &&
+    typeof highlight.start === 'string' &&
+    typeof highlight.endOffset === 'number' &&
+    (highlight.deleted === undefined || typeof highlight.deleted === 'boolean')
+  );
+}
+
 /**
  * @typedef {Object} MessageInterface
  * @extends SubscriptionInterface
@@ -53,6 +64,7 @@ export interface Highlight {
  * @property archived - Whether or not the email has been archived.
  * @property scroll - The user's scroll position in reading this email.
  * @property time - The message's estimated reading time (in minutes).
+ * @property highlights - The message's highlights.
  */
 export interface MessageInterface extends SubscriptionInterface {
   id: string;
@@ -64,6 +76,7 @@ export interface MessageInterface extends SubscriptionInterface {
   archived: boolean;
   scroll: number;
   time: number;
+  highlights: Highlight[];
 }
 
 export type MessageJSON = Omit<MessageInterface, keyof Subscription | 'date'> &
@@ -88,6 +101,7 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
   if (numberFields.some((key) => typeof json[key] !== 'number')) return false;
   if (typeof json.archived !== 'boolean') return false;
+  if (!isArray(json.highlights, isHighlight)) return false;
   return true;
 }
 
@@ -109,6 +123,8 @@ export class Message extends Subscription implements MessageInterface {
   public scroll = 0;
 
   public time = 0;
+
+  public highlights: Highlight[] = [];
 
   public constructor(message: Partial<MessageInterface> = {}) {
     super(message);
