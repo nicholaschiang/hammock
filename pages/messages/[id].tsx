@@ -144,6 +144,7 @@ export default function MessagePage(): JSX.Element {
           max-width: 648px;
           padding: 0 24px;
           margin: 96px auto;
+          position: relative;
         }
 
         @media (max-width: ${breakpoints.mobile}) {

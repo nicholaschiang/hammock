@@ -26,13 +26,15 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const [xpaths, setXPaths] = useState<XPath[]>([]);
   const [position, setPosition] = useState<Position>();
   const [selection, setSelection] = useState<string>('');
+  const [note, setNote] = useState<boolean>(false);
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
+  const noteRef = useRef<HTMLDivElement>(null);
+  const noteTextAreaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
     // when the user's mouse exits the highlight and w/in ~100px of dialog.
     function listener(evt: MouseEvent): void {
-      console.log('Mouse Over:', evt.target);
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
       if ((evt.target as HTMLElement).dataset.xpath === xpath?.id) return;
       if ((evt.target as HTMLElement).dataset.deleted === '') return;
@@ -54,13 +56,17 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   useEffect(() => {
     function listener(evt: MouseEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
+      if (noteRef.current?.contains(evt.target as Node)) return;
       setXPath(undefined);
+      setNote(false);
     }
     window.addEventListener('mousedown', listener);
     return () => window.removeEventListener('mousedown', listener);
   }, []);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
+      if (buttonsRef.current?.contains(evt.target as Node)) return;
+      if (noteRef.current?.contains(evt.target as Node)) return;
       const range = window.getSelection()?.getRangeAt(0);
       if (!range || range.collapsed || !articleRef.current) return;
       setSelection(range?.toString() || '');
@@ -94,9 +100,23 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
     });
   }, [xpath]);
+  const onNote = useCallback(() => {
+    onHighlight();
+    setNote(true);
+    setTimeout(() => noteTextAreaRef.current?.focus(), 100);
+  }, [onHighlight]);
+  useEffect(() => console.log('Position:', position), [position]);
 
   return (
     <>
+      <div className={cn('note', { open: note && position })}>
+        <div className='wrapper' ref={noteRef}>
+          <textarea ref={noteTextAreaRef} />
+          <button className='reset save-note-button' type='button'>
+            Ctrl-Enter to save note
+          </button>
+        </div>
+      </div>
       <div className={cn('dialog', { open: xpath && position })}>
         <div className='buttons' ref={buttonsRef}>
           <button
@@ -108,7 +128,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           >
             <HighlightIcon />
           </button>
-          <button className='reset button' type='button'>
+          <button className='reset button' type='button' onClick={onNote}>
             <NoteIcon />
           </button>
           <a
@@ -139,6 +159,66 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         </article>
       )}
       <style jsx>{`
+        .note {
+          position: absolute;
+          visibility: hidden;
+          right: 0;
+          top: ${position ? position.containerY + position.y : 0}px;
+        }
+
+        .wrapper {
+          position: absolute;
+          top: 0;
+          left: 0;
+          box-shadow: var(--shadow-medium);
+          background: var(--background);
+          border-radius: 6px;
+          overflow: hidden;
+        }
+
+        .note.open {
+          visibility: visible;
+        }
+
+        .note textarea {
+          display: block;
+          font-family: var(--font-sans);
+          font-weight: 400;
+          font-size: 1rem;
+          color: var(--on-background);
+          appearance: none;
+          background: none;
+          border: none;
+          border-radius: 0;
+          padding: 12px;
+          margin: 0;
+          min-width: 150px;
+          min-height: 150px;
+        }
+
+        .note textarea:focus {
+          outline: none;
+        }
+
+        .save-note-button {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          margin-left: 12px;
+          border: 1px solid var(--accents-2);
+          background: var(--accents-1);
+          color: var(--accents-5);
+          transition: color 0.2s ease 0s, background 0.2s ease 0s;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+        }
+
+        .save-note-button:hover {
+          color: var(--on-background);
+          background: var(--accents-2);
+        }
+
         .dialog {
           position: absolute;
           visibility: hidden;
