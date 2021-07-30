@@ -1,8 +1,9 @@
 import Router, { useRouter } from 'next/router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import useSWR, { getInfiniteKey, mutate } from 'swr';
+import useSWR, { mutate } from 'swr';
 import Link from 'next/link';
 import cn from 'classnames';
+import { getInfiniteKey } from 'swr/infinite';
 
 import { MessageRes } from 'pages/api/messages/[id]';
 import { MessagesRes } from 'pages/api/messages';
@@ -79,8 +80,8 @@ export default function MessagePage(): JSX.Element {
     await mutate(url, updated, false);
     await mutate(
       getInfiniteKey(getKeyFunction()),
-      (data: MessagesRes[]) =>
-        data.map((messages) => {
+      (res: MessagesRes[]) =>
+        res.map((messages) => {
           const idx = messages.findIndex((m) => m.id === updated.id);
           if (idx < 0) return messages;
           return [

@@ -1,8 +1,7 @@
-import {
+import useSWRInfinite, {
   SWRInfiniteConfiguration,
   SWRInfiniteResponse,
-  useSWRInfinite,
-} from 'swr';
+} from 'swr/infinite';
 import { useMemo } from 'react';
 
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
