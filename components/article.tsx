@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
+import { nanoid } from 'nanoid';
 
 import HighlightIcon from 'components/icons/highlight';
 import NoteIcon from 'components/icons/note';
@@ -28,21 +29,40 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
+    // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
+    // when the user's mouse exits the highlight and w/in ~100px of dialog.
     function listener(evt: MouseEvent): void {
-      setPosition((prev) => {
-        if (buttonsRef.current === evt.target) return prev;
-        if (buttonsRef.current?.contains(evt.target as Node)) return prev;
-        return undefined;
+      console.log('Mouse Over:', evt.target);
+      if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
+      if ((evt.target as HTMLElement).dataset.xpath === xpath?.id) return;
+      if ((evt.target as HTMLElement).dataset.deleted === '') return;
+      setPosition({
+        x: evt.offsetX,
+        y: evt.offsetY,
+        containerX: (evt.target as HTMLElement).offsetLeft,
+        containerY: (evt.target as HTMLElement).offsetTop,
       });
+      // TODO: Remove this `setTimeout` but still ensure that animation plays
+      // correctly. Right now, we have to wait 300ms for the reverse animation
+      // to play out before we can show the dialog again.
+      const id = (evt.target as HTMLElement).dataset.xpath;
+      setXPath((prev) => xpaths.find((x) => x.id === id) || prev);
+    }
+    window.addEventListener('mouseover', listener);
+    return () => window.removeEventListener('mouseover', listener);
+  }, [xpaths, xpath]);
+  useEffect(() => {
+    function listener(evt: MouseEvent): void {
+      if (buttonsRef.current?.contains(evt.target as Node)) return;
+      setXPath(undefined);
     }
     window.addEventListener('mousedown', listener);
     return () => window.removeEventListener('mousedown', listener);
   }, []);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
-      const sel = window.getSelection() || document.getSelection();
-      const range = sel?.getRangeAt(0);
-      console.log('Range:', range);
+      const range = window.getSelection()?.getRangeAt(0);
+      if (!range || range.collapsed || !articleRef.current) return;
       setSelection(range?.toString() || '');
       setPosition({
         x: evt.offsetX,
@@ -50,40 +70,45 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         containerX: (evt.target as HTMLElement).offsetLeft,
         containerY: (evt.target as HTMLElement).offsetTop,
       });
-      setXPath(() => {
-        if (!range || range.collapsed || !articleRef.current) return undefined;
-        const { startContainer, endContainer, startOffset, endOffset } = range;
-        const start = fromNode(startContainer, articleRef.current);
-        const end = fromNode(endContainer, articleRef.current);
-        return { start, end, startOffset, endOffset };
-      });
+      const { startContainer, endContainer, startOffset, endOffset } = range;
+      const start = fromNode(startContainer, articleRef.current);
+      const end = fromNode(endContainer, articleRef.current);
+      setXPath({ start, end, startOffset, endOffset, id: nanoid() });
     }
     window.addEventListener('mouseup', listener);
     return () => window.removeEventListener('mouseup', listener);
   }, []);
-  useEffect(() => console.log('Position:', position), [position]);
   const html = useMemo(
     () => (message ? highlight(message.html, xpaths) : ''),
     [xpaths, message]
   );
   const onHighlight = useCallback(() => {
+    setXPath(undefined);
     setXPaths((prev) => {
       if (!xpath) return prev;
-      return [...prev, xpath];
+      // TODO: Test if this new xpath range overlaps with any existing xpaths.
+      // If so, combine them into one new non-deleted xpath range.
+      const idx = prev.findIndex((x) => x.id === xpath.id);
+      if (idx < 0) return [...prev, xpath];
+      const deleted = { ...xpath, deleted: true };
+      return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
     });
   }, [xpath]);
-  const onNote = useCallback(() => {
-    console.log('TODO: Implement notes.');
-  }, []);
 
   return (
     <>
-      <div className={cn('dialog', { open: position && xpath })}>
+      <div className={cn('dialog', { open: xpath && position })}>
         <div className='buttons' ref={buttonsRef}>
-          <button className='reset button' type='button' onClick={onHighlight}>
+          <button
+            className={cn('reset button', {
+              highlighted: xpaths.some((x) => x.id === xpath?.id),
+            })}
+            type='button'
+            onClick={onHighlight}
+          >
             <HighlightIcon />
           </button>
-          <button className='reset button' type='button' onClick={onNote}>
+          <button className='reset button' type='button'>
             <NoteIcon />
           </button>
           <a
@@ -211,6 +236,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           fill: var(--on-background);
         }
 
+        .button.highlighted :global(svg) {
+          fill: var(--highlight-hover);
+          transition: none;
+        }
+
         p.loading {
           border-radius: 6px;
         }
@@ -280,7 +310,18 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         article :global(mark) {
           color: var(--on-highlight);
           background: var(--highlight);
-          user-select: none;
+          cursor: pointer;
+          transition: background 0.2s ease 0s;
+        }
+
+        article :global(mark[data-xpath='${xpath ? xpath.id : ''}']) {
+          background: var(--highlight-hover);
+        }
+
+        article :global(mark[data-deleted='']) {
+          background: inherit;
+          cursor: inherit;
+          color: inherit;
         }
 
         article :global(a mark) {
