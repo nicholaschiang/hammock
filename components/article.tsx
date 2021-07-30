@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
+import { mutate } from 'swr';
 import { nanoid } from 'nanoid';
 
 import HighlightIcon from 'components/icons/highlight';
 import NoteIcon from 'components/icons/note';
 import TweetIcon from 'components/icons/tweet';
 
-import { XPath, fromNode } from 'lib/xpath';
-import { Message } from 'lib/model/message';
-import highlight from 'lib/highlight';
+import { Highlight, Message } from 'lib/model/message';
+import { CallbackParam } from 'lib/model/callback';
+import { fetcher } from 'lib/fetch';
+import fromNode from 'lib/xpath';
+import highlightHTML from 'lib/highlight';
 
 interface Position {
   x: number;
@@ -22,19 +25,30 @@ export interface ArticleProps {
 }
 
 export default function Article({ message }: ArticleProps): JSX.Element {
-  const [xpath, setXPath] = useState<XPath>();
-  const [xpaths, setXPaths] = useState<XPath[]>([]);
+  const setHighlights = useCallback(
+    (param: CallbackParam<Highlight[]>) => {
+      if (!message) return;
+      let { highlights } = message;
+      if (typeof param === 'function') highlights = param(highlights);
+      if (typeof param === 'object') highlights = param;
+      const url = `/api/messages/${message.id}`;
+      void mutate(url, { ...message, highlights }, false);
+      void mutate(url, fetcher(url, 'put', { ...message, highlights }), false);
+    },
+    [message]
+  );
+
+  const [highlight, setHighlight] = useState<Highlight>();
   const [position, setPosition] = useState<Position>();
-  const [selection, setSelection] = useState<string>('');
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
     // when the user's mouse exits the highlight and w/in ~100px of dialog.
     function listener(evt: MouseEvent): void {
-      console.log('Mouse Over:', evt.target);
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
-      if ((evt.target as HTMLElement).dataset.xpath === xpath?.id) return;
+      if ((evt.target as HTMLElement).dataset.highlight === highlight?.id)
+        return;
       if ((evt.target as HTMLElement).dataset.deleted === '') return;
       setPosition({
         x: evt.offsetX,
@@ -45,63 +59,73 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       // TODO: Remove this `setTimeout` but still ensure that animation plays
       // correctly. Right now, we have to wait 300ms for the reverse animation
       // to play out before we can show the dialog again.
-      const id = (evt.target as HTMLElement).dataset.xpath;
-      setXPath((prev) => xpaths.find((x) => x.id === id) || prev);
+      const id = (evt.target as HTMLElement).dataset.highlight;
+      setHighlight(
+        (prev) => message?.highlights.find((x) => x.id === id) || prev
+      );
     }
     window.addEventListener('mouseover', listener);
     return () => window.removeEventListener('mouseover', listener);
-  }, [xpaths, xpath]);
+  }, [message?.highlights, highlight]);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
-      setXPath(undefined);
+      setHighlight(undefined);
     }
     window.addEventListener('mousedown', listener);
     return () => window.removeEventListener('mousedown', listener);
   }, []);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
-      const range = window.getSelection()?.getRangeAt(0);
-      if (!range || range.collapsed || !articleRef.current) return;
-      setSelection(range?.toString() || '');
+      if (!articleRef.current) return;
+      const sel = window.getSelection() || document.getSelection();
+      if (!sel || sel.isCollapsed) return;
+      const range = sel.getRangeAt(0);
+      if (!range || range.collapsed) return;
       setPosition({
         x: evt.offsetX,
         y: evt.offsetY,
         containerX: (evt.target as HTMLElement).offsetLeft,
         containerY: (evt.target as HTMLElement).offsetTop,
       });
-      const { startContainer, endContainer, startOffset, endOffset } = range;
-      const start = fromNode(startContainer, articleRef.current);
-      const end = fromNode(endContainer, articleRef.current);
-      setXPath({ start, end, startOffset, endOffset, id: nanoid() });
+      setHighlight({
+        start: fromNode(range.startContainer, articleRef.current),
+        end: fromNode(range.endContainer, articleRef.current),
+        startOffset: range.startOffset,
+        endOffset: range.endOffset,
+        text: range.toString(),
+        id: nanoid(),
+      });
     }
     window.addEventListener('mouseup', listener);
     return () => window.removeEventListener('mouseup', listener);
   }, []);
   const html = useMemo(
-    () => (message ? highlight(message.html, xpaths) : ''),
-    [xpaths, message]
+    () => (message ? highlightHTML(message.html, message.highlights) : ''),
+    [message]
   );
   const onHighlight = useCallback(() => {
-    setXPath(undefined);
-    setXPaths((prev) => {
-      if (!xpath) return prev;
-      // TODO: Test if this new xpath range overlaps with any existing xpaths.
-      // If so, combine them into one new non-deleted xpath range.
-      const idx = prev.findIndex((x) => x.id === xpath.id);
-      if (idx < 0) return [...prev, xpath];
-      const deleted = { ...xpath, deleted: true };
+    setHighlight(undefined);
+    setHighlights((prev) => {
+      if (!highlight) return prev;
+      // TODO: Test if this new highlight range overlaps with any existing highlights.
+      // If so, combine them into one new non-deleted highlight range.
+      const idx = prev.findIndex((x) => x.id === highlight.id);
+      if (idx < 0) return [...prev, highlight];
+      const deleted = { ...highlight, deleted: true };
       return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
     });
-  }, [xpath]);
+  }, [highlight, setHighlights]);
 
   return (
     <>
-      <div className={cn('dialog', { open: xpath && position })}>
+      <div className={cn('dialog', { open: highlight && position })}>
         <div className='buttons' ref={buttonsRef}>
           <button
             className={cn('reset button', {
-              highlighted: xpaths.some((x) => x.id === xpath?.id),
+              highlighted: message?.highlights.some(
+                (x) => x.id === highlight?.id
+              ),
             })}
             type='button'
             onClick={onHighlight}
@@ -114,7 +138,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           <a
             className='reset button'
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              `“${selection}” — ${
+              `“${highlight?.text || ''}” — ${
                 message?.from.name || 'Newsletter'
               }\n\nvia @readhammock\nhttps://readhammock.com/try`
             )}`}
@@ -316,7 +340,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           transition: background 0.2s ease 0s;
         }
 
-        article :global(mark[data-xpath='${xpath ? xpath.id : ''}']) {
+        article
+          :global(mark[data-highlight='${highlight ? highlight.id : ''}']) {
           background: var(--highlight-hover);
         }
 

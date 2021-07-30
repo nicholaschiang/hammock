@@ -52,6 +52,7 @@ async function fetchMessage(
       archived: metadata.archived,
       scroll: metadata.scroll,
       time: metadata.time,
+      highlights: metadata.highlights,
     };
     res.status(200).json(new Message(combined).toJSON());
     logger.info(`Fetched ${metadata} for ${user}.`);

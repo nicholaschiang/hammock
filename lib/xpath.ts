@@ -1,12 +1,3 @@
-export interface XPath {
-  start: string;
-  startOffset: number;
-  end: string;
-  endOffset: number;
-  id: string;
-  deleted?: boolean;
-}
-
 // Get the XPath node name.
 function getNodeName(node: Node): string {
   switch (node.nodeName) {
@@ -38,7 +29,7 @@ function getNodePosition(node: Node): number {
  * @param root - The root context for the XPath expression.
  * @return an XPath expression for the given node.
  */
-export function fromNode(node: Node, root: Node): string {
+export default function xpathFromNode(node: Node, root: Node): string {
   let path = '/';
   let n: Node | null = node;
   while (n !== root) {
