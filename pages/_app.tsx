@@ -42,6 +42,7 @@ const light = `
   --on-selection: #dfeef6;
 
   --highlight: #fefbbe;
+  --highlight-hover: #fef772;
   --on-highlight: #444;
 `;
 

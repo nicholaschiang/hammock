@@ -38,6 +38,7 @@ export default function highlight(html: string, xpaths: XPath[]): string {
       const afterStart = start.splitText(xpath.startOffset);
       afterStart.splitText(xpath.endOffset - xpath.startOffset);
       const mark = doc.createElement('mark');
+      mark.dataset.xpath = xpath.id;
       mark.innerHTML = afterStart.nodeValue || '';
       afterStart.parentNode?.insertBefore(mark, afterStart);
       afterStart.parentNode?.removeChild(afterStart);
@@ -54,6 +55,7 @@ export default function highlight(html: string, xpaths: XPath[]): string {
       if (next === end) break;
       // Otherwise, highlight this node.
       const mark = doc.createElement('mark');
+      mark.dataset.xpath = xpath.id;
       mark.innerHTML =
         next instanceof Element ? next.outerHTML : next.nodeValue || '';
       next.parentNode?.insertBefore(mark, next);
@@ -67,12 +69,14 @@ export default function highlight(html: string, xpaths: XPath[]): string {
     // Highlight the start text node.
     const afterStart = start.splitText(xpath.startOffset);
     const mark = doc.createElement('mark');
+    mark.dataset.xpath = xpath.id;
     mark.innerHTML = afterStart.nodeValue || '';
     afterStart.parentNode?.insertBefore(mark, afterStart);
     afterStart.parentNode?.removeChild(afterStart);
     // Highlight the end text node.
     const afterEnd = end.splitText(xpath.endOffset);
     const mk = doc.createElement('mark');
+    mk.dataset.xpath = xpath.id;
     mk.innerHTML = end.nodeValue || '';
     end.parentNode?.insertBefore(mk, afterEnd);
     end.parentNode?.removeChild(end);

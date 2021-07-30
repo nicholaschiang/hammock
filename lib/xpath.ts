@@ -3,6 +3,7 @@ export interface XPath {
   startOffset: number;
   end: string;
   endOffset: number;
+  id: string;
 }
 
 // Get the XPath node name.

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
+import { nanoid } from 'nanoid';
 
 import HighlightIcon from 'components/icons/highlight';
 import NoteIcon from 'components/icons/note';
@@ -25,24 +26,38 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const [xpaths, setXPaths] = useState<XPath[]>([]);
   const [position, setPosition] = useState<Position>();
   const [selection, setSelection] = useState<string>('');
+  const [hoverXPathID, setHoverXPathID] = useState<string>();
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
-      setPosition((prev) => {
-        if (buttonsRef.current === evt.target) return prev;
-        if (buttonsRef.current?.contains(evt.target as Node)) return prev;
-        return undefined;
+      if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
+      if ((evt.target as HTMLElement).dataset.xpath === hoverXPathID) return;
+      console.log('Mouse Over:', evt.target);
+      setHoverXPathID((evt.target as HTMLElement).dataset.xpath);
+      setPosition({
+        x: evt.offsetX,
+        y: evt.offsetY,
+        containerX: (evt.target as HTMLElement).offsetLeft,
+        containerY: (evt.target as HTMLElement).offsetTop,
       });
+    }
+    window.addEventListener('mouseover', listener);
+    return () => window.removeEventListener('mouseover', listener);
+  }, [hoverXPathID]);
+  useEffect(() => {
+    function listener(evt: MouseEvent): void {
+      if (buttonsRef.current?.contains(evt.target as Node)) return;
+      setPosition(undefined);
     }
     window.addEventListener('mousedown', listener);
     return () => window.removeEventListener('mousedown', listener);
   }, []);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
-      const sel = window.getSelection() || document.getSelection();
-      const range = sel?.getRangeAt(0);
+      const range = window.getSelection()?.getRangeAt(0);
       console.log('Range:', range);
+      if (!range || range.collapsed || !articleRef.current) return;
       setSelection(range?.toString() || '');
       setPosition({
         x: evt.offsetX,
@@ -50,13 +65,10 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         containerX: (evt.target as HTMLElement).offsetLeft,
         containerY: (evt.target as HTMLElement).offsetTop,
       });
-      setXPath(() => {
-        if (!range || range.collapsed || !articleRef.current) return undefined;
-        const { startContainer, endContainer, startOffset, endOffset } = range;
-        const start = fromNode(startContainer, articleRef.current);
-        const end = fromNode(endContainer, articleRef.current);
-        return { start, end, startOffset, endOffset };
-      });
+      const { startContainer, endContainer, startOffset, endOffset } = range;
+      const start = fromNode(startContainer, articleRef.current);
+      const end = fromNode(endContainer, articleRef.current);
+      setXPath({ start, end, startOffset, endOffset, id: nanoid() });
     }
     window.addEventListener('mouseup', listener);
     return () => window.removeEventListener('mouseup', listener);
@@ -78,7 +90,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
 
   return (
     <>
-      <div className={cn('dialog', { open: position && xpath })}>
+      <div className={cn('dialog', { open: position })}>
         <div className='buttons' ref={buttonsRef}>
           <button className='reset button' type='button' onClick={onHighlight}>
             <HighlightIcon />
@@ -280,7 +292,12 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         article :global(mark) {
           color: var(--on-highlight);
           background: var(--highlight);
-          user-select: none;
+          cursor: pointer;
+          transition: background 0.2s ease 0s;
+        }
+
+        article :global(mark[data-xpath='${hoverXPathID}']) {
+          background: var(--highlight-hover);
         }
 
         article :global(a mark) {
