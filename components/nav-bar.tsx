@@ -78,6 +78,7 @@ function NavLink({ href, children }: LinkProps): JSX.Element {
             cursor: pointer;
             font-size: 18px;
             font-weight: 400;
+            line-height: 1;
             height: 24px;
             margin: 16px 0;
             display: block;
@@ -241,6 +242,7 @@ export default function NavBar(): JSX.Element {
           <NavLink href='/feed'>Feed</NavLink>
           <NavLink href='/writers'>Writers</NavLink>
           <NavLink href='/quick-read'>Quick read</NavLink>
+          <NavLink href='/highlights'>Highlights</NavLink>
         </nav>
       </div>
       <style jsx>{`
