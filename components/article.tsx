@@ -114,7 +114,9 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           <a
             className='reset button'
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              `“${selection}” — ${message?.from.name || 'Newsletter'}`
+              `“${selection}” — ${
+                message?.from.name || 'Newsletter'
+              }\n\nvia @readhammock\nhttps://readhammock.com/try`
             )}`}
             target='_blank'
             rel='noopener noreferrer'
