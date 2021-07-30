@@ -78,8 +78,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   }, []);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
-      const range = window.getSelection()?.getRangeAt(0);
-      if (!range || range.collapsed || !articleRef.current) return;
+      if (!articleRef.current) return;
+      const sel = window.getSelection() || document.getSelection();
+      if (!sel || sel.isCollapsed) return;
+      const range = sel.getRangeAt(0);
+      if (!range || range.collapsed) return;
       setSelection(range?.toString() || '');
       setPosition({
         x: evt.offsetX,
