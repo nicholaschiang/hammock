@@ -1,3 +1,5 @@
+import Head from 'next/head';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import Link from 'next/link';
 import cn from 'classnames';
 import { useMemo } from 'react';
@@ -89,7 +91,7 @@ function HighlightRow({ message, highlight }: HighlightProps): JSX.Element {
             quotes: none;
           }
 
-          blockquote::before {
+          blockquote:not(.loading)::before {
             background: var(--highlight);
             position: absolute;
             top: 0;
@@ -110,12 +112,12 @@ function HighlightRow({ message, highlight }: HighlightProps): JSX.Element {
 }
 
 /* eslint-disable-next-line react/no-array-index-key */
-const loadingRows = Array(5)
+const loader = Array(5)
   .fill(null)
   .map((_, idx) => <HighlightRow key={idx} />);
 
 export default function HighlightsPage(): JSX.Element {
-  const { data } = useMessages();
+  const { data, setSize } = useMessages();
   // TODO: Perhaps put this `useMemo` statement into the `useMessages` hook.
   const highlights = useMemo(
     () =>
@@ -133,19 +135,37 @@ export default function HighlightsPage(): JSX.Element {
 
   return (
     <Page name='Highlights' login sync>
+      <Head>
+        <link
+          rel='preload'
+          href='/api/messages'
+          crossOrigin='anonymous'
+          type='application/json'
+          as='fetch'
+        />
+      </Head>
       <Layout>
-        {highlights &&
-          highlights.map(({ highlight, message }) => (
-            <HighlightRow
-              key={highlight.id}
-              highlight={highlight}
-              message={message}
-            />
-          ))}
-        {!highlights && loadingRows}
-        {highlights && !highlights.length && (
-          <Empty>Nothing to see here... yet. Go highlight something!</Empty>
-        )}
+        <InfiniteScroll
+          dataLength={data?.flat().length || 0}
+          next={() => setSize((prev) => prev + 1)}
+          hasMore={!data || data[data.length - 1].length === 5}
+          style={{ overflow: undefined }}
+          scrollThreshold={0.65}
+          loader={loader}
+        >
+          {highlights &&
+            highlights.map(({ highlight, message }) => (
+              <HighlightRow
+                key={highlight.id}
+                highlight={highlight}
+                message={message}
+              />
+            ))}
+          {!highlights && loader}
+          {highlights && !highlights.length && (
+            <Empty>Nothing to see here... yet. Go highlight something!</Empty>
+          )}
+        </InfiniteScroll>
       </Layout>
     </Page>
   );
