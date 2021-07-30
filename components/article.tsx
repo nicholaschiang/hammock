@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import cn from 'classnames';
+import { mutate } from 'swr';
 import { nanoid } from 'nanoid';
 
 import HighlightIcon from 'components/icons/highlight';
@@ -7,6 +8,8 @@ import NoteIcon from 'components/icons/note';
 import TweetIcon from 'components/icons/tweet';
 
 import { Highlight, Message } from 'lib/model/message';
+import { CallbackParam } from 'lib/model/callback';
+import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
 import highlightHTML from 'lib/highlight';
 
@@ -22,8 +25,20 @@ export interface ArticleProps {
 }
 
 export default function Article({ message }: ArticleProps): JSX.Element {
+  const setHighlights = useCallback(
+    (param: CallbackParam<Highlight[]>) => {
+      if (!message) return;
+      let { highlights } = message;
+      if (typeof param === 'function') highlights = param(highlights);
+      if (typeof param === 'object') highlights = param;
+      const url = `/api/messages/${message.id}`;
+      void mutate(url, { ...message, highlights }, false);
+      void mutate(url, fetcher(url, 'put', { ...message, highlights }), false);
+    },
+    [message]
+  );
+
   const [highlight, setHighlight] = useState<Highlight>();
-  const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [position, setPosition] = useState<Position>();
   const [selection, setSelection] = useState<string>('');
   const articleRef = useRef<HTMLElement>(null);
@@ -47,11 +62,13 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       // correctly. Right now, we have to wait 300ms for the reverse animation
       // to play out before we can show the dialog again.
       const id = (evt.target as HTMLElement).dataset.highlight;
-      setHighlight((prev) => highlights.find((x) => x.id === id) || prev);
+      setHighlight(
+        (prev) => message?.highlights.find((x) => x.id === id) || prev
+      );
     }
     window.addEventListener('mouseover', listener);
     return () => window.removeEventListener('mouseover', listener);
-  }, [highlights, highlight]);
+  }, [message?.highlights, highlight]);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
@@ -80,8 +97,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     return () => window.removeEventListener('mouseup', listener);
   }, []);
   const html = useMemo(
-    () => (message ? highlightHTML(message.html, highlights) : ''),
-    [highlights, message]
+    () => (message ? highlightHTML(message.html, message.highlights) : ''),
+    [message]
   );
   const onHighlight = useCallback(() => {
     setHighlight(undefined);
@@ -94,7 +111,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       const deleted = { ...highlight, deleted: true };
       return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
     });
-  }, [highlight]);
+  }, [highlight, setHighlights]);
 
   return (
     <>
@@ -102,7 +119,9 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         <div className='buttons' ref={buttonsRef}>
           <button
             className={cn('reset button', {
-              highlighted: highlights.some((x) => x.id === highlight?.id),
+              highlighted: message?.highlights.some(
+                (x) => x.id === highlight?.id
+              ),
             })}
             type='button'
             onClick={onHighlight}
