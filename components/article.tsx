@@ -47,7 +47,6 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
     // when the user's mouse exits the highlight and w/in ~100px of dialog.
     function listener(evt: MouseEvent): void {
-      console.log('Mouse Over:', evt.target);
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
       if ((evt.target as HTMLElement).dataset.highlight === highlight?.id)
         return;
