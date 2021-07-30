@@ -40,7 +40,6 @@ export default function Article({ message }: ArticleProps): JSX.Element {
 
   const [highlight, setHighlight] = useState<Highlight>();
   const [position, setPosition] = useState<Position>();
-  const [selection, setSelection] = useState<string>('');
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -83,17 +82,20 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       if (!sel || sel.isCollapsed) return;
       const range = sel.getRangeAt(0);
       if (!range || range.collapsed) return;
-      setSelection(range?.toString() || '');
       setPosition({
         x: evt.offsetX,
         y: evt.offsetY,
         containerX: (evt.target as HTMLElement).offsetLeft,
         containerY: (evt.target as HTMLElement).offsetTop,
       });
-      const { startContainer, endContainer, startOffset, endOffset } = range;
-      const start = fromNode(startContainer, articleRef.current);
-      const end = fromNode(endContainer, articleRef.current);
-      setHighlight({ start, end, startOffset, endOffset, id: nanoid() });
+      setHighlight({
+        start: fromNode(range.startContainer, articleRef.current),
+        end: fromNode(range.endContainer, articleRef.current),
+        startOffset: range.startOffset,
+        endOffset: range.endOffset,
+        text: range.toString(),
+        id: nanoid(),
+      });
     }
     window.addEventListener('mouseup', listener);
     return () => window.removeEventListener('mouseup', listener);
@@ -136,7 +138,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           <a
             className='reset button'
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              `“${selection}” — ${
+              `“${highlight?.text || ''}” — ${
                 message?.from.name || 'Newsletter'
               }\n\nvia @readhammock\nhttps://readhammock.com/try`
             )}`}
