@@ -92,7 +92,7 @@ export class User implements UserInterface {
 
   public token = '';
 
-  public scopes = [];
+  public scopes: string[] = [];
 
   public label = '';
 
