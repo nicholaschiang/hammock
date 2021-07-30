@@ -26,29 +26,34 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const [xpaths, setXPaths] = useState<XPath[]>([]);
   const [position, setPosition] = useState<Position>();
   const [selection, setSelection] = useState<string>('');
-  const [hoverXPathID, setHoverXPathID] = useState<string>();
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
-      if ((evt.target as HTMLElement).dataset.xpath === hoverXPathID) return;
-      console.log('Mouse Over:', evt.target);
-      setHoverXPathID((evt.target as HTMLElement).dataset.xpath);
+      if ((evt.target as HTMLElement).dataset.xpath === xpath?.id) return;
+      setXPath(undefined);
       setPosition({
         x: evt.offsetX,
         y: evt.offsetY,
         containerX: (evt.target as HTMLElement).offsetLeft,
         containerY: (evt.target as HTMLElement).offsetTop,
       });
+      const id = (evt.target as HTMLElement).dataset.xpath;
+      // TODO: Remove this `setTimeout` but still ensure that animation plays
+      // correctly. Right now, we have to wait 300ms for the reverse animation
+      // to play out before we can show the dialog again.
+      setTimeout(() => {
+        setXPath((prev) => xpaths.find((x) => x.id === id) || prev);
+      }, 300);
     }
     window.addEventListener('mouseover', listener);
     return () => window.removeEventListener('mouseover', listener);
-  }, [hoverXPathID]);
+  }, [xpaths, xpath]);
   useEffect(() => {
     function listener(evt: MouseEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
-      setPosition(undefined);
+      setXPath(undefined);
     }
     window.addEventListener('mousedown', listener);
     return () => window.removeEventListener('mousedown', listener);
@@ -56,7 +61,6 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   useEffect(() => {
     function listener(evt: MouseEvent): void {
       const range = window.getSelection()?.getRangeAt(0);
-      console.log('Range:', range);
       if (!range || range.collapsed || !articleRef.current) return;
       setSelection(range?.toString() || '');
       setPosition({
@@ -73,29 +77,34 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     window.addEventListener('mouseup', listener);
     return () => window.removeEventListener('mouseup', listener);
   }, []);
-  useEffect(() => console.log('Position:', position), [position]);
   const html = useMemo(
     () => (message ? highlight(message.html, xpaths) : ''),
     [xpaths, message]
   );
   const onHighlight = useCallback(() => {
+    setXPath(undefined);
     setXPaths((prev) => {
       if (!xpath) return prev;
-      return [...prev, xpath];
+      const idx = prev.findIndex((x) => x.id === xpath.id);
+      if (idx < 0) return [...prev, xpath];
+      return [...prev.slice(0, idx), ...prev.slice(idx + 1)];
     });
   }, [xpath]);
-  const onNote = useCallback(() => {
-    console.log('TODO: Implement notes.');
-  }, []);
 
   return (
     <>
-      <div className={cn('dialog', { open: position })}>
+      <div className={cn('dialog', { open: xpath && position })}>
         <div className='buttons' ref={buttonsRef}>
-          <button className='reset button' type='button' onClick={onHighlight}>
+          <button
+            className={cn('reset button', {
+              highlighted: xpaths.some((x) => x.id === xpath?.id),
+            })}
+            type='button'
+            onClick={onHighlight}
+          >
             <HighlightIcon />
           </button>
-          <button className='reset button' type='button' onClick={onNote}>
+          <button className='reset button' type='button'>
             <NoteIcon />
           </button>
           <a
@@ -223,6 +232,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           fill: var(--on-background);
         }
 
+        .button.highlighted :global(svg) {
+          fill: var(--highlight-hover);
+          transition: none;
+        }
+
         p.loading {
           border-radius: 6px;
         }
@@ -296,7 +310,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           transition: background 0.2s ease 0s;
         }
 
-        article :global(mark[data-xpath='${hoverXPathID}']) {
+        article :global(mark[data-xpath='${xpath?.id}']) {
           background: var(--highlight-hover);
         }
 
