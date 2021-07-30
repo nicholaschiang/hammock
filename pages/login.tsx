@@ -9,6 +9,7 @@ import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
 import UndoIcon from 'components/icons/undo';
 
+import { SCOPES } from 'lib/model/user';
 import useLoading from 'lib/hooks/loading';
 
 interface SectionProps {
@@ -67,17 +68,31 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
 
 // Next.js auth error codes and their corresponding user-facing messages.
 // @see {@link https://git.io/JZ3q4}
-const errors: Record<string, string> = {
+const ERRORS: Record<string, string> = {
   Signin: 'Try signing with a different account.',
   OAuthSignin: 'Try signing with a different account.',
   OAuthCallback: 'Try signing with a different account.',
   OAuthCreateAccount: 'Try signing with a different account.',
   EmailCreateAccount: 'Try signing with a different account.',
   Callback: 'Try signing with a different account.',
-  OAuthAccountNotLinked: 'To confirm your identity, sign in with the same account you used originally.',
+  OAuthAccountNotLinked:
+    'To confirm your identity, sign in with the same account you used originally.',
   EmailSignin: 'Check your email address.',
-  CredentialsSignin: 'Sign in failed. Check the details you provided are correct.',
-  default: 'Unable to sign in.'
+  CredentialsSignin:
+    'Sign in failed. Check the details you provided are correct.',
+  default: 'Unable to sign in.',
+};
+
+const SCOPE_ERRORS: Record<keyof typeof SCOPES, string> = {
+  EMAIL:
+    'To function correctly, Hammock needs to know your email address. Please login again.',
+  PROFILE:
+    'To function correctly, Hammock needs to view your Google profile. Please login again.',
+  READ: 'To fetch your newsletters, Hammock needs to view your email messages. We never store any message content; your emails remain safely in Gmail. Please login again and grant Hammock view access to Gmail.',
+  LABEL:
+    'To create the “Hammock” label, Hammock needs to edit your email labels. Please login again and grant Hammock edit access to Gmail’s labels.',
+  FILTER:
+    'To automatically filter new newsletters into the “Hammock” label, Hammock needs to edit your email settings. Please login again and grant Hammock edit access to Gmail’s settings.',
 };
 
 export default function LoginPage(): JSX.Element {
@@ -88,7 +103,11 @@ export default function LoginPage(): JSX.Element {
   useEffect(() => {
     setError((prev) => {
       if (typeof query.error !== 'string') return prev;
-      return errors[query.error] || 'An unexpected error occurred.';
+      return (
+        ERRORS[query.error] ||
+        SCOPE_ERRORS[query.error as keyof typeof SCOPES] ||
+        'An unexpected error occurred.'
+      );
     });
   }, [setError, query.error]);
   const onClick = useCallback(async () => {
@@ -117,7 +136,9 @@ export default function LoginPage(): JSX.Element {
           <Button disabled={loading} onClick={onClick} google>
             Continue signing in
           </Button>
-          {error && <p className='error'>Hmm, it looks like we hit a snag. {error}</p>}
+          {error && (
+            <p className='error'>Hmm, it looks like we hit a snag. {error}</p>
+          )}
         </div>
         <style jsx>{`
           h1 {

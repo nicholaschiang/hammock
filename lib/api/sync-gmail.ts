@@ -1,4 +1,4 @@
-import { User } from 'lib/model/user';
+import { SCOPES, User } from 'lib/model/user';
 import { db } from 'lib/api/firebase';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import getQuery from 'lib/api/query';
@@ -28,6 +28,10 @@ export default async function syncGmail(
 ): Promise<string> {
   if (!user.subscriptions.length) {
     logger.warn(`Skipping sync for no subscriptions for ${user}...`);
+    return '';
+  }
+  if (!user.scopes.includes(SCOPES.READ)) {
+    logger.error(`Skipping sync for ${user} without READ scope...`);
     return '';
   }
   const client = gmail(user.token);

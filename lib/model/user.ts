@@ -1,10 +1,23 @@
-import { Subscription, SubscriptionFirestore, SubscriptionJSON, isSubscriptionJSON } from 'lib/model/subscription';
+import {
+  Subscription,
+  SubscriptionFirestore,
+  SubscriptionJSON,
+  isSubscriptionJSON,
+} from 'lib/model/subscription';
 import { isArray, isJSON } from 'lib/model/json';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
+
+export const SCOPES = {
+  EMAIL: 'https://www.googleapis.com/auth/userinfo.email',
+  PROFILE: 'https://www.googleapis.com/auth/userinfo.profile',
+  READ: 'https://www.googleapis.com/auth/gmail.readonly',
+  LABEL: 'https://www.googleapis.com/auth/gmail.labels',
+  FILTER: 'https://www.googleapis.com/auth/gmail.settings.basic',
+};
 
 /**
  * @typedef {Object} UserInterface
@@ -14,7 +27,10 @@ import definedVals from 'lib/model/defined-vals';
  * @property locale - The user's locale code (returned by Google OAuth2).
  * @property email - The user's email address.
  * @property phone - The user's phone number.
- * @property token - The user's OAuth token that we use to access Gmail's API.
+ * @property token - The user's OAuth2 token that we use to access Gmail's API.
+ * @property scopes - An array of the user's granted OAuth2 scopes. This helps
+ * us determine what features to enable (e.g. if the user has granted only
+ * `gmail.readonly` access, we can't create the "Hammock" label or filter).
  * @property label - The Gmail label ID for the "Hammock" label
  * that we create when the user is onboarded.
  * @property filter - The Gmail filter ID that we create when the user signs up.
@@ -29,13 +45,18 @@ export interface UserInterface {
   email: string;
   phone: string;
   token: string;
+  scopes: string[];
   label: string;
   filter: string;
   subscriptions: Subscription[];
 }
 
-export type UserJSON = Omit<UserInterface, 'subscriptions'> & { subscriptions: SubscriptionJSON[] };
-export type UserFirestore = Omit<UserInterface, 'subscriptions'> & { subscriptions: SubscriptionFirestore[] };
+export type UserJSON = Omit<UserInterface, 'subscriptions'> & {
+  subscriptions: SubscriptionJSON[];
+};
+export type UserFirestore = Omit<UserInterface, 'subscriptions'> & {
+  subscriptions: SubscriptionFirestore[];
+};
 
 export function isUserJSON(json: unknown): json is UserJSON {
   const stringFields = [
@@ -52,7 +73,7 @@ export function isUserJSON(json: unknown): json is UserJSON {
 
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (!isArray(json.subscriptions, isSubscriptionJSON)) return false; 
+  if (!isArray(json.subscriptions, isSubscriptionJSON)) return false;
   return true;
 }
 
@@ -70,6 +91,8 @@ export class User implements UserInterface {
   public phone = '';
 
   public token = '';
+
+  public scopes: string[] = [];
 
   public label = '';
 
@@ -116,15 +139,24 @@ export class User implements UserInterface {
   }
 
   public static fromJSON(json: UserJSON): User {
-    return new User({ ...json, subscriptions: json.subscriptions.map(Subscription.fromJSON) });
+    return new User({
+      ...json,
+      subscriptions: json.subscriptions.map(Subscription.fromJSON),
+    });
   }
 
   public toFirestore(): UserFirestore {
-    return definedVals({ ...this, subscriptions: this.subscriptions.map((s) => s.toFirestore()) });
+    return definedVals({
+      ...this,
+      subscriptions: this.subscriptions.map((s) => s.toFirestore()),
+    });
   }
 
   public static fromFirestore(data: UserFirestore): User {
-    return new User({ ...data, subscriptions: data.subscriptions.map(Subscription.fromFirestore) });
+    return new User({
+      ...data,
+      subscriptions: data.subscriptions.map(Subscription.fromFirestore),
+    });
   }
 
   public static fromFirestoreDoc(snapshot: DocumentSnapshot): User {

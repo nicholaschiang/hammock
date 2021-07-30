@@ -1,10 +1,15 @@
-import { User } from 'lib/model/user';
+import { SCOPES, User } from 'lib/model/user';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
 
 const LABEL_NAME = 'Hammock';
 
 export default async function getOrCreateLabel(user: User): Promise<string> {
+  if (!user.scopes.includes(SCOPES.LABEL)) {
+    logger.error(`Skipping label for ${user} without LABEL scope...`);
+    return '';
+  }
+
   const client = gmail(user.token);
 
   logger.verbose(`Fetching label for ${user}...`);
@@ -21,5 +26,5 @@ export default async function getOrCreateLabel(user: User): Promise<string> {
       name: LABEL_NAME,
     },
   });
-  return label.id as string;
+  return label.id || '';
 }
