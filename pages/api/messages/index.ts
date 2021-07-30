@@ -83,6 +83,7 @@ export default async function messagesAPI(
             archived: metadata.archived,
             scroll: metadata.scroll,
             time: metadata.time,
+            highlights: metadata.highlights,
           };
           return new Message(combined);
         })
