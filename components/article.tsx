@@ -161,6 +161,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     }
   }, [message, highlight, data]);
   const onNote = useCallback(() => {
+    void onHighlight();
     setNote(true);
     setTimeout(() => noteTextAreaRef.current?.focus(), 100);
   }, [onHighlight]);
@@ -220,8 +221,17 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         .note {
           position: absolute;
           visibility: hidden;
+          opacity: 0;
+          transform: translateX(-5px);
+          transition: opacity 0.2s ease-out 0s, transform 0.2s ease-out 0s;
           right: 0;
           top: ${position ? position.containerY + position.y : 0}px;
+        }
+
+        .note.open {
+          visibility: visible;
+          transform: translateX(0px);
+          opacity: 1;
         }
 
         .wrapper {
@@ -234,15 +244,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           overflow: hidden;
         }
 
-        .note.open {
-          visibility: visible;
-        }
-
         .note textarea {
           display: block;
           font-family: var(--font-sans);
           font-weight: 400;
-          font-size: 1rem;
+          font-size: 0.85rem;
           color: var(--on-background);
           appearance: none;
           background: none;
@@ -250,8 +256,9 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           border-radius: 0;
           padding: 12px;
           margin: 0;
-          min-width: 150px;
-          min-height: 150px;
+          width: 200px;
+          min-width: 100px;
+          min-height: 100px;
         }
 
         .note textarea:focus {
@@ -269,7 +276,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           transition: color 0.2s ease 0s, background 0.2s ease 0s;
           padding: 2px 8px;
           border-radius: 4px;
-          font-size: 12px;
+          font-size: 0.75rem;
         }
 
         .save-note-button:hover {
