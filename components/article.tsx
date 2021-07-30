@@ -314,7 +314,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           transition: background 0.2s ease 0s;
         }
 
-        article :global(mark[data-xpath='${xpath?.id}']) {
+        article :global(mark[data-xpath='${xpath ? xpath.id : ''}']) {
           background: var(--highlight-hover);
         }
 
