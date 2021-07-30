@@ -3,8 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import Link from 'next/link';
 import cn from 'classnames';
+import { getInfiniteKey } from 'swr/infinite';
 
 import { MessageRes } from 'pages/api/messages/[id]';
+import { MessagesRes } from 'pages/api/messages';
 
 import Article from 'components/article';
 import Controls from 'components/controls';
@@ -13,6 +15,7 @@ import Page from 'components/page';
 import { Message } from 'lib/model/message';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
+import { getKeyFunction } from 'lib/hooks/messages';
 
 /**
  * Extends the built-in browser `String#trim` method to account for zero-width
@@ -69,13 +72,28 @@ export default function MessagePage(): JSX.Element {
       scroll,
       archived: !message.archived,
     };
+    // To make this feel as reactive and fast as possible, we:
+    // 1. Mutate local data (both the message page data and feed page data).
+    // 2. Trigger the `PUT` request to update server-side data.
+    // 3. Navigate back.
+    // 4. Once the `PUT` request resolves, mutate the message page data.
+    await mutate(url, updated, false);
+    await mutate(
+      getInfiniteKey(getKeyFunction()),
+      (res: MessagesRes[]) =>
+        res.map((messages) => {
+          const idx = messages.findIndex((m) => m.id === updated.id);
+          if (idx < 0) return messages;
+          return [
+            ...messages.slice(0, idx),
+            updated,
+            ...messages.slice(idx + 1),
+          ];
+        }),
+      false
+    );
+    void mutate(url, fetcher(url, 'put', updated), false);
     if (!message.archived) Router.back();
-    // TODO: Investigate why this is so slow. Our API only has to update a
-    // Firestore database document (and fetch the user's Firestore database
-    // document to verify the user's JWT authentication... perhaps that's why).
-    await mutate(url, fetcher(url, 'put', updated), false);
-    // TODO: Mutate the data used in `/feed` to match.
-    // @see {@link https://github.com/vercel/swr/issues/1156}
   }, [scroll, message]);
 
   useEffect(() => {

@@ -9622,7 +9622,7 @@ fsevents@~2.3.1:
     rfdc: ^1.3.0
     serve: ^12.0.0
     sharp: ^0.28.3
-    swr: ^0.5.6
+    swr: beta
     typescript: ^4.3.2
     utf8: ^3.0.0
     webpack-bundle-analyzer: ^4.4.2
@@ -12869,14 +12869,14 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"swr@npm:^0.5.6":
-  version: 0.5.6
-  resolution: "swr@npm:0.5.6"
+"swr@npm:beta":
+  version: 1.0.0-beta.9
+  resolution: "swr@npm:1.0.0-beta.9"
   dependencies:
     dequal: 2.0.2
   peerDependencies:
     react: ^16.11.0 || ^17.0.0
-  checksum: 3522cc3de9200d4209b97ac333181d7b3c040fba770b03ff41b226a2839551141c7e71080aa700b442ff8a6537d11abdf4182a4272b8e5fe57df6a1e9c2fb7fa
+  checksum: 50d34bd58feebb57d648ee7f6b6ac6057ea01b60b154d6cb8a943bebea310006334c48d73323a747a80655a0c4ed0ba0add271114d0bcdd5b38e9c2301f826f0
   languageName: node
   linkType: hard
 
