@@ -101,10 +101,15 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     });
   }, [xpath]);
   const onNote = useCallback(() => {
-    onHighlight();
+    setXPaths((prev) => {
+      if (!xpath || prev.some((x) => x.id === xpath.id)) return prev;
+      // TODO: Test if this new xpath range overlaps with any existing xpaths.
+      // If so, combine them into one new non-deleted xpath range.
+      return [...prev, xpath];
+    });
     setNote(true);
     setTimeout(() => noteTextAreaRef.current?.focus(), 100);
-  }, [onHighlight]);
+  }, [xpath]);
   useEffect(() => console.log('Position:', position), [position]);
 
   return (
@@ -162,8 +167,17 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         .note {
           position: absolute;
           visibility: hidden;
+          opacity: 0;
+          transform: translateX(-5px);
+          transition: opacity 0.2s ease-out 0s, transform 0.2s ease-out 0s;
           right: 0;
           top: ${position ? position.containerY + position.y : 0}px;
+        }
+
+        .note.open {
+          visibility: visible;
+          transform: translateX(0px);
+          opacity: 1;
         }
 
         .wrapper {
@@ -174,10 +188,6 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           background: var(--background);
           border-radius: 6px;
           overflow: hidden;
-        }
-
-        .note.open {
-          visibility: visible;
         }
 
         .note textarea {
