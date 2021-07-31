@@ -9,6 +9,8 @@ import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
 import { APIError } from 'lib/model/error';
 
+export const messages = { mutated: false };
+
 export default function useMessages(
   query: MessagesQuery = {},
   config: SWRInfiniteConfiguration = { revalidateAll: true }
