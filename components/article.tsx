@@ -132,9 +132,6 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           >
             <HighlightIcon />
           </button>
-          <button className='reset button' type='button'>
-            <NoteIcon />
-          </button>
           <a
             className='reset button'
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
@@ -149,7 +146,6 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           </a>
         </div>
         <div className='shadows'>
-          <div className='shadow' />
           <div className='shadow' />
           <div className='shadow' />
         </div>
