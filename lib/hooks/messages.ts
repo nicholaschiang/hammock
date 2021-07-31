@@ -8,6 +8,7 @@ import { createContext, useCallback, useContext } from 'react';
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
 import { APIError } from 'lib/model/error';
+import { Callback } from 'lib/model/callback';
 
 // TODO: Perhaps abstract this away into the `useMessages` hook below.
 interface MessagesMutatedType {
