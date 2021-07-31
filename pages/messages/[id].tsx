@@ -11,7 +11,7 @@ import Article from 'components/article';
 import Controls from 'components/controls';
 import Page from 'components/page';
 
-import useMessages, { messages } from 'lib/hooks/messages';
+import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { Message } from 'lib/model/message';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
@@ -38,6 +38,7 @@ function getVerticalScrollPercentage(elm: HTMLElement): number {
 
 export default function MessagePage(): JSX.Element {
   const { mutate: mutateMessages } = useMessages();
+  const { setMutated } = useMessagesMutated();
   const { query } = useRouter();
   const { data } = useSWR<MessageRes>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
@@ -95,10 +96,10 @@ export default function MessagePage(): JSX.Element {
         }),
       false
     );
-    messages.mutated = true;
+    setMutated(true);
     void mutate(url, fetcher(url, 'put', updated), false);
     if (updated.archived) Router.back();
-  }, [mutateMessages, scroll, message]);
+  }, [setMutated, mutateMessages, scroll, message]);
 
   useEffect(() => {
     // Don't try to update the scroll position if we're archiving the message.

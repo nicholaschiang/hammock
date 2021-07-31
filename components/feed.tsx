@@ -8,7 +8,7 @@ import { MessagesQuery } from 'pages/api/messages';
 import Empty from 'components/empty';
 import Section from 'components/section';
 
-import useMessages, { messages } from 'lib/hooks/messages';
+import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { MessageJSON } from 'lib/model/message';
 import { isSameDay } from 'lib/utils';
 import useNow from 'lib/hooks/now';
@@ -31,6 +31,7 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
 
 export default function Feed(query: MessagesQuery): JSX.Element {
   const { data, setSize, mutate: mutateMessages } = useMessages(query);
+  const { mutated, setMutated } = useMessagesMutated();
 
   useEffect(() => {
     data?.flat().forEach((message) => {
@@ -43,11 +44,11 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     // that we know whether or not there's more to load in the infinite scroll
     // b/c a mutated `/api/messages` response might not have 5 messages.
     async function refresh(): Promise<void> {
-      if (messages.mutated) await mutateMessages();
-      messages.mutated = false;
+      if (mutated) await mutateMessages();
+      setMutated(false);
     }
     void refresh();
-  }, [mutateMessages]);
+  }, [setMutated, mutateMessages]);
 
   const sections = useMemo(() => {
     const newSections: FeedSectionProps[] = [];
@@ -71,7 +72,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     <InfiniteScroll
       dataLength={data?.flat().length || 0}
       next={() => setSize((prev) => prev + 1)}
-      hasMore={!data || data[data.length - 1].length === 5 || messages.mutated}
+      hasMore={!data || data[data.length - 1].length === 5 || mutated}
       style={{ overflow: undefined }}
       scrollThreshold={0.65}
       loader={<Section />}

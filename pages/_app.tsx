@@ -11,6 +11,7 @@ import { User, UserJSON } from 'lib/model/user';
 import { fetcher, onError } from 'lib/fetch';
 import { APIError } from 'lib/model/error';
 import { CallbackParam } from 'lib/model/callback';
+import { MessagesMutatedContext } from 'lib/hooks/messages';
 import { UserContext } from 'lib/context/user';
 
 const light = `
@@ -120,6 +121,8 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
   useEffect(() => {
     localStorage.setItem('theme', theme);
   }, [theme]);
+  
+  const [mutated, setMutated] = useState<boolean>(false);
 
   return (
     <UserContext.Provider value={{ user, setUser, setUserMutated, loggedIn }}>
@@ -127,7 +130,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <SWRConfig value={{ fetcher, onError }}>
           <Segment />
           <NProgress />
-          <Component {...pageProps} />
+          <MessagesMutatedContext.Provider value={{ mutated, setMutated }}>
+            <Component {...pageProps} />
+          </MessagesMutatedContext.Provider>
         </SWRConfig>
         <style jsx global>{`
           ::selection {
