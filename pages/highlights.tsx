@@ -1,8 +1,8 @@
+import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Link from 'next/link';
 import cn from 'classnames';
-import { useMemo } from 'react';
 
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
@@ -10,7 +10,7 @@ import Layout from 'components/layout';
 import Page from 'components/page';
 
 import { Highlight, Message } from 'lib/model/message';
-import useMessages from 'lib/hooks/messages';
+import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 
 interface HighlightProps {
   message?: Message;
@@ -118,7 +118,7 @@ const loader = Array(5)
 /* eslint-enable react/no-array-index-key */
 
 export default function HighlightsPage(): JSX.Element {
-  const { data, setSize } = useMessages();
+  const { data, setSize, mutate } = useMessages();
   const highlights = useMemo(
     () =>
       data
@@ -132,6 +132,20 @@ export default function HighlightsPage(): JSX.Element {
         .flat(),
     [data]
   );
+  
+  // TODO: Refactor this to reduce code duplication with the `/feed` page.
+  const { mutated, setMutated } = useMessagesMutated();
+  useEffect(() => {
+    // If the message page mutates these messages to e.g. archive a message and
+    // thus remove it from the `/feed` page, we have to refresh the messages so
+    // that we know whether or not there's more to load in the infinite scroll
+    // b/c a mutated `/api/messages` response might not have 5 messages.
+    async function refresh(): Promise<void> {
+      if (mutated) await mutate();
+      setMutated(false);
+    }
+    void refresh();
+  }, [mutated, setMutated, mutate]);
 
   return (
     <Page name='Highlights' login sync>
@@ -148,7 +162,7 @@ export default function HighlightsPage(): JSX.Element {
         <InfiniteScroll
           dataLength={data?.flat().length || 0}
           next={() => setSize((prev) => prev + 1)}
-          hasMore={!data || data[data.length - 1].length === 5}
+          hasMore={!data || data[data.length - 1].length === 5 || mutated}
           style={{ overflow: undefined }}
           scrollThreshold={0.65}
           loader={loader}
