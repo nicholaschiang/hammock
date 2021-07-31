@@ -31,6 +31,7 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
 
 export default function Feed(query: MessagesQuery): JSX.Element {
   const { data, setSize, mutate: mutateMessages } = useMessages(query);
+  // TODO: Abstract this individual mutation to the `useMessages` hook.
   useEffect(() => {
     data?.flat().forEach((message) => {
       void mutate(`/api/messages/${message.id}`, message, false);
@@ -53,7 +54,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     });
     return newSections;
   }, [data]);
-  
+
   // TODO: Refactor this to reduce code duplication with the `/highlights` page.
   const { mutated, setMutated } = useMessagesMutated();
   useEffect(() => {

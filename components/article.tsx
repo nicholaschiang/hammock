@@ -32,6 +32,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       if (typeof param === 'function') highlights = param(highlights);
       if (typeof param === 'object') highlights = param;
       const url = `/api/messages/${message.id}`;
+      // TODO: Also mutate the global `/api/messages` SWR cache value.
       void mutate(url, { ...message, highlights }, false);
       void mutate(url, fetcher(url, 'put', { ...message, highlights }), false);
     },
