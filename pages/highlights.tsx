@@ -124,15 +124,17 @@ export default function HighlightsPage(): JSX.Element {
       data
         ?.flat()
         .map((m) =>
-          m.highlights.map((h) => ({
-            highlight: h,
-            message: Message.fromJSON(m),
-          }))
+          m.highlights
+            .filter((h) => !h.deleted)
+            .map((h) => ({
+              highlight: h,
+              message: Message.fromJSON(m),
+            }))
         )
         .flat(),
     [data]
   );
-  
+
   // TODO: Refactor this to reduce code duplication with the `/feed` page.
   const { mutated, setMutated } = useMessagesMutated();
   useEffect(() => {
