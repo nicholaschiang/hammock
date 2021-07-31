@@ -8,9 +8,9 @@ import { MessagesQuery } from 'pages/api/messages';
 import Empty from 'components/empty';
 import Section from 'components/section';
 
+import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { MessageJSON } from 'lib/model/message';
 import { isSameDay } from 'lib/utils';
-import useMessages from 'lib/hooks/messages';
 import useNow from 'lib/hooks/now';
 
 interface FeedSectionProps {
@@ -30,14 +30,12 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
 }
 
 export default function Feed(query: MessagesQuery): JSX.Element {
-  const { data, setSize } = useMessages(query);
-
+  const { data, setSize, mutate: mutateMessages } = useMessages(query);
   useEffect(() => {
     data?.flat().forEach((message) => {
       void mutate(`/api/messages/${message.id}`, message, false);
     });
   }, [data]);
-
   const sections = useMemo(() => {
     const newSections: FeedSectionProps[] = [];
     data?.flat().forEach((message) => {
@@ -55,12 +53,26 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     });
     return newSections;
   }, [data]);
+  
+  // TODO: Refactor this to reduce code duplication with the `/highlights` page.
+  const { mutated, setMutated } = useMessagesMutated();
+  useEffect(() => {
+    // If the message page mutates these messages to e.g. archive a message and
+    // thus remove it from the `/feed` page, we have to refresh the messages so
+    // that we know whether or not there's more to load in the infinite scroll
+    // b/c a mutated `/api/messages` response might not have 5 messages.
+    async function refresh(): Promise<void> {
+      if (mutated) await mutateMessages();
+      setMutated(false);
+    }
+    void refresh();
+  }, [mutated, setMutated, mutateMessages]);
 
   return (
     <InfiniteScroll
       dataLength={data?.flat().length || 0}
       next={() => setSize((prev) => prev + 1)}
-      hasMore={!data || data[data.length - 1].length === 5}
+      hasMore={!data || data[data.length - 1].length === 5 || mutated}
       style={{ overflow: undefined }}
       scrollThreshold={0.65}
       loader={<Section />}

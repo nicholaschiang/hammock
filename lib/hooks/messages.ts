@@ -3,11 +3,23 @@ import {
   SWRInfiniteResponse,
   useSWRInfinite,
 } from 'swr';
-import { useCallback } from 'react';
+import { createContext, useCallback, useContext } from 'react';
 
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
 import { APIError } from 'lib/model/error';
+import { Callback } from 'lib/model/callback';
+
+// TODO: Perhaps abstract this away into the `useMessages` hook below.
+interface MessagesMutatedType {
+  mutated: boolean;
+  setMutated: Callback<boolean>;
+}
+export const MessagesMutatedContext = createContext<MessagesMutatedType>({
+  mutated: false,
+  setMutated: () => {},
+});
+export const useMessagesMutated = () => useContext(MessagesMutatedContext);
 
 export default function useMessages(
   query: MessagesQuery = {},
