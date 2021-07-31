@@ -139,6 +139,17 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       highlight: highlight?.text,
       message: message?.toSegment(),
     });
+    setHighlight(undefined);
+    setHighlights((prev) => {
+      if (!highlight || prev.some((h) => h.id === highlight.id)) return prev;
+      // TODO: Test if this new highlight range overlaps with any existing highlights.
+      // If so, combine them into one new non-deleted highlight range.
+      window.analytics?.track('Highlight Created', {
+        highlight: highlight.text,
+        message: message?.toSegment(),
+      });
+      return [...prev, highlight];
+    });
   }, [message, highlight, tweet]);
 
   return (
