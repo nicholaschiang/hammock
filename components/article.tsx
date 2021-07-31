@@ -4,7 +4,6 @@ import { mutate } from 'swr';
 import { nanoid } from 'nanoid';
 
 import HighlightIcon from 'components/icons/highlight';
-import NoteIcon from 'components/icons/note';
 import TweetIcon from 'components/icons/tweet';
 
 import { Highlight, Message } from 'lib/model/message';
