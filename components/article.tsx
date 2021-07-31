@@ -126,13 +126,16 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
     });
   }, [message, highlight, setHighlights]);
-  const tweet = useMemo(
-    () =>
-      `“${highlight?.text || ''}” — ${
-        message?.from.name || 'Newsletter'
-      }\n\nvia @readhammock\nhttps://readhammock.com/try`,
-    [message, highlight]
-  );
+  const [tweet, setTweet] = useState<string>('');
+  useEffect(() => {
+    setTweet((prev) =>
+      highlight
+        ? `“${highlight?.text || ''}” — ${
+            message?.from.name || 'Newsletter'
+          }\n\nvia @readhammock\nhttps://readhammock.com/try`
+        : prev
+    );
+  }, [message, highlight]);
   const onTweet = useCallback(() => {
     window.analytics?.track('Highlight Tweeted', {
       tweet,
