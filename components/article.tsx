@@ -111,11 +111,35 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       // TODO: Test if this new highlight range overlaps with any existing highlights.
       // If so, combine them into one new non-deleted highlight range.
       const idx = prev.findIndex((x) => x.id === highlight.id);
-      if (idx < 0) return [...prev, highlight];
+      if (idx < 0) {
+        window.analytics?.track('Highlight Created', {
+          highlight: highlight.text,
+          message: message?.toSegment(),
+        });
+        return [...prev, highlight];
+      }
+      window.analytics?.track('Highlight Deleted', {
+        highlight: highlight.text,
+        message: message?.toSegment(),
+      });
       const deleted = { ...highlight, deleted: true };
       return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
     });
-  }, [highlight, setHighlights]);
+  }, [message, highlight, setHighlights]);
+  const tweet = useMemo(
+    () =>
+      `“${highlight?.text || ''}” — ${
+        message?.from.name || 'Newsletter'
+      }\n\nvia @readhammock\nhttps://readhammock.com/try`,
+    [message, highlight]
+  );
+  const onTweet = useCallback(() => {
+    window.analytics?.track('Highlight Tweeted', {
+      tweet,
+      highlight: highlight?.text,
+      message: message?.toSegment(),
+    });
+  }, [message, highlight, tweet]);
 
   return (
     <>
@@ -135,12 +159,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
           <a
             className='reset button'
             href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              `“${highlight?.text || ''}” — ${
-                message?.from.name || 'Newsletter'
-              }\n\nvia @readhammock\nhttps://readhammock.com/try`
+              tweet
             )}`}
             target='_blank'
             rel='noopener noreferrer'
+            onClick={onTweet}
           >
             <TweetIcon />
           </a>
