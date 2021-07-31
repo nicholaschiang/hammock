@@ -150,7 +150,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       });
       return [...prev, highlight];
     });
-  }, [message, highlight, tweet]);
+  }, [message, highlight, tweet, setHighlights]);
 
   return (
     <>
