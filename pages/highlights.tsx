@@ -81,7 +81,7 @@ function HighlightRow({ message, highlight }: HighlightProps): JSX.Element {
 
           blockquote {
             margin: 8px 0;
-            padding-left: 16px;
+            padding-left: 18px;
             font-size: 16px;
             font-weight: 400;
             line-height: 24px;
@@ -95,7 +95,7 @@ function HighlightRow({ message, highlight }: HighlightProps): JSX.Element {
             background: var(--highlight);
             position: absolute;
             top: 0;
-            left: 0;
+            left: 2px;
             bottom: 0;
             content: '';
             border-radius: 2px;
