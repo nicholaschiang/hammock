@@ -111,7 +111,7 @@ export default function MessageRow({
             font-size: 12px;
             font-weight: 600;
             color: var(--accents-6);
-            background: var(--accents-2);
+            background-color: var(--accents-2);
             border-radius: 12px;
           }
 
