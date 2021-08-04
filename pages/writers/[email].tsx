@@ -1,7 +1,6 @@
 import Router, { useRouter } from 'next/router';
 import { useEffect, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { mutate } from 'swr';
 
 import Empty from 'components/empty';
 import Layout from 'components/layout';
@@ -25,12 +24,6 @@ export default function WritersPage(): JSX.Element {
     if (!loggedIn || writer) return;
     void Router.push('/404');
   }, [loggedIn, writer]);
-
-  useEffect(() => {
-    data?.flat().forEach((message) => {
-      void mutate(`/api/messages/${message.id}`, message, false);
-    });
-  }, [data]);
 
   const loader = useMemo(() => {
     const empty = Array(3).fill(null);
