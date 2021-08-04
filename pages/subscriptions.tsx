@@ -20,54 +20,33 @@ import { period } from 'lib/utils';
 import useLoading from 'lib/hooks/loading';
 import { useUser } from 'lib/context/user';
 
+const NUM_PAGES = 10;
+const LOADING_MSGS = [
+  'Hang tight, we’re getting your subscriptions from Gmail',
+  'Let’s use this time to go through exactly how Hammock works',
+  'You’ll soon be choosing which newsletters you want to read in Hammock',
+  'For this to work, we first have to do two things in your Gmail account',
+  'First, we create a ‘Hammock’ label and apply it to the newsletters you choose',
+  'We also create a filter so that those newsletters skip your inbox',
+  'This is just so you’re not seeing them both in your inbox and in Hammock',
+  'Remember, you can always still search and find your newsletters in Gmail',
+  'You can easily revert these changes without messing up Gmail or Hammock',
+  'As always, if you ever have any feedback, please reach out... we’re almost done...',
+];
+
 interface LoadingDialogProps {
   progress: number;
 }
 
 function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
-  const funny = useRef([
-    'Smashing the computer...',
-    'Reticulating spines...',
-    'Generating witty dialog...',
-    'Swapping time and space...',
-    'Filtering morale...',
-    'We need a new fuse...',
-    'Tokenizing real life...',
-    'The bits are breeding...',
-    'You’re not in Kansas anymore...',
-    'Spinning violently around the y-axis...',
-    'Testing your patience...',
-    'Granting wishes...',
-    'Connecting neurotoxin storage tank...',
-    'Spinning the hamster...',
-    'Roping some seaturtles...',
-    'Constructing additional pylons...',
-    'Dividing by zero...',
-    'Simulating traveling salesman...',
-    'Entangling superstrings...',
-    'Twiddling thumbs...',
-    'Searching for plot device...',
-  ]);
-  const [message, setMessage] = useState<string>(
-    'Getting your subscriptions...'
-  );
-  const [percent, setPercent] = useState<number>(0);
+  const [message, setMessage] = useState<string>(LOADING_MSGS[progress]);
   useEffect(() => {
-    setPercent(Math.min(Math.max(progress, 0.05), 0.95));
+    setMessage(() => LOADING_MSGS[Math.min(progress, LOADING_MSGS.length)]);
   }, [progress]);
-  useEffect(() => {
-    setMessage(() => {
-      if (percent > 0.9) return 'Almost there...';
-      if (percent > 0.4) {
-        const idx = Math.floor(Math.random() * funny.current.length);
-        return funny.current.splice(idx, 1)[0];
-      }
-      if (percent > 0.3) return 'Only a few more years...';
-      if (percent > 0.2) return 'Like a very long moment...';
-      if (percent > 0.1) return 'This might take a moment...';
-      return 'Getting your subscriptions...';
-    });
-  }, [percent]);
+  const percent = useMemo(
+    () => Math.min(Math.max(progress / NUM_PAGES, 0.05), 0.95),
+    [progress]
+  );
 
   return (
     <Dialog>
@@ -94,6 +73,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
           line-height: 24px;
           margin: 48px 0 24px;
           text-align: center;
+          max-width: 400px;
         }
 
         .progress {
@@ -361,7 +341,7 @@ function SubscriptionRow({
 }
 
 export default function SubscriptionsPage(): JSX.Element {
-  const [progress, setProgress] = useState<number>(1);
+  const [progress, setProgress] = useState<number>(0);
   const getKey = useCallback(
     (pageIdx: number, prev: SubscriptionsRes | null) => {
       if (!prev || pageIdx === 0) return '/api/subscriptions';
@@ -372,7 +352,7 @@ export default function SubscriptionsPage(): JSX.Element {
   );
   const { data } = useSWRInfinite<SubscriptionsRes, APIError>(getKey, {
     revalidateAll: true,
-    initialSize: 10,
+    initialSize: NUM_PAGES,
   });
   const subscriptions = useMemo(() => {
     const subs: Subscription[] = [];
@@ -446,7 +426,7 @@ export default function SubscriptionsPage(): JSX.Element {
   return (
     <Page name='Subscriptions' login>
       <div className='wrapper'>
-        {!data && <LoadingDialog progress={progress / 10} />}
+        {!data && <LoadingDialog progress={progress} />}
         <Head>
           <link
             rel='preload'
