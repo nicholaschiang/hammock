@@ -23,7 +23,7 @@ export const useMessagesMutated = () => useContext(MessagesMutatedContext);
 
 export default function useMessages(
   query: MessagesQuery = {},
-  config: SWRInfiniteConfiguration = { revalidateAll: true }
+  config: SWRInfiniteConfiguration = {}
 ): SWRInfiniteResponse<MessagesRes> {
   const getKey = useCallback(
     (pageIdx: number, prev: MessagesRes | null) => {
