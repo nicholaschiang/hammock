@@ -118,6 +118,7 @@ const loader = Array(5)
 /* eslint-enable react/no-array-index-key */
 
 export default function HighlightsPage(): JSX.Element {
+  // TODO: Show highlights from archived messages too?
   const { data, setSize, mutate } = useMessages();
   const highlights = useMemo(
     () =>
