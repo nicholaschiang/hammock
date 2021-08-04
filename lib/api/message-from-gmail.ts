@@ -194,7 +194,7 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
   }
 
   const raw = getRawHTML(gmailMessage);
-  const { html, time } = parseRawHTML(raw);
+  const { html, time } = raw ? parseRawHTML(raw) : { html: '', time: 0 };
 
   console.timeEnd(`parse-gmail-message-${gmailMessage.id}`);
 

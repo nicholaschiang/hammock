@@ -3,10 +3,13 @@ import cn from 'classnames';
 import { mutate } from 'swr';
 import { nanoid } from 'nanoid';
 
+import { MessagesRes } from 'pages/api/messages';
+
 import HighlightIcon from 'components/icons/highlight';
 import TweetIcon from 'components/icons/tweet';
 
 import { Highlight, Message } from 'lib/model/message';
+import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { CallbackParam } from 'lib/model/callback';
 import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
@@ -24,18 +27,36 @@ export interface ArticleProps {
 }
 
 export default function Article({ message }: ArticleProps): JSX.Element {
+  const { mutate: mutateMessages } = useMessages();
+  const { setMutated } = useMessagesMutated();
   const setHighlights = useCallback(
     (param: CallbackParam<Highlight[]>) => {
       if (!message) return;
       let { highlights } = message;
       if (typeof param === 'function') highlights = param(highlights);
       if (typeof param === 'object') highlights = param;
-      const url = `/api/messages/${message.id}`;
-      // TODO: Also mutate the global `/api/messages` SWR cache value.
-      void mutate(url, { ...message, highlights }, false);
-      void mutate(url, fetcher(url, 'put', { ...message, highlights }), false);
+      const updated = { ...message.toJSON(), highlights };
+      const url = `/api/messages/${updated.id}`;
+      void mutate(url, updated, false);
+      // TODO: Find an elegant way to mutate all the different possible feed
+      // queries (e.g. for the archive page, quick read page, writers pages).
+      void mutateMessages(
+        (res?: MessagesRes[]) =>
+          res?.map((messages) => {
+            const idx = messages.findIndex((m) => m.id === updated.id);
+            if (idx < 0) return messages;
+            return [
+              ...messages.slice(0, idx),
+              updated,
+              ...messages.slice(idx + 1),
+            ];
+          }),
+        false
+      );
+      setMutated(true);
+      void mutate(url, fetcher(url, 'put', updated), false);
     },
-    [message]
+    [message, mutateMessages, setMutated]
   );
 
   const [highlight, setHighlight] = useState<Highlight>();

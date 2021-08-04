@@ -1,13 +1,13 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
 import { Message, MessageInterface, MessageJSON } from 'lib/model/message';
-import gmail, { GmailMessage } from 'lib/api/gmail';
 import { APIErrorJSON } from 'lib/model/error';
 import { db } from 'lib/api/firebase';
-import { fetcher } from 'lib/fetch';
 import getGmailMessages from 'lib/api/get/gmail-messages';
+import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import messageFromGmail from 'lib/api/message-from-gmail';
 import segment from 'lib/api/segment';
 import verifyAuth from 'lib/api/verify/auth';
 
@@ -56,38 +56,31 @@ export default async function messagesAPI(
       const client = gmail(user.token);
       const gmailMessages = await getGmailMessages(
         docs.map((d) => d.id),
-        client
+        client,
+        'METADATA'
       );
-      const messages = await Promise.all(
-        docs.map(async (doc, idx) => {
-          // We don't store the actual message content in our database. Instead,
-          // we fetch that data here at runtime and only store metadata.
-          const gmailMessage = Message.fromJSON(
-            await fetcher<MessageJSON, GmailMessage>(
-              `http://${req.headers.host}/api/messages/parse`,
-              'post',
-              gmailMessages[idx]
-            )
-          );
-          const metadata = Message.fromFirestoreDoc(doc);
-          const combined: MessageInterface = {
-            from: metadata.from,
-            category: metadata.category,
-            favorite: metadata.favorite,
-            id: metadata.id,
-            date: metadata.date,
-            subject: gmailMessage.subject,
-            snippet: gmailMessage.snippet,
-            raw: gmailMessage.raw,
-            html: gmailMessage.html,
-            archived: metadata.archived,
-            scroll: metadata.scroll,
-            time: metadata.time,
-            highlights: metadata.highlights,
-          };
-          return new Message(combined);
-        })
-      );
+      const messages = docs.map((doc, idx) => {
+        // We don't store the actual message content in our database. Instead,
+        // we fetch that data here at runtime and only store metadata.
+        const gmailMessage = messageFromGmail(gmailMessages[idx]);
+        const metadata = Message.fromFirestoreDoc(doc);
+        const combined: MessageInterface = {
+          from: metadata.from,
+          category: metadata.category,
+          favorite: metadata.favorite,
+          id: metadata.id,
+          date: metadata.date,
+          subject: gmailMessage.subject,
+          snippet: gmailMessage.snippet,
+          raw: gmailMessage.raw,
+          html: gmailMessage.html,
+          archived: metadata.archived,
+          scroll: metadata.scroll,
+          time: metadata.time,
+          highlights: metadata.highlights,
+        };
+        return new Message(combined);
+      });
       res.status(200).json(messages.map((m) => m.toJSON()));
       logger.info(`Fetched ${messages.length} messages for ${user}.`);
       console.timeEnd('get-messages-api');
