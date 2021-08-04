@@ -27,6 +27,7 @@ async function fetchMessage(
 ): Promise<void> {
   try {
     const id = verifyQueryId(req.query);
+    console.time(`fetch-message-${id}`);
     const user = await verifyAuth(req);
     // We don't store the actual message content (subject, snippet, html) in our
     // database. Instead, we fetch that data at runtime and only store metadata.
@@ -38,7 +39,10 @@ async function fetchMessage(
       .get();
     const client = gmail(user.token);
     const metadata = Message.fromFirestoreDoc(doc);
-    const gmailMessage = messageFromGmail(await getGmailMessage(id, client));
+    console.time(`get-gmail-message-${id}`);
+    const gmailMessageData = await getGmailMessage(id, client);
+    console.timeEnd(`get-gmail-message-${id}`);
+    const gmailMessage = messageFromGmail(gmailMessageData);
     const combined: MessageInterface = {
       from: metadata.from,
       category: metadata.category,
@@ -56,6 +60,7 @@ async function fetchMessage(
     };
     res.status(200).json(new Message(combined).toJSON());
     logger.info(`Fetched ${metadata} for ${user}.`);
+    console.timeEnd(`fetch-message-${id}`);
     segment.track({
       userId: user.id,
       event: 'Message Fetched',
