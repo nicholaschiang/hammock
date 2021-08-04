@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { mutate } from 'swr';
 
 import { MessagesQuery } from 'pages/api/messages';
 
