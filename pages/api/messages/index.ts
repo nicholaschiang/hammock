@@ -1,6 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { Message, MessageInterface, MessageJSON } from 'lib/model/message';
+import { Message, MessageJSON } from 'lib/model/message';
 import { APIErrorJSON } from 'lib/model/error';
 import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
