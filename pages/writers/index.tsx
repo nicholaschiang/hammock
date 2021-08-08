@@ -22,7 +22,7 @@ interface WriterRowProps {
 }
 
 function WriterRow({ sub }: WriterRowProps): JSX.Element {
-  const { user, setUser, setUserMutated } = useUser();
+  const { user, setUser } = useUser();
   const favorite = useCallback(
     (evt: MouseEvent<HTMLButtonElement>) => {
       evt.preventDefault();
@@ -43,17 +43,6 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
     },
     [sub, user, setUser]
   );
-  useEffect(() => {
-    async function save(): Promise<void> {
-      const url = '/api/account';
-      await mutate(url, fetcher(url, 'put', user.toJSON()), false);
-      setUserMutated(false);
-    }
-    const timeoutId = setTimeout(() => {
-      void save();
-    }, 500);
-    return () => clearTimeout(timeoutId);
-  }, [user, setUserMutated]);
 
   return (
     <Link href={sub ? `/writers/${sub.from.email}` : ''}>
@@ -153,8 +142,19 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
 }
 
 export default function WritersPage(): JSX.Element {
-  const { user, loggedIn } = useUser();
+  const { user, loggedIn, setUserMutated } = useUser();
   const { data } = useMessages();
+  useEffect(() => {
+    async function save(): Promise<void> {
+      const url = '/api/account';
+      await mutate(url, fetcher(url, 'put', user.toJSON()), false);
+      setUserMutated(false);
+    }
+    const timeoutId = setTimeout(() => {
+      void save();
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [user, setUserMutated]);
 
   const subscriptions = useMemo(
     () =>
