@@ -66,7 +66,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   useEffect(() => {
     // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
     // when the user's mouse exits the highlight and w/in ~100px of dialog.
-    function listener(evt: MouseEvent): void {
+    function listener(evt: PointerEvent): void {
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
       if ((evt.target as HTMLElement).dataset.highlight === highlight?.id)
         return;
@@ -85,19 +85,20 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         (prev) => message?.highlights.find((x) => x.id === id) || prev
       );
     }
-    window.addEventListener('mouseover', listener);
-    return () => window.removeEventListener('mouseover', listener);
+    window.addEventListener('pointerover', listener);
+    return () => window.removeEventListener('pointerover', listener);
   }, [message?.highlights, highlight]);
   useEffect(() => {
-    function listener(evt: MouseEvent): void {
+    function listener(evt: PointerEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
+      if ((evt.target as Node).nodeName === 'MARK') return;
       setHighlight(undefined);
     }
-    window.addEventListener('mousedown', listener);
-    return () => window.removeEventListener('mousedown', listener);
+    window.addEventListener('pointerdown', listener);
+    return () => window.removeEventListener('pointerdown', listener);
   }, []);
   useEffect(() => {
-    function listener(evt: MouseEvent): void {
+    function listener(evt: PointerEvent): void {
       if (!articleRef.current) return;
       const sel = window.getSelection() || document.getSelection();
       if (!sel || sel.isCollapsed) return;
@@ -118,8 +119,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         id: nanoid(),
       });
     }
-    window.addEventListener('mouseup', listener);
-    return () => window.removeEventListener('mouseup', listener);
+    window.addEventListener('pointerup', listener);
+    return () => window.removeEventListener('pointerup', listener);
   }, []);
   const html = useMemo(
     () => (message ? highlightHTML(message.html, message.highlights) : ''),
