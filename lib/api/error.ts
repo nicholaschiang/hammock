@@ -16,9 +16,9 @@ export function send(e: APIError, res: ServerResponse): void {
 
 export function handle(e: unknown, res: ServerResponse): void {
   if (!(e instanceof APIError) || e.code !== 401) {
-    logger.error(`API encountered: ${(e as Error)?.stack || ''}`);
+    logger.error(`API: ${(e as Error)?.stack || ''}`);
   } else {
-    logger.error(`API encountered: ${e.code} ${e.toString()}`);
+    logger.error(`API ${e.code}: ${e.toString()}`);
   }
   // For some weird reason (I'm guessing because of different `node_modules`
   // package versions), simply using `e instanceof GaxiosError` doesn't work.
