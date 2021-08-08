@@ -1,9 +1,10 @@
 import {
   SWRInfiniteConfiguration,
   SWRInfiniteResponse,
+  mutate,
   useSWRInfinite,
 } from 'swr';
-import { createContext, useCallback, useContext } from 'react';
+import { createContext, useCallback, useContext, useEffect } from 'react';
 
 import { MessagesQuery, MessagesRes } from 'pages/api/messages';
 
@@ -38,5 +39,14 @@ export default function useMessages(
     },
     [query]
   );
-  return useSWRInfinite<MessagesRes, APIError>(getKey, config);
+  const { data, ...rest } = useSWRInfinite<MessagesRes, APIError>(
+    getKey,
+    config
+  );
+  useEffect(() => {
+    data?.flat().forEach((message) => {
+      void mutate(`/api/messages/${message.id}`, message, false);
+    });
+  }, [data]);
+  return { data, ...rest };
 }
