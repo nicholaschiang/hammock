@@ -1,18 +1,10 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import {
-  Message,
-  MessageInterface,
-  MessageJSON,
-  isMessageJSON,
-} from 'lib/model/message';
+import { Message, MessageJSON, isMessageJSON } from 'lib/model/message';
 import { APIErrorJSON } from 'lib/model/error';
 import { db } from 'lib/api/firebase';
-import getGmailMessage from 'lib/api/get/gmail-message';
-import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
-import messageFromGmail from 'lib/api/message-from-gmail';
 import segment from 'lib/api/segment';
 import updateMessageDoc from 'lib/api/update/message-doc';
 import verifyAuth from 'lib/api/verify/auth';
@@ -29,42 +21,20 @@ async function fetchMessage(
     const id = verifyQueryId(req.query);
     console.time(`fetch-message-${id}`);
     const user = await verifyAuth(req);
-    // We don't store the actual message content (subject, snippet, html) in our
-    // database. Instead, we fetch that data at runtime and only store metadata.
     const doc = await db
       .collection('users')
       .doc(user.id)
       .collection('messages')
       .doc(id)
       .get();
-    const client = gmail(user.token);
-    const metadata = Message.fromFirestoreDoc(doc);
-    console.time(`get-gmail-message-${id}`);
-    const gmailMessageData = await getGmailMessage(id, client);
-    console.timeEnd(`get-gmail-message-${id}`);
-    const gmailMessage = messageFromGmail(gmailMessageData);
-    const combined: MessageInterface = {
-      from: metadata.from,
-      category: metadata.category,
-      favorite: metadata.favorite,
-      id: metadata.id,
-      date: metadata.date,
-      subject: gmailMessage.subject,
-      snippet: gmailMessage.snippet,
-      raw: gmailMessage.raw,
-      html: gmailMessage.html,
-      archived: metadata.archived,
-      scroll: metadata.scroll,
-      time: metadata.time,
-      highlights: metadata.highlights,
-    };
-    res.status(200).json(new Message(combined).toJSON());
-    logger.info(`Fetched ${metadata} for ${user}.`);
+    const message = Message.fromFirestoreDoc(doc);
+    res.status(200).json(message.toJSON());
+    logger.info(`Fetched ${message} for ${user}.`);
     console.timeEnd(`fetch-message-${id}`);
     segment.track({
       userId: user.id,
       event: 'Message Fetched',
-      properties: metadata.toSegment(),
+      properties: message.toSegment(),
     });
   } catch (e) {
     handle(e, res);
@@ -96,7 +66,7 @@ async function updateMessage(
 }
 
 /**
- * GET - Fetches the message data (from Gmail's API and our database).
+ * GET - Fetches the message data (from our database).
  * PUT - Updates the message metadata (in our database).
  *
  * Requires a JWT; will try to fetch the message from that user's data.

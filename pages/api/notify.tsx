@@ -6,14 +6,11 @@ import to from 'await-to-js';
 import Email from 'components/email';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
-import { Message, MessageInterface } from 'lib/model/message';
+import { Message } from 'lib/model/message';
 import { User } from 'lib/model/user';
 import { db } from 'lib/api/firebase';
-import getGmailMessages from 'lib/api/get/gmail-messages';
-import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
-import messageFromGmail from 'lib/api/message-from-gmail';
 import syncGmail from 'lib/api/sync-gmail';
 
 /**
@@ -61,33 +58,7 @@ export default async function notifyAPI(
             .orderBy('date', 'desc')
             .limit(3)
             .get();
-          const client = gmail(user.token);
-          const gmailMessages = await getGmailMessages(
-            docs.map((d) => d.id),
-            client
-          );
-          const messages = docs.map((doc, idx) => {
-            // We don't store the actual message content in our database. Instead,
-            // we fetch that data here at runtime and only store metadata.
-            const gmailMessage = messageFromGmail(gmailMessages[idx]);
-            const metadata = Message.fromFirestoreDoc(doc);
-            const combined: MessageInterface = {
-              from: metadata.from,
-              category: metadata.category,
-              favorite: metadata.favorite,
-              id: metadata.id,
-              date: metadata.date,
-              subject: gmailMessage.subject,
-              snippet: gmailMessage.snippet,
-              raw: gmailMessage.raw,
-              html: gmailMessage.html,
-              archived: metadata.archived,
-              scroll: metadata.scroll,
-              time: metadata.time,
-              highlights: metadata.highlights,
-            };
-            return new Message(combined);
-          });
+          const messages = docs.map((doc) => Message.fromFirestoreDoc(doc));
           if (!messages.length) {
             logger.verbose(
               `Skipping email for ${user} with no new messages...`
