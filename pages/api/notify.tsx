@@ -40,48 +40,44 @@ export default async function notifyAPI(
       const { docs: users } = await db.collection('users').get();
       const emails: MailDataRequired[] = [];
       logger.info(`Fetching messages for ${users.length} users...`);
-      await Promise.all(
-        users.map(async (userDoc) => {
-          // TODO: Filter for message dates that are today in the user's time zone
-          // (this will require us to store user time zones in our db).
-          const user = User.fromFirestoreDoc(userDoc);
-          logger.verbose(`Syncing messages for ${user}...`);
-          // We only have to sync the latest 10 messages because that's all that
-          // we're looking at in our email notification anyways. That's why this
-          // doesn't care about the `nextPageToken` and isn't recursive.
-          const [e] = await to(syncGmail(user));
-          if (e) logger.warn(`Error syncing ${user}'s messages: ${e.stack}`);
-          logger.verbose(`Fetching messages for ${user}...`);
-          const { docs } = await userDoc.ref
-            .collection('messages')
-            .where('date', '>=', today)
-            .orderBy('date', 'desc')
-            .limit(3)
-            .get();
-          const messages = docs.map((doc) => Message.fromFirestoreDoc(doc));
-          if (!messages.length) {
-            logger.verbose(
-              `Skipping email for ${user} with no new messages...`
-            );
-          } else {
-            logger.verbose(
-              `Queuing email for ${user} with ${messages.length} new messages...`
-            );
-            emails.push({
-              to: { name: user.name, email: user.email },
-              from: { name: 'Hammock', email: 'team@readhammock.com' },
-              bcc: { name: 'Hammock', email: 'team@readhammock.com' },
-              subject: `Read in Hammock: ${messages
-                .map((m) => m.from.name)
-                .join(', ')}`,
-              html: renderToStaticMarkup(
-                <Email user={user} messages={messages} />
-              ),
-              asm: { groupId: 23193, groupsToDisplay: [23193] },
-            });
-          }
-        })
-      );
+      for await (const userDoc of users) {
+        // TODO: Filter for message dates that are today in the user's time zone
+        // (this will require us to store user time zones in our db).
+        const user = User.fromFirestoreDoc(userDoc);
+        logger.verbose(`Syncing messages for ${user}...`);
+        // We only have to sync the latest 10 messages because that's all that
+        // we're looking at in our email notification anyways. That's why this
+        // doesn't care about the `nextPageToken` and isn't recursive.
+        const [e] = await to(syncGmail(user));
+        if (e) logger.warn(`Error syncing ${user}'s messages: ${e.stack}`);
+        logger.verbose(`Fetching messages for ${user}...`);
+        const { docs } = await userDoc.ref
+          .collection('messages')
+          .where('date', '>=', today)
+          .orderBy('date', 'desc')
+          .limit(3)
+          .get();
+        const messages = docs.map((doc) => Message.fromFirestoreDoc(doc));
+        if (!messages.length) {
+          logger.verbose(`Skipping email for ${user} with no new messages...`);
+        } else {
+          logger.verbose(
+            `Queuing email for ${user} with ${messages.length} new messages...`
+          );
+          emails.push({
+            to: { name: user.name, email: user.email },
+            from: { name: 'Hammock', email: 'team@readhammock.com' },
+            bcc: { name: 'Hammock', email: 'team@readhammock.com' },
+            subject: `Read in Hammock: ${messages
+              .map((m) => m.from.name)
+              .join(', ')}`,
+            html: renderToStaticMarkup(
+              <Email user={user} messages={messages} />
+            ),
+            asm: { groupId: 23193, groupsToDisplay: [23193] },
+          });
+        }
+      }
       logger.info(`Sending ${emails.length} emails...`);
       if (typeof process.env.SENDGRID_API_KEY !== 'string')
         throw new APIError('Missing SendGrid API key', 401);
