@@ -184,10 +184,6 @@ export class Message extends Subscription implements MessageInterface {
       ...this,
       ...super.toFirestore(),
       date: this.date as unknown as Timestamp,
-      subject: '',
-      snippet: '',
-      html: '',
-      raw: '',
     });
   }
 
