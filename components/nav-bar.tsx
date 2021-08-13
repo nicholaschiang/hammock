@@ -241,7 +241,6 @@ export default function NavBar(): JSX.Element {
         <nav>
           <NavLink href='/feed'>Feed</NavLink>
           <NavLink href='/writers'>Writers</NavLink>
-          <NavLink href='/quick-read'>Quick read</NavLink>
           <NavLink href='/highlights'>Highlights</NavLink>
         </nav>
       </div>
