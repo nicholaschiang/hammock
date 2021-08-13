@@ -17,7 +17,7 @@ interface ContainerProps {
 
 function Container({ className, children }: ContainerProps): JSX.Element {
   return (
-    <div className={cn(className, 'w-container')}>
+    <div className={cn(className, 'w-container', 'light')}>
       {children}
       <style jsx>{`
         .w-container {
@@ -28,6 +28,7 @@ function Container({ className, children }: ContainerProps): JSX.Element {
           padding-bottom: 0px;
           padding-left: 0px;
           text-align: center;
+          background: var(--background);
         }
 
         .w-container:before,
@@ -171,7 +172,7 @@ function Paragraph({ children }: { children: ReactNode }): JSX.Element {
 
 function Header(): JSX.Element {
   return (
-    <div className='section'>
+    <div className='section light'>
       <Container>
         <div className='logo'>
           <Image
@@ -252,6 +253,7 @@ function Header(): JSX.Element {
           overflow: visible;
           padding-top: 40px;
           padding-bottom: 0px;
+          background: var(--background);
         }
 
         .logo {
@@ -272,6 +274,7 @@ function Header(): JSX.Element {
           text-align: center;
           letter-spacing: -0.01px;
           white-space: normal;
+          color: var(--on-background);
         }
 
         @media (max-width: 728px) {
@@ -310,7 +313,7 @@ function Header(): JSX.Element {
 
 function Benefits(): JSX.Element {
   return (
-    <div className='section-benefits'>
+    <div className='section-benefits light'>
       <Container>
         <div className='columns w-row'>
           <div className='benefit-column w-col'>
@@ -342,9 +345,8 @@ function Benefits(): JSX.Element {
       </Container>
       <style jsx>{`
         .section-benefits {
-          margin-top: 40px;
-          margin-bottom: 40px;
-          padding-top: 0px;
+          padding: 40px 0;
+          background: var(--background);
         }
 
         .columns {
@@ -393,6 +395,7 @@ function Benefits(): JSX.Element {
           margin-right: -8px;
           font-size: 14px;
           line-height: 20px;
+          color: var(--on-background);
         }
 
         .benefit-column h2 {
@@ -403,6 +406,7 @@ function Benefits(): JSX.Element {
           line-height: 24px;
           margin-bottom: 10px;
           margin-top: 10px;
+          color: var(--on-background);
         }
 
         @media (max-width: 767px) {
@@ -443,7 +447,7 @@ function Benefits(): JSX.Element {
 
 function Footer(): JSX.Element {
   return (
-    <footer className='footer'>
+    <footer className='footer light'>
       <Container>
         <div className='w-layout-grid footer-grid'>
           <div className='wrapper'>
@@ -520,6 +524,7 @@ function Footer(): JSX.Element {
           transition: opacity 775ms ease;
           text-align: center;
           display: block;
+          background: var(--background);
         }
 
         .footer-grid {
