@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import { withSentry } from '@sentry/nextjs';
 
 import { Message, MessageJSON, isMessageJSON } from 'lib/model/message';
 import { getMessage, updateMessage } from 'lib/api/db/message';
@@ -64,7 +65,7 @@ async function updateMessageAPI(
  *
  * Requires a JWT; will try to fetch the message from that user's data.
  */
-export default async function messageAPI(
+async function messageAPI(
   req: Req,
   res: Res<MessageRes | APIErrorJSON>
 ): Promise<void> {
@@ -80,3 +81,5 @@ export default async function messageAPI(
       res.status(405).end(`Method ${req.method as string} Not Allowed`);
   }
 }
+
+export default withSentry(messageAPI);

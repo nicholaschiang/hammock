@@ -2,6 +2,7 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import mail, { MailDataRequired } from '@sendgrid/mail';
 import { renderToStaticMarkup } from 'react-dom/server';
 import to from 'await-to-js';
+import { withSentry } from '@sentry/nextjs';
 
 import Email from 'components/email';
 
@@ -19,10 +20,7 @@ import syncGmail from 'lib/api/sync-gmail';
  *
  * Requires a specific authorization token known only by our CRON job.
  */
-export default async function notifyAPI(
-  req: Req,
-  res: Res<APIErrorJSON>
-): Promise<void> {
+async function notifyAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
@@ -94,3 +92,5 @@ export default async function notifyAPI(
     }
   }
 }
+
+export default withSentry(notifyAPI);

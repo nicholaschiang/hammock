@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import { withSentry } from '@sentry/nextjs';
 
 import { DBMessage, Message, MessageJSON } from 'lib/model/message';
 import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
@@ -16,7 +17,7 @@ export type MessagesRes = MessageJSON[];
  *
  * Requires a JWT; will return the messages for that user.
  */
-export default async function messagesAPI(
+async function messagesAPI(
   req: Req,
   res: Res<MessagesRes | APIErrorJSON>
 ): Promise<void> {
@@ -60,3 +61,5 @@ export default async function messagesAPI(
     }
   }
 }
+
+export default withSentry(messagesAPI);

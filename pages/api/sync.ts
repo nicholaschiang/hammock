@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import { withSentry } from '@sentry/nextjs';
 
 import { APIErrorJSON } from 'lib/model/error';
 import { handle } from 'lib/api/error';
@@ -11,10 +12,7 @@ import verifyAuth from 'lib/api/verify/auth';
  *
  * Requires a JWT; will sync the Gmail messages for that user.
  */
-export default async function syncAPI(
-  req: Req,
-  res: Res<APIErrorJSON>
-): Promise<void> {
+async function syncAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
@@ -36,3 +34,5 @@ export default async function syncAPI(
     }
   }
 }
+
+export default withSentry(syncAPI);
