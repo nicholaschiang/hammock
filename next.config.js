@@ -1,4 +1,6 @@
-module.exports = {
+const { withSentryConfig } = require('@sentry/nextjs');
+
+module.exports = withSentryConfig({
   reactStrictMode: true,
   i18n: { locales: ['en-US'], defaultLocale: 'en-US' },
   images: {
@@ -71,4 +73,4 @@ module.exports = {
     }
     return config;
   },
-};
+});
