@@ -6,8 +6,8 @@ import { isJSON } from 'lib/model/json';
 
 export interface Contact {
   name: string;
-  email: string;
   photo: string;
+  email: string;
 }
 
 export function isContact(contact: unknown): contact is Contact {
@@ -24,23 +24,35 @@ export function isCategory(category: unknown): category is Category {
 }
 
 /**
- * @typedef {Object} SubscriptionInterface
+ * @typedef {Object} NewsletterInterface
  * @property from - Who the newsletter is from (their name, email, and photo).
  * @property [category] - Either "important" (a known newsletter listed on our
  * whitelist or with a whitelisted sender domain) or "other" (any email that
  * contains the `list-unsubscribe` header) or missing (not a newsletter).
  * @property favorite - Whether or not this is a "favorite" newsletter.
  */
-export interface SubscriptionInterface {
+export interface NewsletterInterface {
   from: Contact;
   category?: Category;
   favorite: boolean;
 }
 
-export type SubscriptionJSON = SubscriptionInterface;
-export type SubscriptionFirestore = SubscriptionInterface;
+export interface DBNewsletter {
+  name: string;
+  photo: string | null;
+  email: string | null;
+  category: Category | null;
+  favorite: boolean;
+}
+export interface DBSubscription {
+  newsletter: string;
+  user: number;
+}
 
-export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
+export type NewsletterJSON = NewsletterInterface;
+export type NewsletterFirestore = NewsletterInterface;
+
+export function isNewsletterJSON(json: unknown): json is NewsletterJSON {
   if (!isJSON(json)) return false;
   if (!isContact(json.from)) return false;
   if (json.category && !isCategory(json.category)) return false;
@@ -48,48 +60,48 @@ export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
   return true;
 }
 
-export class Subscription implements SubscriptionInterface {
+export class Newsletter implements NewsletterInterface {
   public from = { name: '', email: '', photo: '' };
 
   public category?: Category;
 
   public favorite = false;
 
-  public constructor(subscription: Partial<SubscriptionInterface> = {}) {
-    construct<SubscriptionInterface>(this, subscription);
+  public constructor(subscription: Partial<NewsletterInterface> = {}) {
+    construct<NewsletterInterface>(this, subscription);
   }
 
-  public get clone(): Subscription {
-    return new Subscription(clone(this));
+  public get clone(): Newsletter {
+    return new Newsletter(clone(this));
   }
 
   public toString(): string {
-    return `Subscription from ${this.from.name} (${this.from.email})`;
+    return `Newsletter from ${this.from.name} (${this.from.email})`;
   }
 
-  public toJSON(): SubscriptionJSON {
+  public toJSON(): NewsletterJSON {
     return definedVals(this);
   }
 
-  public static fromJSON(json: SubscriptionJSON): Subscription {
-    return new Subscription(json);
+  public static fromJSON(json: NewsletterJSON): Newsletter {
+    return new Newsletter(json);
   }
 
-  public toFirestore(): SubscriptionFirestore {
+  public toFirestore(): NewsletterFirestore {
     return definedVals(this);
   }
 
-  public static fromFirestore(data: SubscriptionFirestore): Subscription {
-    return new Subscription(data);
+  public static fromFirestore(data: NewsletterFirestore): Newsletter {
+    return new Newsletter(data);
   }
 
-  public static fromFirestoreDoc(snapshot: DocumentSnapshot): Subscription {
-    if (!snapshot.exists) return new Subscription();
+  public static fromFirestoreDoc(snapshot: DocumentSnapshot): Newsletter {
+    if (!snapshot.exists) return new Newsletter();
     const overrides = definedVals({ id: snapshot.id });
-    const subscription = Subscription.fromFirestore(
-      snapshot.data() as SubscriptionFirestore
+    const subscription = Newsletter.fromFirestore(
+      snapshot.data() as NewsletterFirestore
     );
-    return new Subscription({ ...subscription, ...overrides });
+    return new Newsletter({ ...subscription, ...overrides });
   }
 
   public toSegment(): Record<string, unknown> {

@@ -1,11 +1,11 @@
 import { DocumentSnapshot, Timestamp } from 'lib/api/firebase';
 import {
-  Subscription,
-  SubscriptionFirestore,
-  SubscriptionInterface,
-  SubscriptionJSON,
-  isSubscriptionJSON,
-} from 'lib/model/subscription';
+  Newsletter,
+  NewsletterFirestore,
+  NewsletterInterface,
+  NewsletterJSON,
+  isNewsletterJSON,
+} from 'lib/model/newsletter';
 import { isArray, isDateJSON, isJSON } from 'lib/model/json';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -58,7 +58,7 @@ export function isHighlight(highlight: unknown): highlight is Highlight {
 
 /**
  * @typedef {Object} MessageInterface
- * @extends SubscriptionInterface
+ * @extends NewsletterInterface
  * @property id - The message's Gmail-assigned ID (we reuse it in our database).
  * @property date - When the message was sent (i.e. Gmail's `internalDate`).
  * @property subject - The message's subject line.
@@ -70,7 +70,7 @@ export function isHighlight(highlight: unknown): highlight is Highlight {
  * @property time - The message's estimated reading time (in minutes).
  * @property highlights - The message's highlights.
  */
-export interface MessageInterface extends SubscriptionInterface {
+export interface MessageInterface extends NewsletterInterface {
   id: string;
   date: Date;
   subject: string;
@@ -83,13 +83,36 @@ export interface MessageInterface extends SubscriptionInterface {
   highlights: Highlight[];
 }
 
-export type MessageJSON = Omit<MessageInterface, keyof Subscription | 'date'> &
-  SubscriptionJSON & { date: string };
+export interface DBMessage {
+  newsletter: string;
+  id: string;
+  date: string;
+  subject: string;
+  snippet: string;
+  raw: string;
+  html: string;
+  archived: boolean;
+  scroll: number;
+  time: number;
+}
+export interface DBHighlight {
+  message: string;
+  id: number;
+  start: string;
+  startOffset: number;
+  end: string;
+  endOffset: number;
+  text: string;
+  deleted: boolean;
+}
+
+export type MessageJSON = Omit<MessageInterface, keyof Newsletter | 'date'> &
+  NewsletterJSON & { date: string };
 export type MessageFirestore = Omit<
   MessageInterface,
-  keyof Subscription | 'date'
+  keyof Newsletter | 'date'
 > &
-  SubscriptionFirestore & {
+  NewsletterFirestore & {
     date: Timestamp;
     quickRead: boolean;
     resume: boolean;
@@ -99,7 +122,7 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
   const stringFields = ['id', 'subject', 'snippet', 'raw', 'html'];
   const numberFields = ['scroll', 'time'];
 
-  if (!isSubscriptionJSON(json)) return false;
+  if (!isNewsletterJSON(json)) return false;
   if (!isJSON(json)) return false;
   if (!isDateJSON(json.date)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
@@ -109,7 +132,7 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
   return true;
 }
 
-export class Message extends Subscription implements MessageInterface {
+export class Message extends Newsletter implements MessageInterface {
   public id = '';
 
   public date: Date = new Date();
@@ -132,10 +155,10 @@ export class Message extends Subscription implements MessageInterface {
 
   public constructor(message: Partial<MessageInterface> = {}) {
     super(message);
-    construct<MessageInterface, SubscriptionInterface>(
+    construct<MessageInterface, NewsletterInterface>(
       this,
       message,
-      new Subscription()
+      new Newsletter()
     );
   }
 
@@ -172,7 +195,7 @@ export class Message extends Subscription implements MessageInterface {
   public static fromJSON(json: MessageJSON): Message {
     return new Message({
       ...json,
-      ...Subscription.fromJSON(json),
+      ...Newsletter.fromJSON(json),
       date: new Date(json.date),
     });
   }
@@ -190,7 +213,7 @@ export class Message extends Subscription implements MessageInterface {
   public static fromFirestore(data: MessageFirestore): Message {
     return new Message({
       ...data,
-      ...Subscription.fromFirestore(data),
+      ...Newsletter.fromFirestore(data),
       date: data.date.toDate(),
     });
   }

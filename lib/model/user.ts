@@ -1,9 +1,9 @@
 import {
-  Subscription,
-  SubscriptionFirestore,
-  SubscriptionJSON,
-  isSubscriptionJSON,
-} from 'lib/model/subscription';
+  Newsletter,
+  NewsletterFirestore,
+  NewsletterJSON,
+  isNewsletterJSON,
+} from 'lib/model/newsletter';
 import { isArray, isJSON } from 'lib/model/json';
 import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
@@ -41,21 +41,34 @@ export interface UserInterface {
   id: string;
   name: string;
   photo: string;
-  locale: string;
   email: string;
   phone: string;
+  locale: string;
   token: string;
   scopes: string[];
   label: string;
   filter: string;
-  subscriptions: Subscription[];
+  subscriptions: Newsletter[];
+}
+
+export interface DBUser {
+  id: number;
+  name: string;
+  photo: string | null;
+  email: string | null;
+  phone: string | null;
+  locale: string;
+  token: string;
+  scopes: string[];
+  label: string;
+  filter: string;
 }
 
 export type UserJSON = Omit<UserInterface, 'subscriptions'> & {
-  subscriptions: SubscriptionJSON[];
+  subscriptions: NewsletterJSON[];
 };
 export type UserFirestore = Omit<UserInterface, 'subscriptions'> & {
-  subscriptions: SubscriptionFirestore[];
+  subscriptions: NewsletterFirestore[];
 };
 
 export function isUserJSON(json: unknown): json is UserJSON {
@@ -73,7 +86,7 @@ export function isUserJSON(json: unknown): json is UserJSON {
 
   if (!isJSON(json)) return false;
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (!isArray(json.subscriptions, isSubscriptionJSON)) return false;
+  if (!isArray(json.subscriptions, isNewsletterJSON)) return false;
   return true;
 }
 
@@ -98,7 +111,7 @@ export class User implements UserInterface {
 
   public filter = '';
 
-  public subscriptions: Subscription[] = [];
+  public subscriptions: Newsletter[] = [];
 
   public constructor(user: Partial<UserInterface> = {}) {
     construct<UserInterface>(this, user);
@@ -108,15 +121,15 @@ export class User implements UserInterface {
     return this.subscriptions.map((s) => s.from.email);
   }
 
-  public hasSubscription(sub: Subscription): boolean {
+  public hasNewsletter(sub: Newsletter): boolean {
     return this.subscriptionEmails.includes(sub.from.email);
   }
 
-  public addSubscription(sub: Subscription): void {
-    if (!this.hasSubscription(sub)) this.subscriptions.push(sub);
+  public addNewsletter(sub: Newsletter): void {
+    if (!this.hasNewsletter(sub)) this.subscriptions.push(sub);
   }
 
-  public deleteSubscription(sub: Subscription): void {
+  public deleteNewsletter(sub: Newsletter): void {
     const idx = this.subscriptionEmails.indexOf(sub.from.email);
     if (idx >= 0) this.subscriptions.splice(idx, 1);
   }
@@ -141,7 +154,7 @@ export class User implements UserInterface {
   public static fromJSON(json: UserJSON): User {
     return new User({
       ...json,
-      subscriptions: json.subscriptions.map(Subscription.fromJSON),
+      subscriptions: json.subscriptions.map(Newsletter.fromJSON),
     });
   }
 
@@ -155,7 +168,7 @@ export class User implements UserInterface {
   public static fromFirestore(data: UserFirestore): User {
     return new User({
       ...data,
-      subscriptions: data.subscriptions.map(Subscription.fromFirestore),
+      subscriptions: data.subscriptions.map(Newsletter.fromFirestore),
     });
   }
 
