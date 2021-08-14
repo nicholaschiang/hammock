@@ -61,9 +61,8 @@ export async function getMessages(query: Query): Promise<Message[]> {
     .order('date', { ascending: false })
     .limit(5);
   if (query.archive) select = select.eq('archived', query.archive === 'true');
-  if (query.quickRead)
-    select = select.eq('quickRead', query.quickRead === 'true');
-  if (query.resume) select = select.eq('resume', query.resume === 'true');
+  if (query.quickRead === 'true') select = select.lt('time', 5);
+  if (query.resume) select = select.gt('scroll', 0);
   if (query.writer) select = select.eq('from.email', query.writer);
   const { data, error } = await select;
   handle('getting', 'messages', query, error);
