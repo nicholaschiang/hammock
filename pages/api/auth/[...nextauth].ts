@@ -5,7 +5,7 @@ import to from 'await-to-js';
 import { SCOPES, User, UserJSON } from 'lib/model/user';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
-import getUser from 'lib/api/get/user';
+import { getUser } from 'lib/api/db/user';
 import logger from 'lib/api/logger';
 import syncGmail from 'lib/api/sync-gmail';
 import updateUserDoc from 'lib/api/update/user-doc';
