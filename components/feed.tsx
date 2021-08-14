@@ -2,13 +2,12 @@ import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { MessagesQuery } from 'pages/api/messages';
-
 import Empty from 'components/empty';
 import Section from 'components/section';
 
 import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { MessageJSON } from 'lib/model/message';
+import { Query } from 'lib/model/query';
 import { isSameDay } from 'lib/utils';
 import useNow from 'lib/hooks/now';
 
@@ -28,7 +27,7 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
   return <Section header={header} messages={messages} />;
 }
 
-export default function Feed(query: MessagesQuery): JSX.Element {
+export default function Feed(query: Query): JSX.Element {
   const { data, setSize, mutate: mutateMessages } = useMessages(query);
   const sections = useMemo(() => {
     const newSections: FeedSectionProps[] = [];

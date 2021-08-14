@@ -3,12 +3,11 @@ import Providers from 'next-auth/providers';
 import to from 'await-to-js';
 
 import { SCOPES, User, UserJSON } from 'lib/model/user';
+import { getUser, updateUser } from 'lib/api/db/user';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
-import { getUser } from 'lib/api/db/user';
 import logger from 'lib/api/logger';
 import syncGmail from 'lib/api/sync-gmail';
-import updateUserDoc from 'lib/api/update/user-doc';
 
 export default NextAuth({
   providers: [
@@ -68,7 +67,7 @@ export default NextAuth({
         created.label = res?.label || (await getOrCreateLabel(created));
         created.filter = res?.filter || (await getOrCreateFilter(created));
         logger.verbose(`Creating document for ${created}...`);
-        await Promise.all([updateUserDoc(created), syncGmail(created)]);
+        await Promise.all([updateUser(created), syncGmail(created)]);
       }
       // Don't include user data in the JWT because it's larger than the max
       // cookie payload size supported by most browsers (~4096 bytes).

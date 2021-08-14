@@ -179,6 +179,7 @@ export class Message extends Newsletter implements MessageInterface {
   public toDB(): DBMessage {
     return {
       newsletter: this.from.email,
+      user: 0, // TODO: How should I store this information?
       id: this.id,
       date: this.date.toISOString(),
       subject: this.subject,

@@ -1,6 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { Newsletter, NewsletterJSON } from 'lib/model/subscription';
+import { Newsletter, NewsletterJSON } from 'lib/model/newsletter';
 import { APIErrorJSON } from 'lib/model/error';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import gmail from 'lib/api/gmail';

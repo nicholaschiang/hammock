@@ -51,7 +51,7 @@ export default async function notifyAPI(
           const [e] = await to(syncGmail(user));
           if (e) logger.warn(`Error syncing ${user}'s messages: ${e.stack}`);
           logger.verbose(`Fetching messages for ${user}...`);
-          const { data, error } = await supabase
+          const { data } = await supabase
             .from<DBMessage>('messages')
             .select()
             .eq('user', Number(user.id))

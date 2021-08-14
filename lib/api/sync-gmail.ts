@@ -1,5 +1,6 @@
 import { SCOPES, User } from 'lib/model/user';
 import { DBMessage } from 'lib/model/message';
+import { createMessage } from 'lib/api/db/message';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import getQuery from 'lib/api/query';
 import gmail from 'lib/api/gmail';

@@ -6,10 +6,11 @@ import {
 } from 'swr';
 import { createContext, useCallback, useContext, useEffect } from 'react';
 
-import { MessagesQuery, MessagesRes } from 'pages/api/messages';
+import { MessagesRes } from 'pages/api/messages';
 
 import { APIError } from 'lib/model/error';
 import { Callback } from 'lib/model/callback';
+import { Query } from 'lib/model/query';
 
 // TODO: Perhaps abstract this away into the `useMessages` hook below.
 interface MessagesMutatedType {
@@ -23,7 +24,7 @@ export const MessagesMutatedContext = createContext<MessagesMutatedType>({
 export const useMessagesMutated = () => useContext(MessagesMutatedContext);
 
 export default function useMessages(
-  query: MessagesQuery = {},
+  query: Query = {},
   config: SWRInfiniteConfiguration = {}
 ): SWRInfiniteResponse<MessagesRes> {
   const getKey = useCallback(

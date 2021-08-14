@@ -7,7 +7,7 @@ import { htmlToText } from 'html-to-text';
 import readingTime from 'reading-time';
 import utf8 from 'utf8';
 
-import { Category, Contact } from 'lib/model/subscription';
+import { Category, Contact } from 'lib/model/newsletter';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';
 import logger from 'lib/api/logger';
