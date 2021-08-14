@@ -31,6 +31,7 @@ $$
   );
   create table messages (
     "newsletter" text references newsletters(email) on delete cascade on update cascade not null,
+    "user" bigint references users(id) on delete cascade on update cascade not null,
     "id" text unique not null primary key,
     "date" timestamptz not null,
     "subject" text not null,

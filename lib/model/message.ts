@@ -83,6 +83,7 @@ export interface MessageInterface extends NewsletterInterface {
 
 export interface DBMessage {
   newsletter: string;
+  user: number;
   id: string;
   date: string;
   subject: string;

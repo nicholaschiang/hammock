@@ -54,3 +54,10 @@ export async function getUser(id: string): Promise<User> {
   if (!data?.length) throw new APIError(`User (${id}) does not exist`, 404);
   return User.fromDB(data[0]);
 }
+
+export async function getUsers(): Promise<User[]> {
+  logger.verbose(`Selecting all user rows...`);
+  const { data, error } = await supabase.from<DBUser>('users').select();
+  handle('getting', 'users', '', error);
+  return (data || []).map((d) => User.fromDB(d));
+}

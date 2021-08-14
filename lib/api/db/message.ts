@@ -1,5 +1,6 @@
 import { DBHighlight, DBMessage, Message } from 'lib/model/message';
 import { APIError } from 'lib/model/error';
+import { Query } from 'lib/model/query';
 import handle from 'lib/api/db/error';
 import logger from 'lib/api/logger';
 import supabase from 'lib/api/supabase';
@@ -50,4 +51,21 @@ export async function getMessage(id: string): Promise<Message> {
   handle('getting', 'message', id, error);
   if (!data?.length) throw new APIError(`Message (${id}) does not exist`, 404);
   return Message.fromDB(data[0]);
+}
+
+export async function getMessages(query: Query): Promise<Message[]> {
+  logger.verbose(`Selecting messages (${JSON.stringify(query)})...`);
+  let select = supabase
+    .from<DBMessage>('messages')
+    .select()
+    .order('date', { ascending: false })
+    .limit(5);
+  if (query.archive) select = select.eq('archived', query.archive === 'true');
+  if (query.quickRead)
+    select = select.eq('quickRead', query.quickRead === 'true');
+  if (query.resume) select = select.eq('resume', query.resume === 'true');
+  if (query.writer) select = select.eq('from.email', query.writer);
+  const { data, error } = await select;
+  handle('getting', 'messages', query, error);
+  return (data || []).map((d) => Message.fromDB(d));
 }
