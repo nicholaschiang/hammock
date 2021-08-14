@@ -14,7 +14,7 @@ import Empty from 'components/empty';
 import Page from 'components/page';
 
 import { APIError } from 'lib/model/error';
-import { Subscription } from 'lib/model/subscription';
+import { Newsletter } from 'lib/model/newsletter';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
 import useLoading from 'lib/hooks/loading';
@@ -207,7 +207,7 @@ function LoadingDialog({ progress }: LoadingDialogProps): JSX.Element {
 }
 
 interface SubscriptionRowProps {
-  subscription?: Subscription;
+  subscription?: Newsletter;
   selected?: boolean;
   onSelected?: (selected: boolean) => void;
 }
@@ -355,11 +355,11 @@ export default function SubscriptionsPage(): JSX.Element {
     initialSize: NUM_PAGES,
   });
   const subscriptions = useMemo(() => {
-    const subs: Subscription[] = [];
+    const subs: Newsletter[] = [];
     data?.forEach((d) => {
       d.subscriptions.forEach((s) => {
         if (!subs.find((l) => l.from.email === s.from.email))
-          subs.push(Subscription.fromJSON(s));
+          subs.push(Newsletter.fromJSON(s));
       });
     });
     return subs;

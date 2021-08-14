@@ -121,15 +121,15 @@ export class User implements UserInterface {
     return this.subscriptions.map((s) => s.from.email);
   }
 
-  public hasNewsletter(sub: Newsletter): boolean {
+  public hasSubscription(sub: Newsletter): boolean {
     return this.subscriptionEmails.includes(sub.from.email);
   }
 
-  public addNewsletter(sub: Newsletter): void {
-    if (!this.hasNewsletter(sub)) this.subscriptions.push(sub);
+  public addSubscription(sub: Newsletter): void {
+    if (!this.hasSubscription(sub)) this.subscriptions.push(sub);
   }
 
-  public deleteNewsletter(sub: Newsletter): void {
+  public deleteSubscription(sub: Newsletter): void {
     const idx = this.subscriptionEmails.indexOf(sub.from.email);
     if (idx >= 0) this.subscriptions.splice(idx, 1);
   }

@@ -10,7 +10,7 @@ import Page from 'components/page';
 import StarBorderIcon from 'components/icons/star-border';
 import StarIcon from 'components/icons/star';
 
-import { Subscription } from 'lib/model/subscription';
+import { Newsletter } from 'lib/model/newsletter';
 import { User } from 'lib/model/user';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
@@ -18,7 +18,7 @@ import useMessages from 'lib/hooks/messages';
 import { useUser } from 'lib/context/user';
 
 interface WriterRowProps {
-  sub?: Subscription;
+  sub?: Newsletter;
 }
 
 function WriterRow({ sub }: WriterRowProps): JSX.Element {
@@ -29,7 +29,7 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
       evt.stopPropagation();
       if (!sub) return;
       const idx = user.subscriptions.indexOf(sub);
-      const subscription = new Subscription({
+      const subscription = new Newsletter({
         ...sub,
         favorite: !sub.favorite,
       });

@@ -1,6 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { Subscription, SubscriptionJSON } from 'lib/model/subscription';
+import { Newsletter, NewsletterJSON } from 'lib/model/subscription';
 import { APIErrorJSON } from 'lib/model/error';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import gmail from 'lib/api/gmail';
@@ -12,7 +12,7 @@ import verifyAuth from 'lib/api/verify/auth';
 
 export type SubscriptionsRes = {
   nextPageToken: string;
-  subscriptions: SubscriptionJSON[];
+  subscriptions: NewsletterJSON[];
 };
 
 /**
@@ -39,7 +39,7 @@ export default async function subscriptionsAPI(
         pageToken,
       });
       const messageIds = (data.messages || []).map((m) => m.id as string);
-      const subscriptions: Subscription[] = [];
+      const subscriptions: Newsletter[] = [];
       (await getGmailMessages(messageIds, client, 'METADATA')).forEach((m) => {
         const msg = messageFromGmail(m);
         if (!subscriptions.some((l) => l.from.email === msg.from.email))
