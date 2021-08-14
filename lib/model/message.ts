@@ -200,6 +200,36 @@ export class Message extends Newsletter implements MessageInterface {
     });
   }
 
+  public toDB(): DBMessage {
+    return {
+      newsletter: this.from.email,
+      id: this.id,
+      date: this.date.toISOString(),
+      subject: this.subject,
+      snippet: this.snippet,
+      raw: this.raw,
+      html: this.html,
+      archived: this.archived,
+      scroll: this.scroll,
+      time: this.time,
+    };
+  }
+
+  public static fromDB(record: DBMessage): Message {
+    return new Message({
+      from: { name: '', email: record.newsletter, photo: '' },
+      id: record.id,
+      date: new Date(record.date),
+      subject: record.subject,
+      snippet: record.snippet,
+      raw: record.raw,
+      html: record.html,
+      archived: record.archived,
+      scroll: record.scroll,
+      time: record.time,
+    });
+  }
+
   public toFirestore(): MessageFirestore {
     // We don't store the actual message content (subject, snippet, html) in our
     // database. Instead, we fetch that data at runtime and only store metadata.

@@ -158,6 +158,36 @@ export class User implements UserInterface {
     });
   }
 
+  public toDB(): DBUser {
+    return {
+      id: Number(this.id),
+      name: this.name,
+      photo: this.photo || null,
+      email: this.email || null,
+      phone: this.phone || null,
+      locale: this.locale,
+      token: this.token,
+      scopes: this.scopes,
+      label: this.label,
+      filter: this.filter,
+    };
+  }
+
+  public static fromDB(record: DBUser): User {
+    return new User({
+      id: record.id.toString(),
+      name: record.name,
+      photo: record.photo || '',
+      email: record.email || '',
+      phone: record.phone || '',
+      locale: record.locale,
+      token: record.token,
+      scopes: record.scopes,
+      label: record.label,
+      filter: record.filter,
+    });
+  }
+
   public toFirestore(): UserFirestore {
     return definedVals({
       ...this,
