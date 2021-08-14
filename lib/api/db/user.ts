@@ -1,6 +1,6 @@
 import { DBUser, User } from 'lib/model/user';
-import { DBSubscription } from 'lib/model/newsletter';
 import { APIError } from 'lib/model/error';
+import { DBSubscription } from 'lib/model/newsletter';
 import handle from 'lib/api/db/error';
 import logger from 'lib/api/logger';
 import supabase from 'lib/api/supabase';
