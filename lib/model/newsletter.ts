@@ -85,6 +85,28 @@ export class Newsletter implements NewsletterInterface {
     return new Newsletter(json);
   }
 
+  public toDB(): DBNewsletter {
+    return {
+      name: this.from.name,
+      photo: this.from.photo || null,
+      email: this.from.email || null,
+      category: this.category || null,
+      favorite: this.favorite,
+    };
+  }
+
+  public static fromDB(record: DBNewsletter): Newsletter {
+    return new Newsletter({
+      from: {
+        name: record.name,
+        photo: record.photo || '',
+        email: record.email || '',
+      },
+      category: record.category || undefined,
+      favorite: record.favorite,
+    });
+  }
+
   public toSegment(): Record<string, unknown> {
     return {
       from: `${this.from.name} <${this.from.email}>`,

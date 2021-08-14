@@ -1,4 +1,5 @@
 import {
+  DBNewsletter,
   Newsletter,
   NewsletterJSON,
   isNewsletterJSON,
@@ -60,6 +61,9 @@ export interface DBUser {
   scopes: string[];
   label: string;
   filter: string;
+}
+export interface DBViewUser extends DBUser {
+  subscriptions: DBNewsletter[];
 }
 
 export type UserJSON = Omit<UserInterface, 'subscriptions'> & {
@@ -168,7 +172,7 @@ export class User implements UserInterface {
     };
   }
 
-  public static fromDB(record: DBUser): User {
+  public static fromDB(record: DBUser | DBViewUser): User {
     return new User({
       id: record.id.toString(),
       name: record.name,
@@ -180,6 +184,10 @@ export class User implements UserInterface {
       scopes: record.scopes,
       label: record.label,
       filter: record.filter,
+      subscriptions:
+        'subscriptions' in record
+          ? record.subscriptions.map((s) => Newsletter.fromDB(s))
+          : [],
     });
   }
 

@@ -5,8 +5,8 @@ import getGmailMessages from 'lib/api/get/gmail-messages';
 import getQuery from 'lib/api/query';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
-import supabase from 'lib/api/supabase';
 import messageFromGmail from 'lib/api/message-from-gmail';
+import supabase from 'lib/api/supabase';
 
 /**
  * Syncs our database with the user's Gmail account:
@@ -63,6 +63,7 @@ export default async function syncGmail(
   await Promise.all(
     gmailMessages.map(async (gmailMessage, idx) => {
       const message = messageFromGmail(gmailMessage);
+      message.user = Number(user.id);
       await createMessage(message);
       logger.debug(`Saved ${message} to Firestore database.`);
     })

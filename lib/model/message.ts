@@ -54,22 +54,9 @@ export function isHighlight(highlight: unknown): highlight is Highlight {
   );
 }
 
-/**
- * @typedef {Object} MessageInterface
- * @extends NewsletterInterface
- * @property id - The message's Gmail-assigned ID (we reuse it in our database).
- * @property date - When the message was sent (i.e. Gmail's `internalDate`).
- * @property subject - The message's subject line.
- * @property snippet - The message's snippet (a short part of message text).
- * @property raw - The message's original unsanitized, un-readabilitied HTML.
- * @property html - The message's sanitized HTML (can be used directly in DOM).
- * @property archived - Whether or not the email has been archived.
- * @property scroll - The user's scroll position in reading this email.
- * @property time - The message's estimated reading time (in minutes).
- * @property highlights - The message's highlights.
- */
 export interface MessageInterface extends NewsletterInterface {
   id: string;
+  user: number;
   date: Date;
   subject: string;
   snippet: string;
@@ -125,6 +112,8 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
 export class Message extends Newsletter implements MessageInterface {
   public id = '';
 
+  public user = 0;
+
   public date: Date = new Date();
 
   public subject = '';
@@ -179,7 +168,7 @@ export class Message extends Newsletter implements MessageInterface {
   public toDB(): DBMessage {
     return {
       newsletter: this.from.email,
-      user: 0, // TODO: How should I store this information?
+      user: this.user,
       id: this.id,
       date: this.date.toISOString(),
       subject: this.subject,
@@ -195,6 +184,7 @@ export class Message extends Newsletter implements MessageInterface {
   public static fromDB(record: DBMessage): Message {
     return new Message({
       from: { name: '', email: record.newsletter, photo: '' },
+      user: record.user,
       id: record.id,
       date: new Date(record.date),
       subject: record.subject,
