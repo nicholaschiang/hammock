@@ -1,4 +1,3 @@
-import { DocumentSnapshot } from 'lib/api/firebase';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
@@ -50,7 +49,6 @@ export interface DBSubscription {
 }
 
 export type NewsletterJSON = NewsletterInterface;
-export type NewsletterFirestore = NewsletterInterface;
 
 export function isNewsletterJSON(json: unknown): json is NewsletterJSON {
   if (!isJSON(json)) return false;
@@ -85,23 +83,6 @@ export class Newsletter implements NewsletterInterface {
 
   public static fromJSON(json: NewsletterJSON): Newsletter {
     return new Newsletter(json);
-  }
-
-  public toFirestore(): NewsletterFirestore {
-    return definedVals(this);
-  }
-
-  public static fromFirestore(data: NewsletterFirestore): Newsletter {
-    return new Newsletter(data);
-  }
-
-  public static fromFirestoreDoc(snapshot: DocumentSnapshot): Newsletter {
-    if (!snapshot.exists) return new Newsletter();
-    const overrides = definedVals({ id: snapshot.id });
-    const subscription = Newsletter.fromFirestore(
-      snapshot.data() as NewsletterFirestore
-    );
-    return new Newsletter({ ...subscription, ...overrides });
   }
 
   public toSegment(): Record<string, unknown> {

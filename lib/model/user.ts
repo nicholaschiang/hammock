@@ -1,11 +1,9 @@
 import {
   Newsletter,
-  NewsletterFirestore,
   NewsletterJSON,
   isNewsletterJSON,
 } from 'lib/model/newsletter';
 import { isArray, isJSON } from 'lib/model/json';
-import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -66,9 +64,6 @@ export interface DBUser {
 
 export type UserJSON = Omit<UserInterface, 'subscriptions'> & {
   subscriptions: NewsletterJSON[];
-};
-export type UserFirestore = Omit<UserInterface, 'subscriptions'> & {
-  subscriptions: NewsletterFirestore[];
 };
 
 export function isUserJSON(json: unknown): json is UserJSON {
@@ -186,27 +181,6 @@ export class User implements UserInterface {
       label: record.label,
       filter: record.filter,
     });
-  }
-
-  public toFirestore(): UserFirestore {
-    return definedVals({
-      ...this,
-      subscriptions: this.subscriptions.map((s) => s.toFirestore()),
-    });
-  }
-
-  public static fromFirestore(data: UserFirestore): User {
-    return new User({
-      ...data,
-      subscriptions: data.subscriptions.map(Newsletter.fromFirestore),
-    });
-  }
-
-  public static fromFirestoreDoc(snapshot: DocumentSnapshot): User {
-    if (!snapshot.exists) return new User();
-    const overrides = definedVals({ id: snapshot.id });
-    const user = User.fromFirestore(snapshot.data() as UserFirestore);
-    return new User({ ...user, ...overrides });
   }
 
   public toString(): string {
