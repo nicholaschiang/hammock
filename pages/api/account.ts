@@ -64,6 +64,7 @@ async function accountAPI(
   req: Req,
   res: Res<UserJSON | APIErrorJSON>
 ): Promise<void> {
+  throw new Error('This is a fake production API route error!');
   switch (req.method) {
     case 'GET':
       await fetchAccount(req, res);
