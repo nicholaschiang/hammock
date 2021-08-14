@@ -65,7 +65,7 @@ behind it, but we're always open to improvements!
 - [SWR](https://swr.vercel.app) - Used to manage global state. SWR fetches data
   from our back-end, stores it in a global cache, and allows local mutations of
   that cache (with or without automatic revalidation).
-- [`next-auth`](https://next-auth.js.org) - Manages authentication with JWT 
+- [`next-auth`](https://next-auth.js.org) - Manages authentication with JWT
   session cookies.
 
 #### Tooling
@@ -85,10 +85,7 @@ behind it, but we're always open to improvements!
 
 #### Database
 
-- [Google's Firebase](https://firebase.google.com/) - For their [NoSQL
-  document-based database](https://firebase.google.com/products/firestore),
-  [authentication](https://firebase.google.com/products/auth), and other
-  useful solutions.
+- [Supabase](https://supabase.com/) - For their managed [PostgreSQL database](https://supabase.io/database) and, of course, their memes.
 
 ## Commit Message Format
 
