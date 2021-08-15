@@ -1,4 +1,5 @@
 import {
+  DBNewsletter,
   Newsletter,
   NewsletterInterface,
   NewsletterJSON,
@@ -9,28 +10,10 @@ import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
 
-/**
- * @typedef Format - The format or amount of data that should be fetched.
- * @see {@link https://developers.google.com/gmail/api/reference/rest/v1/Format}
- */
+// Format of the Gmail message that we want to receive from Google's APIs.
+// @see {@link https://developers.google.com/gmail/api/reference/rest/v1/Format}
 export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
 
-/**
- * @typedef {Object} HighlightInterface
- * @property start - The xpath pointing to the range start element.
- * @property end - The xpath pointing to the range end element.
- * @property startOffset - The offset from the start of the start element and
- * the start of the highlight (in characters).
- * @property endOffset - The offset from the start of the end element and the
- * end of the highlight (in characters).
- * @property id - The highlight's ID. Used when an xpath range has to be styled
- * using multiple `<mark>` tags instead of just one.
- * @property text - The selected text content.
- * @property [deleted] - Whether or not this highlight is deleted. We have to
- * keep these highlights and their corresponding `<mark>` tags b/c otherwise we
- * have the possibility of messing up the xpath selectors of highlights made
- * after this one.
- */
 export interface Highlight {
   start: string;
   startOffset: number;
@@ -40,7 +23,6 @@ export interface Highlight {
   text: string;
   deleted?: boolean;
 }
-
 export function isHighlight(highlight: unknown): highlight is Highlight {
   if (!isJSON(highlight)) return false;
   return (
@@ -81,6 +63,8 @@ export interface DBMessage {
   scroll: number;
   time: number;
 }
+export interface DBViewMessage extends DBMessage, DBNewsletter {}
+
 export interface DBHighlight {
   message: string;
   id: number;
@@ -181,9 +165,16 @@ export class Message extends Newsletter implements MessageInterface {
     };
   }
 
-  public static fromDB(record: DBMessage): Message {
+  public static fromDB(record: DBMessage | DBViewMessage): Message {
     return new Message({
-      from: { name: '', email: record.newsletter, photo: '' },
+      from:
+        'name' in record
+          ? {
+              name: record.name,
+              photo: record.photo || '',
+              email: record.email || '',
+            }
+          : { name: '', photo: '', email: record.newsletter },
       user: record.user,
       id: record.id,
       date: new Date(record.date),
