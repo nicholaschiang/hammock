@@ -9,7 +9,6 @@ import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
 import syncGmail from 'lib/api/sync-gmail';
 import updateGmailMessages from 'lib/api/update/gmail-messages';
-import updateMessages from 'lib/api/update/messages';
 import updateUserDoc from 'lib/api/update/user-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
@@ -36,11 +35,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
   try {
     const body = verifyBody<User, UserJSON>(req.body, isUserJSON, User);
     await verifyAuth(req, body.id);
-    await Promise.all([
-      updateMessages(body),
-      updateUserDoc(body),
-      syncGmail(body),
-    ]);
+    await Promise.all([updateUserDoc(body), syncGmail(body)]);
     res.status(200).json(body.toJSON());
     logger.info(`Updated ${body}.`);
     segment.track({
