@@ -1,11 +1,11 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
-import { Message, MessageJSON } from 'lib/model/message';
+import { DBMessage, Message, MessageJSON } from 'lib/model/message';
 import { APIErrorJSON } from 'lib/model/error';
-import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
+import supabase from 'lib/api/supabase';
 import verifyAuth from 'lib/api/verify/auth';
 
 export type MessagesQuery = {
@@ -33,22 +33,25 @@ export default async function messagesAPI(
   } else {
     try {
       console.time('get-messages-api');
-      const { lastMessageId, quickRead, archive, resume, writer } =
-        req.query as MessagesQuery;
+      const { quickRead, archive, resume, writer } = req.query as MessagesQuery;
       const user = await verifyAuth(req);
       console.time('fetch-messages');
       logger.verbose(`Fetching messages for ${user}...`);
-      const ref = db.collection('users').doc(user.id).collection('messages');
-      let query = ref.where('archived', '==', archive === 'true');
-      if (quickRead === 'true') query = query.where('quickRead', '==', true);
-      if (resume === 'true') query = query.where('resume', '==', true);
-      if (writer) query = query.where('from.email', '==', writer);
-      query = query.orderBy('date', 'desc').limit(5);
-      if (lastMessageId) {
-        const lastMessageDoc = await ref.doc(lastMessageId).get();
-        query = query.startAfter(lastMessageDoc);
-      }
-      const messages = (await query.get()).docs.map(Message.fromFirestoreDoc);
+      // TODO: Refactor this and put it in a `getMessages` fx in `lib/api/db`
+      // and put the `Query` data model definition in `lib/model/query.ts`.
+      let select = supabase
+        .from<DBMessage>('messages')
+        .select()
+        .eq('archived', archive === 'true')
+        .order('date', { ascending: false })
+        .limit(5);
+      if (quickRead === 'true') select = select.lt('time', 5);
+      if (resume === 'true') select = select.gt('scroll', 0);
+      // TODO: Adjust this SQL so that I can access custom type fields.
+      if (writer) select = select.eq('from.email', writer);
+      // TODO: Add pagination to this `select` call using `range()`.
+      const { data } = await select;
+      const messages = (data || []).map((d) => Message.fromDB(d));
       console.timeEnd('fetch-messages');
       res.status(200).json(messages.map((m) => m.toJSON()));
       logger.info(`Fetched ${messages.length} messages for ${user}.`);
