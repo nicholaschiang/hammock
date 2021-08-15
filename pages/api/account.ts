@@ -9,7 +9,7 @@ import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
 import syncGmail from 'lib/api/sync-gmail';
 import updateGmailMessages from 'lib/api/update/gmail-messages';
-import updateUserDoc from 'lib/api/update/user-doc';
+import { updateUser } from 'lib/api/db/user';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
 
@@ -35,7 +35,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
   try {
     const body = verifyBody<User, UserJSON>(req.body, isUserJSON, User);
     await verifyAuth(req, body.id);
-    await Promise.all([updateUserDoc(body), syncGmail(body)]);
+    await Promise.all([updateUser(body), syncGmail(body)]);
     res.status(200).json(body.toJSON());
     logger.info(`Updated ${body}.`);
     segment.track({
@@ -45,7 +45,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
     });
     body.label = await getOrCreateLabel(body);
     body.filter = await getOrCreateFilter(body);
-    await Promise.all([updateUserDoc(body), updateGmailMessages(body)]);
+    await Promise.all([updateUser(body), updateGmailMessages(body)]);
     logger.info(`Retroactively filtered messages for ${body}.`);
   } catch (e) {
     handle(e, res);
