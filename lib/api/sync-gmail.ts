@@ -1,10 +1,11 @@
 import { SCOPES, User } from 'lib/model/user';
-import { db } from 'lib/api/firebase';
+import { DBMessage } from 'lib/model/message';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import getQuery from 'lib/api/query';
 import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
 import messageFromGmail from 'lib/api/message-from-gmail';
+import supabase from 'lib/api/supabase';
 
 /**
  * Syncs our database with the user's Gmail account:
@@ -47,13 +48,11 @@ export default async function syncGmail(
   const toSyncMessageIds: string[] = [];
   await Promise.all(
     messageIds.map(async (id) => {
-      const ref = db
-        .collection('users')
-        .doc(user.id)
-        .collection('messages')
-        .doc(id);
-      const doc = await ref.get();
-      if (!doc.exists) toSyncMessageIds.push(id);
+      const { data } = await supabase
+        .from<DBMessage>('messages')
+        .eq('user', Number(user.id))
+        .eq('id', id);
+      if (!data?.length) toSyncMessageIds.push(id);
     })
   );
   logger.verbose(`Fetching ${toSyncMessageIds.length} messages for ${user}...`);
@@ -62,12 +61,7 @@ export default async function syncGmail(
   await Promise.all(
     gmailMessages.map(async (gmailMessage, idx) => {
       const message = messageFromGmail(gmailMessage);
-      const ref = db
-        .collection('users')
-        .doc(user.id)
-        .collection('messages')
-        .doc(gmailMessage.id || toSyncMessageIds[idx]);
-      await ref.set(message.toFirestore());
+      await supabase.from<DBMessage>('messages').insert(message.toDB());
       logger.debug(`Saved ${message} to Firestore database.`);
     })
   );
