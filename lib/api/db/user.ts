@@ -13,13 +13,12 @@ export async function createUser(user: User): Promise<User> {
   return data ? User.fromDB(data[0]) : user;
 }
 
-export async function updateUser(user: User): Promise<User> {
-  logger.verbose(`Updating user (${user}) row...`);
+export async function upsertUser(user: User): Promise<User> {
+  logger.verbose(`Upserting user (${user}) row...`);
   const { data, error } = await supabase
     .from<DBUser>('users')
-    .update(user.toDB())
-    .eq('id', Number(user.id));
-  handle('updating', 'user row', user, error);
+    .upsert(user.toDB(), { onConflict: 'id' });
+  handle('upserting', 'user row', user, error);
   return data ? User.fromDB(data[0]) : user;
 }
 
