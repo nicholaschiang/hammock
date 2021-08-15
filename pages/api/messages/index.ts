@@ -8,12 +8,14 @@ import segment from 'lib/api/segment';
 import supabase from 'lib/api/supabase';
 import verifyAuth from 'lib/api/verify/auth';
 
+const HITS_PER_PAGE = 5;
+
 export type MessagesQuery = {
-  lastMessageId?: string;
   quickRead?: 'true' | 'false';
   archive?: 'true' | 'false';
   resume?: 'true' | 'false';
   writer?: string;
+  page?: number;
 };
 
 export type MessagesRes = MessageJSON[];
@@ -33,8 +35,10 @@ export default async function messagesAPI(
   } else {
     try {
       console.time('get-messages-api');
-      const { quickRead, archive, resume, writer } = req.query as MessagesQuery;
+      const { quickRead, archive, resume, writer, page } =
+        req.query as MessagesQuery;
       const user = await verifyAuth(req);
+      const pg = Number.isNaN(Number(page)) ? 0 : Number(page);
       console.time('fetch-messages');
       logger.verbose(`Fetching messages for ${user}...`);
       // TODO: Refactor this and put it in a `getMessages` fx in `lib/api/db`
@@ -44,12 +48,12 @@ export default async function messagesAPI(
         .select()
         .eq('archived', archive === 'true')
         .order('date', { ascending: false })
-        .limit(5);
+        .range(HITS_PER_PAGE * pg, HITS_PER_PAGE * (pg + 1) - 1);
       if (quickRead === 'true') select = select.lt('time', 5);
       if (resume === 'true') select = select.gt('scroll', 0);
       // TODO: Adjust this SQL so that I can access custom type fields.
       if (writer) select = select.eq('from.email', writer);
-      // TODO: Add pagination to this `select` call using `range()`.
+      // TODO: Add error catching here once we move this into `getUsers` fx.
       const { data } = await select;
       const messages = (data || []).map((d) => Message.fromDB(d));
       console.timeEnd('fetch-messages');
