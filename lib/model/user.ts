@@ -65,9 +65,9 @@ export interface DBSubscription {
 export interface DBUser {
   id: number;
   name: string;
-  photo: string;
-  email: string;
-  phone: string;
+  photo: string | null;
+  email: string | null;
+  phone: string | null;
   locale: string;
   token: string;
   scopes: string[];
@@ -167,6 +167,38 @@ export class User implements UserInterface {
     return new User({
       ...json,
       subscriptions: json.subscriptions.map(Subscription.fromJSON),
+    });
+  }
+
+  public toDB(): DBUser {
+    return {
+      id: Number(this.id),
+      name: this.name,
+      photo: this.photo || null,
+      email: this.email || null,
+      phone: this.phone || null,
+      locale: this.locale,
+      token: this.token,
+      scopes: this.scopes,
+      label: this.label,
+      filter: this.filter,
+      subscriptions: this.subscriptions.map((s) => ({ ...s })),
+    };
+  }
+
+  public static fromDB(record: DBUser): User {
+    return new User({
+      id: record.id.toString(),
+      name: record.name,
+      photo: record.photo || '',
+      email: record.email || '',
+      phone: record.phone || '',
+      locale: record.locale,
+      token: record.token,
+      scopes: record.scopes,
+      label: record.label,
+      filter: record.filter,
+      subscriptions: record.subscriptions.map((s) => new Subscription(s)),
     });
   }
 
