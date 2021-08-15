@@ -25,10 +25,10 @@ $$
     "token" text not null,
     "scopes" text[] not null,
     "label" text not null,
-    "filter" text not null
+    "filter" text not null,
     "subscriptions" subscription[] not null
   );
-  create type highlight (
+  create type highlight as (
     "id" text,
     "start" text,
     "startOffset" int,

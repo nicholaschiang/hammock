@@ -51,6 +51,31 @@ export interface UserInterface {
   subscriptions: Subscription[];
 }
 
+export type DBCategory = 'important' | 'other';
+export interface DBContact {
+  name: string;
+  email: string;
+  photo: string;
+}
+export interface DBSubscription {
+  from: DBContact;
+  category: DBCategory;
+  favorite: boolean;
+}
+export interface DBUser {
+  id: number;
+  name: string;
+  photo: string;
+  email: string;
+  phone: string;
+  locale: string;
+  token: string;
+  scopes: string[];
+  label: string;
+  filter: string;
+  subscriptions: DBSubscription[];
+}
+
 export type UserJSON = Omit<UserInterface, 'subscriptions'> & {
   subscriptions: SubscriptionJSON[];
 };

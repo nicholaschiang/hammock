@@ -1,4 +1,4 @@
-drop or replace function reset()
+create or replace function reset()
 returns void as
 $$
   drop domain url cascade;

@@ -1,3 +1,4 @@
+import { DBCategory, DBContact } from 'lib/model/user';
 import { DocumentSnapshot, Timestamp } from 'lib/api/firebase';
 import {
   Subscription,
@@ -81,6 +82,32 @@ export interface MessageInterface extends SubscriptionInterface {
   scroll: number;
   time: number;
   highlights: Highlight[];
+}
+
+export interface DBHighlight {
+  id: string;
+  start: string;
+  startOffset: number;
+  end: string;
+  endOffset: number;
+  text: string;
+  deleted: boolean;
+}
+export interface DBMessage {
+  user: number;
+  id: string;
+  from: DBContact;
+  category: DBCategory;
+  favorite: boolean;
+  date: Date;
+  subject: string;
+  snippet: string;
+  raw: string;
+  html: string;
+  archived: boolean;
+  scroll: number;
+  time: number;
+  highlights: DBHighlight[];
 }
 
 export type MessageJSON = Omit<MessageInterface, keyof Subscription | 'date'> &
