@@ -5,6 +5,7 @@ import {
   SubscriptionJSON,
   isSubscriptionJSON,
 } from 'lib/model/subscription';
+import { DBHighlight, Highlight, isHighlight } from 'lib/model/highlight';
 import { isArray, isDateJSON, isJSON } from 'lib/model/json';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -15,45 +16,6 @@ import definedVals from 'lib/model/defined-vals';
  * @see {@link https://developers.google.com/gmail/api/reference/rest/v1/Format}
  */
 export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
-
-/**
- * @typedef {Object} HighlightInterface
- * @property start - The xpath pointing to the range start element.
- * @property end - The xpath pointing to the range end element.
- * @property startOffset - The offset from the start of the start element and
- * the start of the highlight (in characters).
- * @property endOffset - The offset from the start of the end element and the
- * end of the highlight (in characters).
- * @property id - The highlight's ID. Used when an xpath range has to be styled
- * using multiple `<mark>` tags instead of just one.
- * @property text - The selected text content.
- * @property [deleted] - Whether or not this highlight is deleted. We have to
- * keep these highlights and their corresponding `<mark>` tags b/c otherwise we
- * have the possibility of messing up the xpath selectors of highlights made
- * after this one.
- */
-export interface Highlight {
-  start: string;
-  startOffset: number;
-  end: string;
-  endOffset: number;
-  id: string;
-  text: string;
-  deleted?: boolean;
-}
-
-export function isHighlight(highlight: unknown): highlight is Highlight {
-  if (!isJSON(highlight)) return false;
-  return (
-    typeof highlight.start === 'string' &&
-    typeof highlight.startOffset === 'number' &&
-    typeof highlight.start === 'string' &&
-    typeof highlight.endOffset === 'number' &&
-    typeof highlight.id === 'string' &&
-    typeof highlight.text === 'string' &&
-    (highlight.deleted === undefined || typeof highlight.deleted === 'boolean')
-  );
-}
 
 /**
  * @typedef {Object} MessageInterface
@@ -83,15 +45,6 @@ export interface MessageInterface extends SubscriptionInterface {
   highlights: Highlight[];
 }
 
-export interface DBHighlight {
-  id: string;
-  start: string;
-  startOffset: number;
-  end: string;
-  endOffset: number;
-  text: string;
-  deleted: boolean;
-}
 export interface DBMessage {
   user: number;
   id: string;
