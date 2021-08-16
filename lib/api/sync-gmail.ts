@@ -64,14 +64,5 @@ export default async function syncGmail(
       logger.debug(`Saved ${message} to Firestore database.`);
     })
   );
-  // Only return the next page token if we need to look at the next page. If we
-  // had already synced messages fetched in this page (i.e. if there were
-  // messages returned by Gmail's API that were already in our database), then
-  // we know that we don't have to look at the next page.
-  //
-  // If this is the first page, continue to sync; when a user signs up, we sync
-  // the first 10 messages at account creation. Then, we need to sync the rest
-  // recursively which is why we can't stop the sync on the first page.
-  if (pageToken && toSyncMessageIds.length < messageIds.length) return '';
   return data.nextPageToken || '';
 }
