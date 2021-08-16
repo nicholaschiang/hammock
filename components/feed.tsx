@@ -2,11 +2,10 @@ import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { MessagesQuery } from 'pages/api/messages';
-
 import Empty from 'components/empty';
 import Section from 'components/section';
 
+import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
 import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { MessageJSON } from 'lib/model/message';
 import { isSameDay } from 'lib/utils';
@@ -66,7 +65,9 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     <InfiniteScroll
       dataLength={data?.flat().length || 0}
       next={() => setSize((prev) => prev + 1)}
-      hasMore={!data || data[data.length - 1].length === 5 || mutated}
+      hasMore={
+        !data || data[data.length - 1].length === HITS_PER_PAGE || mutated
+      }
       style={{ overflow: undefined }}
       scrollThreshold={0.65}
       loader={<Section />}
