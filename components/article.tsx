@@ -28,18 +28,6 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const { data } = useSWR<Highlight[]>(
     message ? `/api/messages/${message.id}/highlights` : null
   );
-  const setHighlights = useCallback(
-    (param: CallbackParam<Highlight[]>) => {
-      if (!message || !data) return;
-      let highlights = data;
-      if (typeof param === 'function') highlights = param(highlights);
-      if (typeof param === 'object') highlights = param;
-      const url = `/api/messages/${message.id}/highlights`;
-      void mutate(url, highlights, false);
-      void mutate(url, fetcher(url, 'put', highlights), false);
-    },
-    [message, data]
-  );
 
   const [highlight, setHighlight] = useState<Highlight>();
   const [position, setPosition] = useState<Position>();
@@ -106,28 +94,42 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     () => (message && data ? highlightHTML(message.html, data) : ''),
     [message, data]
   );
-  const onHighlight = useCallback(() => {
+  const onHighlight = useCallback(async () => {
     setHighlight(undefined);
-    setHighlights((prev) => {
-      if (!highlight) return prev;
-      // TODO: Test if this new highlight range overlaps with any existing highlights.
-      // If so, combine them into one new non-deleted highlight range.
-      const idx = prev.findIndex((x) => x.id === highlight.id);
-      if (idx < 0) {
-        window.analytics?.track('Highlight Created', {
-          highlight: highlight.text,
-          message: message?.toSegment(),
-        });
-        return [...prev, highlight];
-      }
+    if (!message || !highlight) return;
+    if (!data?.some((h) => h.id === highlight.id)) {
+      window.analytics?.track('Highlight Created', {
+        highlight: highlight.text,
+        message: message.toSegment(),
+      });
+      const url = `/api/messages/${message.id}/highlights`;
+      await mutate(
+        url,
+        (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]),
+        false
+      );
+      await fetcher(url, 'post', highlight);
+      await mutate(url);
+    } else {
       window.analytics?.track('Highlight Deleted', {
         highlight: highlight.text,
-        message: message?.toSegment(),
+        message: message.toSegment(),
       });
-      const deleted = { ...highlight, deleted: true };
-      return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
-    });
-  }, [message, highlight, setHighlights]);
+      const url = `/api/messages/${message.id}/highlights`;
+      await mutate(
+        url,
+        (p?: Highlight[]) => {
+          const idx = p?.findIndex((h) => h.id === highlight.id);
+          if (!p || !idx || idx < 0) return p;
+          const deleted = { ...highlight, deleted: true };
+          return [...p.slice(0, idx), deleted, ...p.slice(idx + 1)];
+        },
+        false
+      );
+      await fetcher(`${url}/${highlight.id}`, 'delete');
+      await mutate(url);
+    }
+  }, [message, highlight, data]);
   const [tweet, setTweet] = useState<string>('');
   useEffect(() => {
     setTweet((prev) =>
@@ -138,24 +140,29 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         : prev
     );
   }, [message, highlight]);
-  const onTweet = useCallback(() => {
+  const onTweet = useCallback(async () => {
+    setHighlight(undefined);
+    if (!message || !highlight) return;
     window.analytics?.track('Highlight Tweeted', {
       tweet,
-      highlight: highlight?.text,
-      message: message?.toSegment(),
+      highlight: highlight.text,
+      message: message.toSegment(),
     });
-    setHighlight(undefined);
-    setHighlights((prev) => {
-      if (!highlight || prev.some((h) => h.id === highlight.id)) return prev;
-      // TODO: Test if this new highlight range overlaps with any existing highlights.
-      // If so, combine them into one new non-deleted highlight range.
+    if (!data?.some((h) => h.id === highlight.id)) {
       window.analytics?.track('Highlight Created', {
         highlight: highlight.text,
-        message: message?.toSegment(),
+        message: message.toSegment(),
       });
-      return [...prev, highlight];
-    });
-  }, [message, highlight, tweet, setHighlights]);
+      const url = `/api/messages/${message.id}/highlights`;
+      await mutate(
+        url,
+        (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]),
+        false
+      );
+      await fetcher(url, 'post', highlight);
+      await mutate(url);
+    }
+  }, [message, highlight, tweet, data]);
 
   return (
     <>
