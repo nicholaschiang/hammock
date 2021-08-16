@@ -6,11 +6,11 @@ import to from 'await-to-js';
 import Email from 'components/email';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
-import { Message } from 'lib/model/message';
-import { User } from 'lib/model/user';
-import { db } from 'lib/api/firebase';
+import { DBMessage, Message } from 'lib/model/message';
+import { DBUser, User } from 'lib/model/user';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import supabase from 'lib/api/supabase';
 import syncGmail from 'lib/api/sync-gmail';
 
 /**
@@ -37,14 +37,14 @@ export default async function notifyAPI(
       logger.info('Fetching users...');
       // TODO: Once this lands from experimental, send notifications to everyone
       // instead of just these five beta test users.
-      const { docs: users } = await db.collection('users').get();
+      const { data } = await supabase.from<DBUser>('users').select();
+      const users = (data || []).map((d) => User.fromDB(d));
       const emails: MailDataRequired[] = [];
       logger.info(`Fetching messages for ${users.length} users...`);
       await Promise.all(
-        users.map(async (userDoc) => {
+        users.map(async (user) => {
           // TODO: Filter for message dates that are today in the user's time zone
           // (this will require us to store user time zones in our db).
-          const user = User.fromFirestoreDoc(userDoc);
           logger.verbose(`Syncing messages for ${user}...`);
           // We only have to sync the latest 10 messages because that's all that
           // we're looking at in our email notification anyways. That's why this
@@ -52,13 +52,14 @@ export default async function notifyAPI(
           const [e] = await to(syncGmail(user));
           if (e) logger.warn(`Error syncing ${user}'s messages: ${e.stack}`);
           logger.verbose(`Fetching messages for ${user}...`);
-          const { docs } = await userDoc.ref
-            .collection('messages')
-            .where('date', '>=', today)
-            .orderBy('date', 'desc')
-            .limit(3)
-            .get();
-          const messages = docs.map((doc) => Message.fromFirestoreDoc(doc));
+          const { data: msgs } = await supabase
+            .from<DBMessage>('messages')
+            .select()
+            .eq('user', user.id)
+            .gte('date', today.toISOString())
+            .order('date', { ascending: false })
+            .limit(3);
+          const messages = (msgs || []).map((d) => Message.fromDB(d));
           if (!messages.length) {
             logger.verbose(
               `Skipping email for ${user} with no new messages...`
