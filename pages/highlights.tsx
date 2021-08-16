@@ -4,6 +4,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Link from 'next/link';
 import cn from 'classnames';
 
+import { HITS_PER_PAGE } from 'pages/api/messages';
+
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
 import Layout from 'components/layout';
@@ -165,7 +167,9 @@ export default function HighlightsPage(): JSX.Element {
         <InfiniteScroll
           dataLength={data?.flat().length || 0}
           next={() => setSize((prev) => prev + 1)}
-          hasMore={!data || data[data.length - 1].length === 5 || mutated}
+          hasMore={
+            !data || data[data.length - 1].length === HITS_PER_PAGE || mutated
+          }
           style={{ overflow: undefined }}
           scrollThreshold={0.65}
           loader={loader}

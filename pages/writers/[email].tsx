@@ -2,6 +2,8 @@ import Router, { useRouter } from 'next/router';
 import { useEffect, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
+import { HITS_PER_PAGE } from 'pages/api/messages';
+
 import Empty from 'components/empty';
 import Layout from 'components/layout';
 import MessageRow from 'components/message-row';
@@ -37,7 +39,7 @@ export default function WritersPage(): JSX.Element {
         <InfiniteScroll
           dataLength={data?.flat().length || 0}
           next={() => setSize((prev) => prev + 1)}
-          hasMore={!data || data[data.length - 1].length === 5}
+          hasMore={!data || data[data.length - 1].length === HITS_PER_PAGE}
           style={{ overflow: undefined }}
           scrollThreshold={0.65}
           loader={loader}
