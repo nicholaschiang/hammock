@@ -5,13 +5,10 @@ $$
   create domain phone as text check (value ~ '^(\+\d{1,3})\d{10}$');
   create domain email as text check (value ~ '^[A-Za-z0-9._~+%-]+@[A-Za-z0-9.-]+[.][A-Za-z]+$');
   create type category as enum('important', 'other');
-  create type contact as (
+  create type subscription as (
     "name" text,
     "email" email,
-    "photo" url
-  );
-  create type subscription as (
-    "from" contact,
+    "photo" url,
     "category" category,
     "favorite" boolean
   );
@@ -40,8 +37,10 @@ $$
   create table messages (
     "user" numeric references users(id) on delete cascade on update cascade not null,
     "id" text unique not null primary key,
-    "from" contact not null,
-    "category" category,
+    "name" text not null check(length(name) > 1 AND name !~ '^\s+$'),
+    "email" email not null,
+    "photo" url not null,
+    "category" category not null,
     "favorite" boolean not null default false,
     "date" timestamptz not null,
     "subject" text not null,

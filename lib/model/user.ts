@@ -1,4 +1,5 @@
 import {
+  DBSubscription,
   Subscription,
   SubscriptionJSON,
   isSubscriptionJSON,
@@ -49,17 +50,6 @@ export interface UserInterface {
   subscriptions: Subscription[];
 }
 
-export type DBCategory = 'important' | 'other';
-export interface DBContact {
-  name: string;
-  email: string;
-  photo: string;
-}
-export interface DBSubscription {
-  from: DBContact;
-  category: DBCategory;
-  favorite: boolean;
-}
 export interface DBUser {
   id: number;
   name: string;
@@ -177,7 +167,7 @@ export class User implements UserInterface {
       scopes: this.scopes,
       label: this.label,
       filter: this.filter,
-      subscriptions: this.subscriptions.map((s) => ({ ...s })),
+      subscriptions: this.subscriptions.map((s) => s.toDB()),
     };
   }
 
@@ -193,7 +183,7 @@ export class User implements UserInterface {
       scopes: record.scopes,
       label: record.label,
       filter: record.filter,
-      subscriptions: record.subscriptions.map((s) => new Subscription(s)),
+      subscriptions: record.subscriptions.map((s) => Subscription.fromDB(s)),
     });
   }
 
