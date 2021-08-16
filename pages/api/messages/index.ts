@@ -35,8 +35,7 @@ export default async function messagesAPI(
   } else {
     try {
       console.time('get-messages-api');
-      const { quickRead, archive, resume, writer, page } =
-        req.query as MessagesQuery;
+      const { quickRead, archive, resume, page } = req.query as MessagesQuery;
       const user = await verifyAuth(req);
       const pg = Number.isNaN(Number(page)) ? 0 : Number(page);
       console.time('fetch-messages');
@@ -51,8 +50,8 @@ export default async function messagesAPI(
         .range(HITS_PER_PAGE * pg, HITS_PER_PAGE * (pg + 1) - 1);
       if (quickRead === 'true') select = select.lt('time', 5);
       if (resume === 'true') select = select.gt('scroll', 0);
-      // TODO: Adjust this SQL so that I can access custom type fields.
-      if (writer) select = select.eq('from.email', writer);
+      // TODO: Adjust this SQL so that I can access this `from.email` field.
+      // if (writer) select = select.eq('from.email', writer);
       // TODO: Add error catching here once we move this into `getUsers` fx.
       const { data } = await select;
       const messages = (data || []).map((d) => Message.fromDB(d));
