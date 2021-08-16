@@ -1,11 +1,9 @@
 import {
   Subscription,
-  SubscriptionFirestore,
   SubscriptionJSON,
   isSubscriptionJSON,
 } from 'lib/model/subscription';
 import { isArray, isJSON } from 'lib/model/json';
-import { DocumentSnapshot } from 'lib/api/firebase';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -21,7 +19,7 @@ export const SCOPES = {
 
 /**
  * @typedef {Object} UserInterface
- * @property id - The user's Firebase Authentication ID.
+ * @property id - The user's Google OAuth2 provided unique identifier.
  * @property name - The user's name.
  * @property photo - The user's avatar photo URL.
  * @property locale - The user's locale code (returned by Google OAuth2).
@@ -78,9 +76,6 @@ export interface DBUser {
 
 export type UserJSON = Omit<UserInterface, 'subscriptions'> & {
   subscriptions: SubscriptionJSON[];
-};
-export type UserFirestore = Omit<UserInterface, 'subscriptions'> & {
-  subscriptions: SubscriptionFirestore[];
 };
 
 export function isUserJSON(json: unknown): json is UserJSON {
@@ -200,27 +195,6 @@ export class User implements UserInterface {
       filter: record.filter,
       subscriptions: record.subscriptions.map((s) => new Subscription(s)),
     });
-  }
-
-  public toFirestore(): UserFirestore {
-    return definedVals({
-      ...this,
-      subscriptions: this.subscriptions.map((s) => s.toFirestore()),
-    });
-  }
-
-  public static fromFirestore(data: UserFirestore): User {
-    return new User({
-      ...data,
-      subscriptions: data.subscriptions.map(Subscription.fromFirestore),
-    });
-  }
-
-  public static fromFirestoreDoc(snapshot: DocumentSnapshot): User {
-    if (!snapshot.exists) return new User();
-    const overrides = definedVals({ id: snapshot.id });
-    const user = User.fromFirestore(snapshot.data() as UserFirestore);
-    return new User({ ...user, ...overrides });
   }
 
   public toString(): string {
