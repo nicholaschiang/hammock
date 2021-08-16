@@ -5,7 +5,6 @@ $$
   drop domain phone cascade;
   drop domain email cascade;
   drop type category cascade;
-  drop type contact cascade;
   drop type subscription cascade;
   drop table users cascade;
   drop type highlight cascade;
