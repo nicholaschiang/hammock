@@ -8,7 +8,7 @@ import segment from 'lib/api/segment';
 import supabase from 'lib/api/supabase';
 import verifyAuth from 'lib/api/verify/auth';
 
-export const HITS_PER_PAGE = 5;
+export const HITS_PER_PAGE = 10;
 
 export type MessagesQuery = {
   quickRead?: 'true' | 'false';
