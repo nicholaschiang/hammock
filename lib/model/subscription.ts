@@ -36,6 +36,15 @@ export interface SubscriptionInterface {
   favorite: boolean;
 }
 
+export type DBCategory = 'important' | 'other';
+export interface DBSubscription {
+  name: string;
+  email: string;
+  photo: string;
+  category: DBCategory;
+  favorite: boolean;
+}
+
 export type SubscriptionJSON = SubscriptionInterface;
 
 export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
@@ -71,6 +80,28 @@ export class Subscription implements SubscriptionInterface {
 
   public static fromJSON(json: SubscriptionJSON): Subscription {
     return new Subscription(json);
+  }
+
+  public toDB(): DBSubscription {
+    return {
+      name: this.from.name,
+      email: this.from.email,
+      photo: this.from.photo,
+      category: this.category,
+      favorite: this.favorite,
+    };
+  }
+
+  public static fromDB(record: DBSubscription): Subscription {
+    return new Subscription({
+      from: {
+        name: record.name,
+        email: record.email,
+        photo: record.photo,
+      },
+      category: record.category,
+      favorite: record.favorite,
+    });
   }
 
   public toSegment(): Record<string, unknown> {
