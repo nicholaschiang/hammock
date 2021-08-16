@@ -5,7 +5,6 @@ import {
   SubscriptionJSON,
   isSubscriptionJSON,
 } from 'lib/model/subscription';
-import { DBHighlight, Highlight, isHighlight } from 'lib/model/highlight';
 import { isArray, isDateJSON, isJSON } from 'lib/model/json';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -29,7 +28,6 @@ export type Format = 'MINIMAL' | 'FULL' | 'RAW' | 'METADATA';
  * @property archived - Whether or not the email has been archived.
  * @property scroll - The user's scroll position in reading this email.
  * @property time - The message's estimated reading time (in minutes).
- * @property highlights - The message's highlights.
  */
 export interface MessageInterface extends SubscriptionInterface {
   user: string;
@@ -42,7 +40,6 @@ export interface MessageInterface extends SubscriptionInterface {
   archived: boolean;
   scroll: number;
   time: number;
-  highlights: Highlight[];
 }
 
 export interface DBMessage {
@@ -61,7 +58,6 @@ export interface DBMessage {
   archived: boolean;
   scroll: number;
   time: number;
-  highlights: DBHighlight[];
 }
 
 export type MessageJSON = Omit<MessageInterface, keyof Subscription | 'date'> &
@@ -77,7 +73,6 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
   if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
   if (numberFields.some((key) => typeof json[key] !== 'number')) return false;
   if (typeof json.archived !== 'boolean') return false;
-  if (!isArray(json.highlights, isHighlight)) return false;
   return true;
 }
 
@@ -101,8 +96,6 @@ export class Message extends Subscription implements MessageInterface {
   public scroll = 0;
 
   public time = 0;
-
-  public highlights: Highlight[] = [];
 
   public constructor(message: Partial<MessageInterface> = {}) {
     super(message);
@@ -154,7 +147,6 @@ export class Message extends Subscription implements MessageInterface {
       archived: this.archived,
       scroll: this.scroll,
       time: this.time,
-      highlights: this.highlights.map((h) => ({ deleted: false, ...h })),
     };
   }
 
@@ -177,7 +169,6 @@ export class Message extends Subscription implements MessageInterface {
       archived: record.archived,
       scroll: record.scroll,
       time: record.time,
-      highlights: record.highlights,
     });
   }
 
