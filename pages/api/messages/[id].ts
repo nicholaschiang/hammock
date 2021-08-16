@@ -1,19 +1,18 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
 import { Message, MessageJSON, isMessageJSON } from 'lib/model/message';
+import { getMessage, updateMessage } from 'lib/api/db/message';
 import { APIErrorJSON } from 'lib/model/error';
-import { db } from 'lib/api/firebase';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
-import updateMessageDoc from 'lib/api/update/message-doc';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
 import verifyQueryId from 'lib/api/verify/query-id';
 
 export type MessageRes = MessageJSON;
 
-async function fetchMessage(
+async function fetchMessageAPI(
   req: Req,
   res: Res<MessageRes | APIErrorJSON>
 ): Promise<void> {
@@ -21,13 +20,7 @@ async function fetchMessage(
     const id = verifyQueryId(req.query);
     console.time(`fetch-message-${id}`);
     const user = await verifyAuth(req);
-    const doc = await db
-      .collection('users')
-      .doc(user.id)
-      .collection('messages')
-      .doc(id)
-      .get();
-    const message = Message.fromFirestoreDoc(doc);
+    const message = await getMessage(id);
     res.status(200).json(message.toJSON());
     logger.info(`Fetched ${message} for ${user}.`);
     console.timeEnd(`fetch-message-${id}`);
@@ -41,7 +34,7 @@ async function fetchMessage(
   }
 }
 
-async function updateMessage(
+async function updateMessageAPI(
   req: Req,
   res: Res<MessageRes | APIErrorJSON>
 ): Promise<void> {
@@ -52,13 +45,13 @@ async function updateMessage(
       Message
     );
     const user = await verifyAuth(req);
-    await updateMessageDoc(user.id, body);
-    res.status(200).json(body.toJSON());
-    logger.info(`Updated ${body} for ${user}.`);
+    const message = await updateMessage(body);
+    res.status(200).json(message.toJSON());
+    logger.info(`Updated ${message} for ${user}.`);
     segment.track({
       userId: user.id,
       event: 'Message Updated',
-      properties: body.toSegment(),
+      properties: message.toSegment(),
     });
   } catch (e) {
     handle(e, res);
@@ -77,10 +70,10 @@ export default async function messageAPI(
 ): Promise<void> {
   switch (req.method) {
     case 'GET':
-      await fetchMessage(req, res);
+      await fetchMessageAPI(req, res);
       break;
     case 'PUT':
-      await updateMessage(req, res);
+      await updateMessageAPI(req, res);
       break;
     default:
       res.setHeader('Allow', ['GET', 'PUT']);

@@ -1,3 +1,4 @@
+import { DBCategory, DBContact } from 'lib/model/user';
 import { DocumentSnapshot, Timestamp } from 'lib/api/firebase';
 import {
   Subscription,
@@ -71,6 +72,7 @@ export function isHighlight(highlight: unknown): highlight is Highlight {
  * @property highlights - The message's highlights.
  */
 export interface MessageInterface extends SubscriptionInterface {
+  user: string;
   id: string;
   date: Date;
   subject: string;
@@ -81,6 +83,32 @@ export interface MessageInterface extends SubscriptionInterface {
   scroll: number;
   time: number;
   highlights: Highlight[];
+}
+
+export interface DBHighlight {
+  id: string;
+  start: string;
+  startOffset: number;
+  end: string;
+  endOffset: number;
+  text: string;
+  deleted: boolean;
+}
+export interface DBMessage {
+  user: number;
+  id: string;
+  from: DBContact;
+  category: DBCategory;
+  favorite: boolean;
+  date: string;
+  subject: string;
+  snippet: string;
+  raw: string;
+  html: string;
+  archived: boolean;
+  scroll: number;
+  time: number;
+  highlights: DBHighlight[];
 }
 
 export type MessageJSON = Omit<MessageInterface, keyof Subscription | 'date'> &
@@ -110,6 +138,8 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
 }
 
 export class Message extends Subscription implements MessageInterface {
+  public user = '';
+
   public id = '';
 
   public date: Date = new Date();
@@ -174,6 +204,44 @@ export class Message extends Subscription implements MessageInterface {
       ...json,
       ...Subscription.fromJSON(json),
       date: new Date(json.date),
+    });
+  }
+
+  public toDB(): DBMessage {
+    return {
+      user: Number(this.user),
+      id: this.id,
+      from: this.from,
+      category: this.category,
+      favorite: this.favorite,
+      date: this.date.toISOString(),
+      subject: this.subject,
+      snippet: this.snippet,
+      raw: this.raw,
+      html: this.html,
+      archived: this.archived,
+      scroll: this.scroll,
+      time: this.time,
+      highlights: this.highlights.map((h) => ({ deleted: false, ...h })),
+    };
+  }
+
+  public static fromDB(record: DBMessage): Message {
+    return new Message({
+      user: record.user.toString(),
+      id: record.id,
+      from: record.from,
+      category: record.category,
+      favorite: record.favorite,
+      date: new Date(record.date),
+      subject: record.subject,
+      snippet: record.snippet,
+      raw: record.raw,
+      html: record.html,
+      archived: record.archived,
+      scroll: record.scroll,
+      time: record.time,
+      highlights: record.highlights,
     });
   }
 
