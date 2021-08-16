@@ -11,6 +11,7 @@ import Page from 'components/page';
 
 import { Highlight, Message } from 'lib/model/message';
 import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
+import { HITS_PER_PAGE } from 'lib/model/query';
 
 interface HighlightProps {
   message?: Message;
@@ -165,7 +166,9 @@ export default function HighlightsPage(): JSX.Element {
         <InfiniteScroll
           dataLength={data?.flat().length || 0}
           next={() => setSize((prev) => prev + 1)}
-          hasMore={!data || data[data.length - 1].length === 5 || mutated}
+          hasMore={
+            !data || data[data.length - 1].length === HITS_PER_PAGE || mutated
+          }
           style={{ overflow: undefined }}
           scrollThreshold={0.65}
           loader={loader}
