@@ -1,4 +1,3 @@
-import { DBCategory, DBContact } from 'lib/model/user';
 import {
   Subscription,
   SubscriptionInterface,
@@ -6,6 +5,7 @@ import {
   isSubscriptionJSON,
 } from 'lib/model/subscription';
 import { isArray, isDateJSON, isJSON } from 'lib/model/json';
+import { DBCategory } from 'lib/model/user';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
@@ -95,7 +95,9 @@ export interface DBHighlight {
 export interface DBMessage {
   user: number;
   id: string;
-  from: DBContact;
+  name: string;
+  email: string;
+  photo: string;
   category: DBCategory;
   favorite: boolean;
   date: string;
@@ -200,7 +202,9 @@ export class Message extends Subscription implements MessageInterface {
     return {
       user: Number(this.user),
       id: this.id,
-      from: this.from,
+      name: this.from.name,
+      email: this.from.email,
+      photo: this.from.photo,
       category: this.category,
       favorite: this.favorite,
       date: this.date.toISOString(),
@@ -219,7 +223,11 @@ export class Message extends Subscription implements MessageInterface {
     return new Message({
       user: record.user.toString(),
       id: record.id,
-      from: record.from,
+      from: {
+        name: record.name,
+        email: record.email,
+        photo: record.photo,
+      },
       category: record.category,
       favorite: record.favorite,
       date: new Date(record.date),
