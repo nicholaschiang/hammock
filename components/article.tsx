@@ -1,16 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
-import { mutate } from 'swr';
 import { nanoid } from 'nanoid';
-
-import { MessagesRes } from 'pages/api/messages';
 
 import HighlightIcon from 'components/icons/highlight';
 import TweetIcon from 'components/icons/tweet';
 
-import { Highlight, Message } from 'lib/model/message';
-import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { CallbackParam } from 'lib/model/callback';
+import { Highlight } from 'lib/model/highlight';
+import { Message } from 'lib/model/message';
 import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
 import highlightHTML from 'lib/highlight';
@@ -27,36 +25,20 @@ export interface ArticleProps {
 }
 
 export default function Article({ message }: ArticleProps): JSX.Element {
-  const { mutate: mutateMessages } = useMessages();
-  const { setMutated } = useMessagesMutated();
+  const { data } = useSWR<Highlight[]>(
+    message ? `/api/messages/${message.id}/highlights` : null
+  );
   const setHighlights = useCallback(
     (param: CallbackParam<Highlight[]>) => {
-      if (!message) return;
-      let { highlights } = message;
+      if (!message || !data) return;
+      let highlights = data;
       if (typeof param === 'function') highlights = param(highlights);
       if (typeof param === 'object') highlights = param;
-      const updated = { ...message.toJSON(), highlights };
-      const url = `/api/messages/${updated.id}`;
-      void mutate(url, updated, false);
-      // TODO: Find an elegant way to mutate all the different possible feed
-      // queries (e.g. for the archive page, quick read page, writers pages).
-      void mutateMessages(
-        (res?: MessagesRes[]) =>
-          res?.map((messages) => {
-            const idx = messages.findIndex((m) => m.id === updated.id);
-            if (idx < 0) return messages;
-            return [
-              ...messages.slice(0, idx),
-              updated,
-              ...messages.slice(idx + 1),
-            ];
-          }),
-        false
-      );
-      setMutated(true);
-      void mutate(url, fetcher(url, 'put', updated), false);
+      const url = `/api/messages/${message.id}/highlights`;
+      void mutate(url, highlights, false);
+      void mutate(url, fetcher(url, 'put', highlights), false);
     },
-    [message, mutateMessages, setMutated]
+    [message, data]
   );
 
   const [highlight, setHighlight] = useState<Highlight>();
@@ -81,13 +63,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       // correctly. Right now, we have to wait 300ms for the reverse animation
       // to play out before we can show the dialog again.
       const id = (evt.target as HTMLElement).dataset.highlight;
-      setHighlight(
-        (prev) => message?.highlights.find((x) => x.id === id) || prev
-      );
+      setHighlight((prev) => data?.find((x) => x.id === id) || prev);
     }
     window.addEventListener('pointerover', listener);
     return () => window.removeEventListener('pointerover', listener);
-  }, [message?.highlights, highlight]);
+  }, [data, highlight]);
   useEffect(() => {
     function listener(evt: PointerEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
@@ -123,8 +103,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     return () => window.removeEventListener('pointerup', listener);
   }, []);
   const html = useMemo(
-    () => (message ? highlightHTML(message.html, message.highlights) : ''),
-    [message]
+    () => (message && data ? highlightHTML(message.html, data) : ''),
+    [message, data]
   );
   const onHighlight = useCallback(() => {
     setHighlight(undefined);
@@ -183,9 +163,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         <div className='buttons' ref={buttonsRef}>
           <button
             className={cn('reset button', {
-              highlighted: message?.highlights.some(
-                (x) => x.id === highlight?.id
-              ),
+              highlighted: data?.some((x) => x.id === highlight?.id),
             })}
             type='button'
             onClick={onHighlight}
