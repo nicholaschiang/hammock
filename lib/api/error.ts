@@ -1,6 +1,7 @@
 import { ServerResponse } from 'http';
 
 import { GaxiosError } from 'gaxios';
+import { captureException } from '@sentry/nextjs';
 
 import { APIError } from 'lib/model/error';
 import logger from 'lib/api/logger';
@@ -20,6 +21,7 @@ export function handle(e: unknown, res: ServerResponse): void {
   } else {
     logger.error(`API ${e.code}: ${e.toString()}`);
   }
+  captureException(e);
   // For some weird reason (I'm guessing because of different `node_modules`
   // package versions), simply using `e instanceof GaxiosError` doesn't work.
   if (e instanceof Error && typeof (e as GaxiosError).code === 'string')

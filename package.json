@@ -24,6 +24,7 @@
     "@mozilla/readability": "^0.4.1",
     "@segment/analytics.js-core": "^4.1.11",
     "@sendgrid/mail": "^7.4.5",
+    "@sentry/nextjs": "^6.11.0",
     "@supabase/supabase-js": "^1.21.1",
     "analytics-node": "^4.0.1",
     "atob": "^2.1.2",

@@ -1,5 +1,6 @@
 import { NextApiRequest } from 'next';
 import { getSession } from 'next-auth/client';
+import { setUser } from '@sentry/nextjs';
 
 import { APIError } from 'lib/model/error';
 import { User } from 'lib/model/user';
@@ -28,7 +29,10 @@ export default async function verifyAuth(
   const session = await getSession({ req });
   console.timeEnd('verify-auth');
   if (!session) throw new APIError('You are not authenticated', 401);
-  if (requiredUserId && session.user.id !== requiredUserId)
+  const user = User.fromJSON(session.user);
+  setUser({ id: user.id, username: user.name, email: user.email });
+  // TODO: Throw a `403 Forbidden` error here instead of a `401 Unauthorized`.
+  if (requiredUserId && user.id !== requiredUserId)
     throw new APIError('You are not authorized to perform this action', 401);
-  return User.fromJSON(session.user);
+  return user;
 }

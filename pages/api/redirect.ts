@@ -1,5 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import to from 'await-to-js';
+import { withSentry } from '@sentry/nextjs';
 
 import { APIErrorJSON } from 'lib/model/error';
 import { SCOPES } from 'lib/model/user';
@@ -13,10 +14,7 @@ import verifyAuth from 'lib/api/verify/auth';
  *
  * Requires a JWT.
  */
-export default async function redirectAPI(
-  req: Req,
-  res: Res<APIErrorJSON>
-): Promise<void> {
+async function redirectAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
@@ -48,3 +46,5 @@ export default async function redirectAPI(
     }
   }
 }
+
+export default withSentry(redirectAPI);

@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import { withSentry } from '@sentry/nextjs';
 
 import { User, UserJSON, isUserJSON } from 'lib/model/user';
 import { APIErrorJSON } from 'lib/model/error';
@@ -59,7 +60,7 @@ async function updateAccount(req: Req, res: Res<UserJSON>): Promise<void> {
  *
  * Requires a JWT; will return the profile data of that user.
  */
-export default async function accountAPI(
+async function accountAPI(
   req: Req,
   res: Res<UserJSON | APIErrorJSON>
 ): Promise<void> {
@@ -75,3 +76,5 @@ export default async function accountAPI(
       res.status(405).end(`Method ${req.method as string} Not Allowed`);
   }
 }
+
+export default withSentry(accountAPI);

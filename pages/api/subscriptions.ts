@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import { withSentry } from '@sentry/nextjs';
 
 import { Subscription, SubscriptionJSON } from 'lib/model/subscription';
 import { APIErrorJSON } from 'lib/model/error';
@@ -20,7 +21,7 @@ export type SubscriptionsRes = {
  *
  * Requires a JWT; will return the subscriptions for that user.
  */
-export default async function subscriptionsAPI(
+async function subscriptionsAPI(
   req: Req,
   res: Res<SubscriptionsRes | APIErrorJSON>
 ): Promise<void> {
@@ -56,3 +57,5 @@ export default async function subscriptionsAPI(
     }
   }
 }
+
+export default withSentry(subscriptionsAPI);
