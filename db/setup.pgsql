@@ -48,7 +48,7 @@ $$
     "raw" text not null,
     "html" text not null,
     "archived" boolean not null default false,
-    "scroll" int not null default 0,
+    "scroll" decimal not null default 0,
     "time" int not null default 0,
     "highlights" highlight[] not null
   );
