@@ -2,14 +2,13 @@ import Router, { useRouter } from 'next/router';
 import { useEffect, useMemo } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { HITS_PER_PAGE } from 'pages/api/messages';
-
 import Empty from 'components/empty';
 import Layout from 'components/layout';
 import MessageRow from 'components/message-row';
 import Page from 'components/page';
 import Section from 'components/section';
 
+import { HITS_PER_PAGE } from 'lib/model/query';
 import useMessages from 'lib/hooks/messages';
 import { useUser } from 'lib/context/user';
 

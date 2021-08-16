@@ -4,13 +4,12 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Link from 'next/link';
 import cn from 'classnames';
 
-import { HITS_PER_PAGE } from 'pages/api/messages';
-
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
 import Layout from 'components/layout';
 import Page from 'components/page';
 
+import { HITS_PER_PAGE } from 'lib/model/query';
 import { Highlight, Message } from 'lib/model/message';
 import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 

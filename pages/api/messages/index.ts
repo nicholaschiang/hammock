@@ -1,22 +1,13 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 
 import { DBMessage, Message, MessageJSON } from 'lib/model/message';
+import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
 import { APIErrorJSON } from 'lib/model/error';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
 import supabase from 'lib/api/supabase';
 import verifyAuth from 'lib/api/verify/auth';
-
-export const HITS_PER_PAGE = 10;
-
-export type MessagesQuery = {
-  quickRead?: 'true' | 'false';
-  archive?: 'true' | 'false';
-  resume?: 'true' | 'false';
-  writer?: string;
-  page?: string;
-};
 
 export type MessagesRes = MessageJSON[];
 

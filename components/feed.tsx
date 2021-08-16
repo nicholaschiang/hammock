@@ -2,11 +2,10 @@ import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
-import { HITS_PER_PAGE, MessagesQuery } from 'pages/api/messages';
-
 import Empty from 'components/empty';
 import Section from 'components/section';
 
+import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
 import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { MessageJSON } from 'lib/model/message';
 import { isSameDay } from 'lib/utils';
