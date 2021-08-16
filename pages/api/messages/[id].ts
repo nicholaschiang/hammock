@@ -12,7 +12,7 @@ import verifyQueryId from 'lib/api/verify/query-id';
 
 export type MessageRes = MessageJSON;
 
-async function fetchMessage(
+async function fetchMessageAPI(
   req: Req,
   res: Res<MessageRes | APIErrorJSON>
 ): Promise<void> {
@@ -34,7 +34,7 @@ async function fetchMessage(
   }
 }
 
-async function updateMessage(
+async function updateMessageAPI(
   req: Req,
   res: Res<MessageRes | APIErrorJSON>
 ): Promise<void> {
@@ -70,10 +70,10 @@ export default async function messageAPI(
 ): Promise<void> {
   switch (req.method) {
     case 'GET':
-      await fetchMessage(req, res);
+      await fetchMessageAPI(req, res);
       break;
     case 'PUT':
-      await updateMessage(req, res);
+      await updateMessageAPI(req, res);
       break;
     default:
       res.setHeader('Allow', ['GET', 'PUT']);
