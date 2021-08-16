@@ -50,8 +50,7 @@ export default async function messagesAPI(
         .range(HITS_PER_PAGE * pg, HITS_PER_PAGE * (pg + 1) - 1);
       if (quickRead === 'true') select = select.lt('time', 5);
       if (resume === 'true') select = select.gt('scroll', 0);
-      // TODO: Adjust this SQL so that I can access this `from.email` field.
-      // if (writer) select = select.eq('from.email', writer);
+      if (writer) select = select.eq('email', writer);
       // TODO: Add error catching here once we move this into `getUsers` fx.
       const { data } = await select;
       const messages = (data || []).map((d) => Message.fromDB(d));
