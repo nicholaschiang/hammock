@@ -15,7 +15,7 @@ export type MessagesQuery = {
   archive?: 'true' | 'false';
   resume?: 'true' | 'false';
   writer?: string;
-  page?: number;
+  page?: string;
 };
 
 export type MessagesRes = MessageJSON[];

@@ -34,7 +34,7 @@ export default function useMessages(
         const queryString = params.toString();
         return queryString ? `/api/messages?${queryString}` : '/api/messages';
       }
-      params.append('page', pageIdx);
+      params.append('page', pageIdx.toString());
       return `/api/messages?${params.toString()}`;
     },
     [query]
