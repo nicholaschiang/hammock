@@ -1,3 +1,4 @@
+import { configureScope, setUser as setSentryUser } from '@sentry/nextjs';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { SWRConfig, mutate } from 'swr';
 import { AppProps } from 'next/app';
@@ -98,6 +99,13 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     },
     [loggedIn, user]
   );
+  useEffect(() => {
+    if (!user.id) {
+      configureScope((scope) => scope.setUser(null));
+    } else {
+      setSentryUser({ id: user.id, username: user.name, email: user.email });
+    }
+  }, [user.id, user.name, user.email]);
 
   const [theme, setTheme] = useState<Theme>('system');
   useEffect(() => {
@@ -121,7 +129,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
   useEffect(() => {
     localStorage.setItem('theme', theme);
   }, [theme]);
-  
+
   const [mutated, setMutated] = useState<boolean>(false);
 
   return (
