@@ -9,9 +9,9 @@ import Empty from 'components/empty';
 import Layout from 'components/layout';
 import Page from 'components/page';
 
-import { HITS_PER_PAGE } from 'lib/model/query';
 import { Highlight, Message } from 'lib/model/message';
 import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
+import { HITS_PER_PAGE } from 'lib/model/query';
 
 interface HighlightProps {
   message?: Message;
