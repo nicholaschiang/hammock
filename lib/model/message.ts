@@ -1,11 +1,11 @@
 import {
+  DBCategory,
   Subscription,
   SubscriptionInterface,
   SubscriptionJSON,
   isSubscriptionJSON,
 } from 'lib/model/subscription';
 import { isArray, isDateJSON, isJSON } from 'lib/model/json';
-import { DBCategory } from 'lib/model/user';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';

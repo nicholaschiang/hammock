@@ -35,7 +35,8 @@ export default async function messagesAPI(
   } else {
     try {
       console.time('get-messages-api');
-      const { quickRead, archive, resume, page } = req.query as MessagesQuery;
+      const { quickRead, archive, resume, writer, page } =
+        req.query as MessagesQuery;
       const user = await verifyAuth(req);
       const pg = Number.isNaN(Number(page)) ? 0 : Number(page);
       console.time('fetch-messages');
