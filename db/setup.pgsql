@@ -40,7 +40,7 @@ $$
     "name" text not null check(length(name) > 1 AND name !~ '^\s+$'),
     "email" email not null,
     "photo" url not null,
-    "category" category not null,
+    "category" category not null default 'other',
     "favorite" boolean not null default false,
     "date" timestamptz not null,
     "subject" text not null,
