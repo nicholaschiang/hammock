@@ -103,11 +103,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         message: message.toSegment(),
       });
       const url = `/api/messages/${message.id}/highlights`;
-      await mutate(
-        url,
-        (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]),
-        false
-      );
+      const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
+      await mutate(url, add, false);
       await fetcher(url, 'post', highlight);
       await mutate(url);
     } else {
@@ -116,16 +113,13 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         message: message.toSegment(),
       });
       const url = `/api/messages/${message.id}/highlights`;
-      await mutate(
-        url,
-        (p?: Highlight[]) => {
-          const idx = p?.findIndex((h) => h.id === highlight.id);
-          if (!p || !idx || idx < 0) return p;
-          const deleted = { ...highlight, deleted: true };
-          return [...p.slice(0, idx), deleted, ...p.slice(idx + 1)];
-        },
-        false
-      );
+      const remove = (p?: Highlight[]) => {
+        const idx = p?.findIndex((h) => h.id === highlight.id);
+        if (!p || !idx || idx < 0) return p;
+        const deleted = { ...highlight, deleted: true };
+        return [...p.slice(0, idx), deleted, ...p.slice(idx + 1)];
+      };
+      await mutate(url, remove, false);
       await fetcher(`${url}/${highlight.id}`, 'delete');
       await mutate(url);
     }
@@ -154,11 +148,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         message: message.toSegment(),
       });
       const url = `/api/messages/${message.id}/highlights`;
-      await mutate(
-        url,
-        (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]),
-        false
-      );
+      const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
+      await mutate(url, add, false);
       await fetcher(url, 'post', highlight);
       await mutate(url);
     }
