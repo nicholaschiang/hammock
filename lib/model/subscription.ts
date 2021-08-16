@@ -1,4 +1,3 @@
-import { DocumentSnapshot } from 'lib/api/firebase';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
@@ -38,7 +37,6 @@ export interface SubscriptionInterface {
 }
 
 export type SubscriptionJSON = SubscriptionInterface;
-export type SubscriptionFirestore = SubscriptionInterface;
 
 export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
   if (!isJSON(json)) return false;
@@ -73,23 +71,6 @@ export class Subscription implements SubscriptionInterface {
 
   public static fromJSON(json: SubscriptionJSON): Subscription {
     return new Subscription(json);
-  }
-
-  public toFirestore(): SubscriptionFirestore {
-    return definedVals(this);
-  }
-
-  public static fromFirestore(data: SubscriptionFirestore): Subscription {
-    return new Subscription(data);
-  }
-
-  public static fromFirestoreDoc(snapshot: DocumentSnapshot): Subscription {
-    if (!snapshot.exists) return new Subscription();
-    const overrides = definedVals({ id: snapshot.id });
-    const subscription = Subscription.fromFirestore(
-      snapshot.data() as SubscriptionFirestore
-    );
-    return new Subscription({ ...subscription, ...overrides });
   }
 
   public toSegment(): Record<string, unknown> {

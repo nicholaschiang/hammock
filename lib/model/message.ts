@@ -1,8 +1,6 @@
 import { DBCategory, DBContact } from 'lib/model/user';
-import { DocumentSnapshot, Timestamp } from 'lib/api/firebase';
 import {
   Subscription,
-  SubscriptionFirestore,
   SubscriptionInterface,
   SubscriptionJSON,
   isSubscriptionJSON,
@@ -113,15 +111,6 @@ export interface DBMessage {
 
 export type MessageJSON = Omit<MessageInterface, keyof Subscription | 'date'> &
   SubscriptionJSON & { date: string };
-export type MessageFirestore = Omit<
-  MessageInterface,
-  keyof Subscription | 'date'
-> &
-  SubscriptionFirestore & {
-    date: Timestamp;
-    quickRead: boolean;
-    resume: boolean;
-  };
 
 export function isMessageJSON(json: unknown): json is MessageJSON {
   const stringFields = ['id', 'subject', 'snippet', 'raw', 'html'];
@@ -243,35 +232,6 @@ export class Message extends Subscription implements MessageInterface {
       time: record.time,
       highlights: record.highlights,
     });
-  }
-
-  public toFirestore(): MessageFirestore {
-    // We don't store the actual message content (subject, snippet, html) in our
-    // database. Instead, we fetch that data at runtime and only store metadata.
-    return definedVals({
-      ...this,
-      ...super.toFirestore(),
-      date: this.date as unknown as Timestamp,
-    });
-  }
-
-  public static fromFirestore(data: MessageFirestore): Message {
-    return new Message({
-      ...data,
-      ...Subscription.fromFirestore(data),
-      date: data.date.toDate(),
-    });
-  }
-
-  public static fromFirestoreDoc(snapshot: DocumentSnapshot): Message {
-    if (!snapshot.exists) return new Message();
-    const overrides = definedVals({
-      created: snapshot.createTime?.toDate(),
-      updated: snapshot.updateTime?.toDate(),
-      id: snapshot.id,
-    });
-    const message = Message.fromFirestore(snapshot.data() as MessageFirestore);
-    return new Message({ ...message, ...overrides });
   }
 
   public toSegment(): Record<string, unknown> {
