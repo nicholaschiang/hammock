@@ -5,26 +5,33 @@ import cn from 'classnames';
 import { useCallback } from 'react';
 import { useSWRInfinite } from 'swr';
 
+import { DBHighlightWithMessage } from 'pages/api/highlights';
+
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
 import Layout from 'components/layout';
 import Page from 'components/page';
 
 import { HITS_PER_PAGE } from 'lib/model/query';
-import { Highlight } from 'lib/model/highlight';
 
 interface HighlightProps {
-  highlight?: Highlight;
+  highlight?: DBHighlightWithMessage;
 }
 
 function HighlightRow({ highlight }: HighlightProps): JSX.Element {
   return (
-    <Link href={highlight ? `/messages/${highlight.message}` : '#'}>
+    <Link href={highlight ? `/messages/${highlight.message.id}` : '#'}>
       <a className={cn('row', { disabled: !highlight })}>
         <div className='from'>
-          <Avatar src='TODO: Add message icon' loading={!highlight} size={24} />
+          <Avatar
+            src={highlight?.message.photo}
+            loading={!highlight}
+            size={24}
+          />
           <span className={cn('name', { loading: !highlight })}>
-            TODO: Add message sender name and message subject
+            {highlight
+              ? `${highlight.message.name}: ${highlight.message.subject}`
+              : ''}
           </span>
         </div>
         <blockquote className={cn({ loading: !highlight })}>
@@ -103,7 +110,7 @@ function HighlightRow({ highlight }: HighlightProps): JSX.Element {
           }
 
           blockquote.loading {
-            height: 72px;
+            height: 48px;
           }
         `}</style>
       </a>
@@ -118,12 +125,15 @@ const loader = Array(5)
 /* eslint-enable react/no-array-index-key */
 
 export default function HighlightsPage(): JSX.Element {
-  const getKey = useCallback((pageIdx: number, prev: Highlight[] | null) => {
-    if (prev && !prev.length) return null;
-    if (!prev || pageIdx === 0) return '/api/highlights';
-    return `/api/highlights?page=${pageIdx}`;
-  }, []);
-  const { data, setSize } = useSWRInfinite<Highlight[]>(getKey);
+  const getKey = useCallback(
+    (pageIdx: number, prev: DBHighlightWithMessage[] | null) => {
+      if (prev && !prev.length) return null;
+      if (!prev || pageIdx === 0) return '/api/highlights';
+      return `/api/highlights?page=${pageIdx}`;
+    },
+    []
+  );
+  const { data, setSize } = useSWRInfinite<DBHighlightWithMessage[]>(getKey);
 
   return (
     <Page name='Highlights' login sync>
