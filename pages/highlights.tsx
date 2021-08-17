@@ -140,7 +140,7 @@ export default function HighlightsPage(): JSX.Element {
       <Head>
         <link
           rel='preload'
-          href='/api/messages'
+          href='/api/highlights'
           crossOrigin='anonymous'
           type='application/json'
           as='fetch'
