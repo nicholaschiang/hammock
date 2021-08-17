@@ -21,7 +21,7 @@ $$
     "name" text not null check(length(name) > 1 AND name !~ '^\s+$'),
     "email" email unique not null primary key,
     "photo" url not null,
-    "category" category not null default 'other'
+    "category" text not null
   );
   create table subscriptions (
     "user" numeric references users(id) on delete cascade on update cascade not null,

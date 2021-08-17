@@ -1,5 +1,4 @@
 import {
-  DBSubscription,
   Subscription,
   SubscriptionJSON,
   isSubscriptionJSON,
@@ -62,7 +61,6 @@ export interface DBUser {
   scopes: string[];
   label: string;
   filter: string;
-  subscriptions: DBSubscription[];
 }
 
 export type UserJSON = Omit<UserInterface, 'subscriptions'> & {

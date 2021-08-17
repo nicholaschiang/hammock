@@ -45,12 +45,8 @@ export interface MessageInterface extends SubscriptionInterface {
 
 export interface DBMessage {
   user: number;
+  newsletter: string;
   id: string;
-  name: string;
-  email: string;
-  photo: string;
-  category: DBCategory;
-  favorite: boolean;
   date: string;
   subject: string;
   snippet: string;
