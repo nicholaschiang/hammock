@@ -25,15 +25,6 @@ $$
     "filter" text not null,
     "subscriptions" subscription[] not null
   );
-  create type highlight as (
-    "id" text,
-    "start" text,
-    "startOffset" int,
-    "end" text,
-    "endOffset" int,
-    "text" text,
-    "deleted" boolean
-  );
   create table messages (
     "user" numeric references users(id) on delete cascade on update cascade not null,
     "id" text unique not null primary key,
@@ -49,8 +40,18 @@ $$
     "html" text not null,
     "archived" boolean not null default false,
     "scroll" decimal not null default 0,
-    "time" int not null default 0,
-    "highlights" highlight[] not null
+    "time" int not null default 0
+  );
+  create table highlights (
+    "message" text references messages(id) on delete cascade on update cascade not null,
+    "user" numeric references users(id) on delete cascade on update cascade not null,
+    "id" bigint generated always as identity primary key,
+    "start" text not null,
+    "startOffset" int not null,
+    "end" text not null,
+    "endOffset" int not null,
+    "text" text not null,
+    "deleted" boolean not null default false
   );
 $$
 language sql volatile;

@@ -1,3 +1,4 @@
+import { APIError } from 'lib/model/error';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
@@ -48,10 +49,13 @@ export interface DBSubscription {
 export type SubscriptionJSON = SubscriptionInterface;
 
 export function isSubscriptionJSON(json: unknown): json is SubscriptionJSON {
-  if (!isJSON(json)) return false;
-  if (!isContact(json.from)) return false;
-  if (!isCategory(json.category)) return false;
-  if (typeof json.favorite !== 'boolean') return false;
+  if (!isJSON(json)) throw new APIError('Expected valid JSON body', 400);
+  if (!isContact(json.from))
+    throw new APIError('Expected valid contact in "from" field', 400);
+  if (!isCategory(json.category))
+    throw new APIError('Expected category of "important" or "other"', 400);
+  if (typeof json.favorite !== 'boolean')
+    throw new APIError('Expected favorite of type boolean', 400);
   return true;
 }
 

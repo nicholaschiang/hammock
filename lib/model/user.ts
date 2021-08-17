@@ -5,6 +5,7 @@ import {
   isSubscriptionJSON,
 } from 'lib/model/subscription';
 import { isArray, isJSON } from 'lib/model/json';
+import { APIError } from 'lib/model/error';
 import { caps } from 'lib/utils';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
@@ -81,9 +82,11 @@ export function isUserJSON(json: unknown): json is UserJSON {
     'filter',
   ];
 
-  if (!isJSON(json)) return false;
-  if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (!isArray(json.subscriptions, isSubscriptionJSON)) return false;
+  if (!isJSON(json)) throw new APIError('Expected valid JSON body', 400);
+  if (stringFields.some((key) => typeof json[key] !== 'string'))
+    throw new APIError('Expected valid string field', 400);
+  if (!isArray(json.subscriptions, isSubscriptionJSON))
+    throw new APIError('Expected valid subscriptions', 400);
   return true;
 }
 

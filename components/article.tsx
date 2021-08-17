@@ -1,19 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
-import { mutate } from 'swr';
-import { nanoid } from 'nanoid';
-
-import { MessagesRes } from 'pages/api/messages';
 
 import HighlightIcon from 'components/icons/highlight';
 import TweetIcon from 'components/icons/tweet';
 
-import { Highlight, Message } from 'lib/model/message';
-import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
-import { CallbackParam } from 'lib/model/callback';
+import { Highlight } from 'lib/model/highlight';
+import { Message } from 'lib/model/message';
 import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
 import highlightHTML from 'lib/highlight';
+import numid from 'lib/utils/numid';
+import { useUser } from 'lib/context/user';
 
 interface Position {
   x: number;
@@ -27,36 +25,9 @@ export interface ArticleProps {
 }
 
 export default function Article({ message }: ArticleProps): JSX.Element {
-  const { mutate: mutateMessages } = useMessages();
-  const { setMutated } = useMessagesMutated();
-  const setHighlights = useCallback(
-    (param: CallbackParam<Highlight[]>) => {
-      if (!message) return;
-      let { highlights } = message;
-      if (typeof param === 'function') highlights = param(highlights);
-      if (typeof param === 'object') highlights = param;
-      const updated = { ...message.toJSON(), highlights };
-      const url = `/api/messages/${updated.id}`;
-      void mutate(url, updated, false);
-      // TODO: Find an elegant way to mutate all the different possible feed
-      // queries (e.g. for the archive page, quick read page, writers pages).
-      void mutateMessages(
-        (res?: MessagesRes[]) =>
-          res?.map((messages) => {
-            const idx = messages.findIndex((m) => m.id === updated.id);
-            if (idx < 0) return messages;
-            return [
-              ...messages.slice(0, idx),
-              updated,
-              ...messages.slice(idx + 1),
-            ];
-          }),
-        false
-      );
-      setMutated(true);
-      void mutate(url, fetcher(url, 'put', updated), false);
-    },
-    [message, mutateMessages, setMutated]
+  const { user } = useUser();
+  const { data } = useSWR<Highlight[]>(
+    message ? `/api/messages/${message.id}/highlights` : null
   );
 
   const [highlight, setHighlight] = useState<Highlight>();
@@ -68,26 +39,20 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     // when the user's mouse exits the highlight and w/in ~100px of dialog.
     function listener(evt: PointerEvent): void {
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
-      if ((evt.target as HTMLElement).dataset.highlight === highlight?.id)
-        return;
-      if ((evt.target as HTMLElement).dataset.deleted === '') return;
+      const target = evt.target as HTMLElement;
+      const id = Number(target.dataset.highlight);
+      if (id === highlight?.id || target.dataset.deleted === '') return;
       setPosition({
         x: evt.offsetX,
         y: evt.offsetY,
-        containerX: (evt.target as HTMLElement).offsetLeft,
-        containerY: (evt.target as HTMLElement).offsetTop,
+        containerX: target.offsetLeft,
+        containerY: target.offsetTop,
       });
-      // TODO: Remove this `setTimeout` but still ensure that animation plays
-      // correctly. Right now, we have to wait 300ms for the reverse animation
-      // to play out before we can show the dialog again.
-      const id = (evt.target as HTMLElement).dataset.highlight;
-      setHighlight(
-        (prev) => message?.highlights.find((x) => x.id === id) || prev
-      );
+      setHighlight((prev) => data?.find((x) => x.id === id) || prev);
     }
     window.addEventListener('pointerover', listener);
     return () => window.removeEventListener('pointerover', listener);
-  }, [message?.highlights, highlight]);
+  }, [data, highlight]);
   useEffect(() => {
     function listener(evt: PointerEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
@@ -99,7 +64,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   }, []);
   useEffect(() => {
     function listener(evt: PointerEvent): void {
-      if (!articleRef.current) return;
+      if (!articleRef.current || !message || !user.id) return;
       const sel = window.getSelection() || document.getSelection();
       if (!sel || sel.isCollapsed) return;
       const range = sel.getRangeAt(0);
@@ -116,38 +81,49 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         startOffset: range.startOffset,
         endOffset: range.endOffset,
         text: range.toString(),
-        id: nanoid(),
+        user: Number(user.id),
+        message: message.id,
+        deleted: false,
+        id: numid(),
       });
     }
     window.addEventListener('pointerup', listener);
     return () => window.removeEventListener('pointerup', listener);
-  }, []);
+  }, [message, user.id]);
   const html = useMemo(
-    () => (message ? highlightHTML(message.html, message.highlights) : ''),
-    [message]
+    () => (message ? highlightHTML(message.html, data || []) : ''),
+    [message, data]
   );
-  const onHighlight = useCallback(() => {
+  const onHighlight = useCallback(async () => {
     setHighlight(undefined);
-    setHighlights((prev) => {
-      if (!highlight) return prev;
-      // TODO: Test if this new highlight range overlaps with any existing highlights.
-      // If so, combine them into one new non-deleted highlight range.
-      const idx = prev.findIndex((x) => x.id === highlight.id);
-      if (idx < 0) {
-        window.analytics?.track('Highlight Created', {
-          highlight: highlight.text,
-          message: message?.toSegment(),
-        });
-        return [...prev, highlight];
-      }
+    if (!message || !highlight) return;
+    if (!data?.some((h) => h.id === highlight.id)) {
+      window.analytics?.track('Highlight Created', {
+        highlight: highlight.text,
+        message: message.toSegment(),
+      });
+      const url = `/api/messages/${message.id}/highlights`;
+      const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
+      await mutate(url, add, false);
+      await fetcher(url, 'post', highlight);
+      await mutate(url);
+    } else {
       window.analytics?.track('Highlight Deleted', {
         highlight: highlight.text,
-        message: message?.toSegment(),
+        message: message.toSegment(),
       });
-      const deleted = { ...highlight, deleted: true };
-      return [...prev.slice(0, idx), deleted, ...prev.slice(idx + 1)];
-    });
-  }, [message, highlight, setHighlights]);
+      const url = `/api/messages/${message.id}/highlights`;
+      const remove = (p?: Highlight[]) => {
+        const idx = p?.findIndex((h) => h.id === highlight.id);
+        if (!p || !idx || idx < 0) return p;
+        const deleted = { ...highlight, deleted: true };
+        return [...p.slice(0, idx), deleted, ...p.slice(idx + 1)];
+      };
+      await mutate(url, remove, false);
+      await fetcher(`/api/highlights/${highlight.id}`, 'delete');
+      await mutate(url);
+    }
+  }, [message, highlight, data]);
   const [tweet, setTweet] = useState<string>('');
   useEffect(() => {
     setTweet((prev) =>
@@ -158,24 +134,26 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         : prev
     );
   }, [message, highlight]);
-  const onTweet = useCallback(() => {
+  const onTweet = useCallback(async () => {
+    setHighlight(undefined);
+    if (!message || !highlight) return;
     window.analytics?.track('Highlight Tweeted', {
       tweet,
-      highlight: highlight?.text,
-      message: message?.toSegment(),
+      highlight: highlight.text,
+      message: message.toSegment(),
     });
-    setHighlight(undefined);
-    setHighlights((prev) => {
-      if (!highlight || prev.some((h) => h.id === highlight.id)) return prev;
-      // TODO: Test if this new highlight range overlaps with any existing highlights.
-      // If so, combine them into one new non-deleted highlight range.
+    if (!data?.some((h) => h.id === highlight.id)) {
       window.analytics?.track('Highlight Created', {
         highlight: highlight.text,
-        message: message?.toSegment(),
+        message: message.toSegment(),
       });
-      return [...prev, highlight];
-    });
-  }, [message, highlight, tweet, setHighlights]);
+      const url = `/api/messages/${message.id}/highlights`;
+      const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
+      await mutate(url, add, false);
+      await fetcher(url, 'post', highlight);
+      await mutate(url);
+    }
+  }, [message, highlight, tweet, data]);
 
   return (
     <>
@@ -183,9 +161,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         <div className='buttons' ref={buttonsRef}>
           <button
             className={cn('reset button', {
-              highlighted: message?.highlights.some(
-                (x) => x.id === highlight?.id
-              ),
+              highlighted: data?.some((x) => x.id === highlight?.id),
             })}
             type='button'
             onClick={onHighlight}

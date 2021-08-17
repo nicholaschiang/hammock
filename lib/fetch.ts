@@ -8,12 +8,8 @@ export async function fetcher<T, D = T>(
   method: 'get' | 'put' | 'post' | 'patch' | 'delete' = 'get',
   data?: D
 ): Promise<T> {
-  // Specifying these headers for `GET` requests prevents us from preloading.
-  const headers =
-    method === 'get'
-      ? undefined
-      : { 'Content-Type': 'application/json', Accept: 'application/json' };
-  const body = JSON.stringify(data);
+  const body = data ? JSON.stringify(data) : undefined;
+  const headers = data ? { 'Content-Type': 'application/json' } : undefined;
   const [err, res] = await to<Response>(fetch(url, { headers, method, body }));
   if (res && !res.ok) {
     const { message } = (await res.json()) as APIErrorJSON;
