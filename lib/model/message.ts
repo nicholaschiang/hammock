@@ -5,7 +5,8 @@ import {
   SubscriptionJSON,
   isSubscriptionJSON,
 } from 'lib/model/subscription';
-import { isArray, isDateJSON, isJSON } from 'lib/model/json';
+import { isDateJSON, isJSON } from 'lib/model/json';
+import { APIError } from 'lib/model/error';
 import clone from 'lib/utils/clone';
 import construct from 'lib/model/construct';
 import definedVals from 'lib/model/defined-vals';
@@ -67,12 +68,17 @@ export function isMessageJSON(json: unknown): json is MessageJSON {
   const stringFields = ['id', 'subject', 'snippet', 'raw', 'html'];
   const numberFields = ['scroll', 'time'];
 
-  if (!isSubscriptionJSON(json)) return false;
-  if (!isJSON(json)) return false;
-  if (!isDateJSON(json.date)) return false;
-  if (stringFields.some((key) => typeof json[key] !== 'string')) return false;
-  if (numberFields.some((key) => typeof json[key] !== 'number')) return false;
-  if (typeof json.archived !== 'boolean') return false;
+  if (!isSubscriptionJSON(json))
+    throw new APIError('Expected valid subscription JSON', 400);
+  if (!isJSON(json)) throw new APIError('Expected valid JSON body', 400);
+  if (!isDateJSON(json.date))
+    throw new APIError('Expected valid "date" JSON field', 400);
+  if (stringFields.some((key) => typeof json[key] !== 'string'))
+    throw new APIError('Expected valid string JSON fields', 400);
+  if (numberFields.some((key) => typeof json[key] !== 'number'))
+    throw new APIError('Expected valid number JSON fields', 400);
+  if (typeof json.archived !== 'boolean')
+    throw new APIError('Expected "archived" field of type boolean', 400);
   return true;
 }
 
