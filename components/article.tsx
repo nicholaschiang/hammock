@@ -120,7 +120,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         return [...p.slice(0, idx), deleted, ...p.slice(idx + 1)];
       };
       await mutate(url, remove, false);
-      await fetcher(`${url}/${highlight.id}`, 'delete');
+      await fetcher(`/api/highlights/${highlight.id}`, 'delete');
       await mutate(url);
     }
   }, [message, highlight, data]);
