@@ -17,16 +17,8 @@ import { isJSON } from 'lib/model/json';
  * after this one.
  */
 export interface Highlight {
-  start: string;
-  startOffset: number;
-  end: string;
-  endOffset: number;
-  id: string;
-  text: string;
-  deleted?: boolean;
-}
-
-export interface DBHighlight {
+  message: string;
+  user: number;
   id: string;
   start: string;
   startOffset: number;
@@ -36,14 +28,28 @@ export interface DBHighlight {
   deleted: boolean;
 }
 
-export function isHighlight(highlight: unknown): highlight is Highlight {
+export interface DBHighlight {
+  message: string;
+  user: number;
+  id: string;
+  start: string;
+  startOffset: number;
+  end: string;
+  endOffset: number;
+  text: string;
+  deleted: boolean;
+}
+
+export function isHighlight(highlight: unknown): highlight is HighlightJSON {
   if (!isJSON(highlight)) return false;
   return (
+    typeof highlight.message === 'string' &&
+    typeof highlight.user === 'string' &&
+    typeof highlight.id === 'string' &&
     typeof highlight.start === 'string' &&
     typeof highlight.startOffset === 'number' &&
-    typeof highlight.start === 'string' &&
+    typeof highlight.end === 'string' &&
     typeof highlight.endOffset === 'number' &&
-    typeof highlight.id === 'string' &&
     typeof highlight.text === 'string' &&
     (highlight.deleted === undefined || typeof highlight.deleted === 'boolean')
   );
