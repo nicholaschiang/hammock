@@ -37,11 +37,16 @@ export interface SubscriptionInterface {
   favorite: boolean;
 }
 
-export type DBCategory = 'important' | 'other';
-export interface DBSubscription {
+export interface DBNewsletter {
   name: string;
   email: string;
   photo: string;
+  category: string;
+}
+export type DBCategory = 'important' | 'other';
+export interface DBSubscription {
+  user: number;
+  newsletter: string;
   category: DBCategory;
   favorite: boolean;
 }
