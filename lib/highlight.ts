@@ -37,9 +37,8 @@ export default function highlightHTML(
       // an existing highlight and thus the `xpathFromNode` function returned an
       // `xpath` without the `<mark>` tag included. Thus, `doc.evaluate` couldn't
       // find the node that the `xpath` pointed to (because the `xpath` is wrong).
-      if (!start || !end) return console.warn('No start and/or end nodes.');
-      if (!(start instanceof Text)) return console.warn('Start not text node.');
-      if (!(end instanceof Text)) return console.warn('End not text node.');
+      if (!start || !end) return;
+      if (!(start instanceof Text) || !(end instanceof Text)) return;
       if (start === end) {
         const afterStart = start.splitText(highlight.startOffset);
         afterStart.splitText(highlight.endOffset - highlight.startOffset);
@@ -49,7 +48,7 @@ export default function highlightHTML(
         mark.innerHTML = afterStart.nodeValue || '';
         afterStart.parentNode?.insertBefore(mark, afterStart);
         afterStart.parentNode?.removeChild(afterStart);
-        return console.log('No highlight traversion necessary.');
+        return;
       }
       // Highlight everything in between.
       let next: Node = start;
