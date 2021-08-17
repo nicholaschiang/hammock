@@ -110,7 +110,7 @@ function HighlightRow({ highlight }: HighlightProps): JSX.Element {
           }
 
           blockquote.loading {
-            height: 48px;
+            height: 72px;
           }
         `}</style>
       </a>
