@@ -19,7 +19,7 @@ import { isJSON } from 'lib/model/json';
 export interface Highlight {
   message: string;
   user: number;
-  id: string;
+  id: number;
   start: string;
   startOffset: number;
   end: string;
@@ -31,7 +31,7 @@ export interface Highlight {
 export interface DBHighlight {
   message: string;
   user: number;
-  id: string;
+  id: number;
   start: string;
   startOffset: number;
   end: string;
@@ -40,12 +40,12 @@ export interface DBHighlight {
   deleted: boolean;
 }
 
-export function isHighlight(highlight: unknown): highlight is HighlightJSON {
+export function isHighlight(highlight: unknown): highlight is Highlight {
   if (!isJSON(highlight)) return false;
   return (
     typeof highlight.message === 'string' &&
-    typeof highlight.user === 'string' &&
-    typeof highlight.id === 'string' &&
+    typeof highlight.user === 'number' &&
+    typeof highlight.id === 'number' &&
     typeof highlight.start === 'string' &&
     typeof highlight.startOffset === 'number' &&
     typeof highlight.end === 'string' &&

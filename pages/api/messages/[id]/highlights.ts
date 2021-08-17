@@ -25,7 +25,8 @@ async function fetchHighlights(
       .from<DBHighlight>('highlights')
       .select()
       .eq('user', Number(user.id))
-      .eq('message', id);
+      .eq('message', id)
+      .order('id');
     handleSupabaseError('selecting', 'highlights', user.id, error);
     res.status(200).json(data || []);
     logger.info(`Fetched ${data?.length} (${id}) highlights for ${user}.`);

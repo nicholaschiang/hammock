@@ -1,17 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
-import { nanoid } from 'nanoid';
 
 import HighlightIcon from 'components/icons/highlight';
 import TweetIcon from 'components/icons/tweet';
 
-import { CallbackParam } from 'lib/model/callback';
 import { Highlight } from 'lib/model/highlight';
 import { Message } from 'lib/model/message';
 import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
 import highlightHTML from 'lib/highlight';
+import numid from 'lib/utils/numid';
+import { useUser } from 'lib/context/user';
 
 interface Position {
   x: number;
@@ -25,6 +25,7 @@ export interface ArticleProps {
 }
 
 export default function Article({ message }: ArticleProps): JSX.Element {
+  const { user } = useUser();
   const { data } = useSWR<Highlight[]>(
     message ? `/api/messages/${message.id}/highlights` : null
   );
@@ -38,19 +39,15 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     // when the user's mouse exits the highlight and w/in ~100px of dialog.
     function listener(evt: PointerEvent): void {
       if (!evt.target || (evt.target as Node).nodeName !== 'MARK') return;
-      if ((evt.target as HTMLElement).dataset.highlight === highlight?.id)
-        return;
-      if ((evt.target as HTMLElement).dataset.deleted === '') return;
+      const target = evt.target as HTMLElement;
+      const id = Number(target.dataset.highlight);
+      if (id === highlight?.id || target.dataset.deleted === '') return;
       setPosition({
         x: evt.offsetX,
         y: evt.offsetY,
-        containerX: (evt.target as HTMLElement).offsetLeft,
-        containerY: (evt.target as HTMLElement).offsetTop,
+        containerX: target.offsetLeft,
+        containerY: target.offsetTop,
       });
-      // TODO: Remove this `setTimeout` but still ensure that animation plays
-      // correctly. Right now, we have to wait 300ms for the reverse animation
-      // to play out before we can show the dialog again.
-      const id = (evt.target as HTMLElement).dataset.highlight;
       setHighlight((prev) => data?.find((x) => x.id === id) || prev);
     }
     window.addEventListener('pointerover', listener);
@@ -67,7 +64,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   }, []);
   useEffect(() => {
     function listener(evt: PointerEvent): void {
-      if (!articleRef.current) return;
+      if (!articleRef.current || !message || !user.id) return;
       const sel = window.getSelection() || document.getSelection();
       if (!sel || sel.isCollapsed) return;
       const range = sel.getRangeAt(0);
@@ -84,14 +81,17 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         startOffset: range.startOffset,
         endOffset: range.endOffset,
         text: range.toString(),
-        id: nanoid(),
+        user: Number(user.id),
+        message: message.id,
+        deleted: false,
+        id: numid(),
       });
     }
     window.addEventListener('pointerup', listener);
     return () => window.removeEventListener('pointerup', listener);
-  }, []);
+  }, [message, user.id]);
   const html = useMemo(
-    () => (message && data ? highlightHTML(message.html, data) : ''),
+    () => (message ? highlightHTML(message.html, data || []) : ''),
     [message, data]
   );
   const onHighlight = useCallback(async () => {
