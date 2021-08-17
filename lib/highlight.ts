@@ -1,6 +1,6 @@
 import { captureException } from '@sentry/nextjs';
 
-import { Highlight } from 'lib/model/message';
+import { Highlight } from 'lib/model/highlight';
 
 const canUseDOM = !!(
   typeof window !== 'undefined' &&
@@ -44,7 +44,7 @@ export default function highlightHTML(
         const afterStart = start.splitText(highlight.startOffset);
         afterStart.splitText(highlight.endOffset - highlight.startOffset);
         const mark = doc.createElement('mark');
-        mark.dataset.highlight = highlight.id;
+        mark.dataset.highlight = highlight.id.toString();
         if (highlight.deleted) mark.dataset.deleted = '';
         mark.innerHTML = afterStart.nodeValue || '';
         afterStart.parentNode?.insertBefore(mark, afterStart);
@@ -62,7 +62,7 @@ export default function highlightHTML(
         if (next === end) break;
         // Otherwise, highlight this node.
         const mark = doc.createElement('mark');
-        mark.dataset.highlight = highlight.id;
+        mark.dataset.highlight = highlight.id.toString();
         if (highlight.deleted) mark.dataset.deleted = '';
         mark.innerHTML =
           next instanceof Element ? next.outerHTML : next.nodeValue || '';
@@ -77,7 +77,7 @@ export default function highlightHTML(
       // Highlight the start text node.
       const afterStart = start.splitText(highlight.startOffset);
       const mark = doc.createElement('mark');
-      mark.dataset.highlight = highlight.id;
+      mark.dataset.highlight = highlight.id.toString();
       if (highlight.deleted) mark.dataset.deleted = '';
       mark.innerHTML = afterStart.nodeValue || '';
       afterStart.parentNode?.insertBefore(mark, afterStart);
@@ -85,7 +85,7 @@ export default function highlightHTML(
       // Highlight the end text node.
       const afterEnd = end.splitText(highlight.endOffset);
       const mk = doc.createElement('mark');
-      mk.dataset.highlight = highlight.id;
+      mk.dataset.highlight = highlight.id.toString();
       if (highlight.deleted) mk.dataset.deleted = '';
       mk.innerHTML = end.nodeValue || '';
       end.parentNode?.insertBefore(mk, afterEnd);
