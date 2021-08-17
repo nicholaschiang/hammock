@@ -35,6 +35,7 @@ async function highlightsAPI(
         .from<DBHighlightWithMessage>('highlights')
         .select('*, message (*)')
         .eq('user', Number(user.id))
+        .order('id', { ascending: false })
         .range(HITS_PER_PAGE * pg, HITS_PER_PAGE * (pg + 1) - 1);
       handleSupabaseError('selecting', 'highlights', user.id, error);
       res.status(200).json(data || []);
