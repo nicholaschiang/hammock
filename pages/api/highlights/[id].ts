@@ -1,8 +1,8 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
-import { APIErrorJSON } from 'lib/model/error';
-import { DBHighlight } from 'lib/model/highlight';
+import { APIError, APIErrorJSON } from 'lib/model/error';
+import { DBHighlight, Highlight } from 'lib/model/highlight';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
 import logger from 'lib/api/logger';
@@ -13,7 +13,7 @@ import verifyQueryId from 'lib/api/verify/query-id';
 
 async function highlightAPI(
   req: Req,
-  res: Res<void | APIErrorJSON>
+  res: Res<Highlight | APIErrorJSON>
 ): Promise<void> {
   if (req.method !== 'DELETE') {
     res.setHeader('Allow', ['DELETE']);
@@ -23,15 +23,20 @@ async function highlightAPI(
       const id = verifyQueryId(req.query);
       const user = await verifyAuth(req);
       logger.verbose(`Deleting highlight (${id}) for ${user}...`);
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from<DBHighlight>('highlights')
-        .delete()
+        .update({ deleted: true })
         .eq('user', Number(user.id))
         .eq('id', id);
       handleSupabaseError('deleting', 'highlight', id, error);
-      res.status(204).end();
+      if (!data?.length) throw new APIError(`Highlight (${id}) missing`, 404);
+      res.status(200).json(data[0]);
       logger.info(`Deleted highlight (${id}) for ${user}.`);
-      segment.track({ userId: user.id, event: 'Highlight Deleted' });
+      segment.track({
+        userId: user.id,
+        event: 'Highlight Deleted',
+        properties: data[0],
+      });
     } catch (e) {
       handle(e, res);
     }

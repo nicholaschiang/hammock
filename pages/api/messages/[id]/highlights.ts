@@ -54,7 +54,11 @@ async function createHighlight(
     res.status(201).json(data ? data[0] : body);
     logger.info(`Created highlight (${data ? data[0].id : ''}) for ${user}.`);
     console.timeEnd('create-highlight-api');
-    segment.track({ userId: user.id, event: 'Highlight Created' });
+    segment.track({
+      userId: user.id,
+      event: 'Highlight Created',
+      properties: data ? data[0] : body,
+    });
   } catch (e) {
     handle(e, res);
   }
