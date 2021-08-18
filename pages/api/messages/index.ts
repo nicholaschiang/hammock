@@ -38,6 +38,7 @@ async function messagesAPI(
       let select = supabase
         .from<DBMessage>('messages')
         .select()
+        .eq('user', Number(user.id))
         .eq('archived', archive === 'true')
         .order('date', { ascending: false })
         .range(HITS_PER_PAGE * pg, HITS_PER_PAGE * (pg + 1) - 1);
