@@ -2,6 +2,7 @@ import { Fragment } from 'react';
 
 import { Message } from 'lib/model/message';
 import { User } from 'lib/model/user';
+import { caps } from 'lib/utils';
 
 const fontFamily = [
   'Google Sans',
@@ -169,7 +170,7 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                   margin: 0,
                 }}
               >
-                Hi {user.firstName},
+                Hi {caps(user.name.split(' ')[0] || '')},
               </p>
               <p
                 style={{
