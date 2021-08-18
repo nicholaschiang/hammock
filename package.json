@@ -7,8 +7,10 @@
   "license": "AGPL-3.0",
   "scripts": {
     "dev": "next dev",
+    "dev:cy": "cypress open",
     "build": "next build",
     "start": "next start",
+    "start:cy": "cypress run",
     "lint": "next lint",
     "style": "pretty-quick",
     "analyze": "cross-env ANALYZE=true next build"
