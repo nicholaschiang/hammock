@@ -56,6 +56,7 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
+    "@cypress/code-coverage": "^3.9.10",
     "@plaiceholder/base64": "^1.0.0",
     "@plaiceholder/css": "^1.0.0",
     "@types/analytics-node": "^3.1.4",
