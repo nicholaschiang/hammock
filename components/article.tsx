@@ -140,7 +140,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       await fetcher(url, 'post', highlight);
       await mutate(url);
     }
-  }, [message, highlight, tweet, data]);
+  }, [message, highlight, data]);
 
   return (
     <>
