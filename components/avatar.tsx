@@ -5,7 +5,7 @@ export interface AvatarProps {
   size: number;
   priority?: boolean;
   loading?: boolean;
-  src?: string;
+  src?: string | null;
 }
 
 export default function Avatar({

@@ -2,7 +2,7 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
-import { DBHighlight, Highlight } from 'lib/model/highlight';
+import { Highlight } from 'lib/model/highlight';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
 import logger from 'lib/api/logger';
@@ -24,7 +24,7 @@ async function highlightAPI(
       const user = await verifyAuth(req);
       logger.verbose(`Deleting highlight (${id}) for ${user}...`);
       const { data, error } = await supabase
-        .from<DBHighlight>('highlights')
+        .from<Highlight>('highlights')
         .update({ deleted: true })
         .eq('user', Number(user.id))
         .eq('id', id);

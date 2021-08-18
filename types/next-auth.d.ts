@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth';
 
-import { User } from 'lib/model/user';
+import { User as HammockUser } from 'lib/model/user';
 
 declare module 'next-auth' {
   /**
@@ -10,7 +10,7 @@ declare module 'next-auth' {
    * callback, or the 2nd parameter of the `session` callback, when using a db.
    * @see {@link https://next-auth.js.org/getting-started/typescript}
    */
-  interface User extends User {}
+  interface User extends HammockUser {}
 
   /**
    * @typedef {Object} Session
@@ -20,7 +20,7 @@ declare module 'next-auth' {
    * @see {@link https://next-auth.js.org/getting-started/typescript}
    */
   interface Session extends NextAuth.Session {
-    user: User;
+    user: HammockUser;
   }
 
   /**

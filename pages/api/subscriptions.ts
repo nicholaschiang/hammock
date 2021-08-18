@@ -1,8 +1,8 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
-import { Subscription, SubscriptionJSON } from 'lib/model/subscription';
 import { APIErrorJSON } from 'lib/model/error';
+import { Subscription } from 'lib/model/subscription';
 import getGmailMessages from 'lib/api/get/gmail-messages';
 import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
@@ -13,7 +13,7 @@ import verifyAuth from 'lib/api/verify/auth';
 
 export type SubscriptionsRes = {
   nextPageToken: string;
-  subscriptions: SubscriptionJSON[];
+  subscriptions: Subscription[];
 };
 
 /**
@@ -46,10 +46,8 @@ async function subscriptionsAPI(
         if (!subscriptions.some((l) => l.email === msg.email))
           subscriptions.push(msg);
       });
-      res.status(200).json({
-        subscriptions: subscriptions,
-        nextPageToken: data.nextPageToken || '',
-      });
+      const nextPageToken = data.nextPageToken || '';
+      res.status(200).json({ subscriptions, nextPageToken });
       logger.info(`Fetched ${subscriptions.length} subscriptions for ${user}.`);
       segment.track({ userId: user.id, event: 'Subscriptions Listed' });
     } catch (e) {

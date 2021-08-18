@@ -22,7 +22,7 @@ import logger from 'lib/api/logger';
  */
 export default async function verifyAuth(
   req: NextApiRequest,
-  requiredUserId?: string
+  requiredUserId?: number
 ): Promise<User> {
   console.time('verify-auth');
   logger.verbose('Verifying authentication session...');
@@ -30,7 +30,11 @@ export default async function verifyAuth(
   console.timeEnd('verify-auth');
   if (!session) throw new APIError('You are not authenticated', 401);
   const { user } = session;
-  setUser({ id: user.id, username: user.name, email: user.email });
+  setUser({
+    id: user.id.toString(),
+    username: user.name,
+    email: user.email || undefined,
+  });
   // TODO: Throw a `403 Forbidden` error here instead of a `401 Unauthorized`.
   if (requiredUserId && user.id !== requiredUserId)
     throw new APIError('You are not authorized to perform this action', 401);

@@ -11,7 +11,6 @@ import StarBorderIcon from 'components/icons/star-border';
 import StarIcon from 'components/icons/star';
 
 import { Subscription } from 'lib/model/subscription';
-import { User } from 'lib/model/user';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
 import useMessages from 'lib/hooks/messages';
@@ -27,7 +26,7 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
     (evt: MouseEvent<HTMLButtonElement>) => {
       evt.preventDefault();
       evt.stopPropagation();
-      if (!sub) return;
+      if (!sub || !user) return;
       const idx = user.subscriptions.indexOf(sub);
       const subscription = { ...sub, favorite: !sub.favorite };
       const subs = [
@@ -43,7 +42,7 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
   return (
     <Link href={sub ? `/writers/${sub.email}` : ''}>
       <a>
-        <li className={cn({ disabled: !sub?.from })}>
+        <li className={cn({ disabled: !sub })}>
           <Avatar src={sub?.photo} loading={!sub} size={36} />
           {!sub && <div className='name-wrapper loading' />}
           {sub && (
@@ -154,7 +153,7 @@ export default function WritersPage(): JSX.Element {
 
   const subscriptions = useMemo(
     () =>
-      user.subscriptions.sort((a, b) => {
+      (user?.subscriptions || []).sort((a, b) => {
         if (!data) {
           if (a.name < b.name) return -1;
           if (a.name > b.name) return 1;
@@ -183,7 +182,7 @@ export default function WritersPage(): JSX.Element {
         if (idxA > idxB) return 1;
         return 0;
       }),
-    [data, user.subscriptions]
+    [data, user?.subscriptions]
   );
   const favorites = useMemo(
     () => subscriptions.filter((s) => s.favorite),

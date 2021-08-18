@@ -2,7 +2,7 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
-import { DBHighlight, Highlight, isHighlight } from 'lib/model/highlight';
+import { Highlight, isHighlight } from 'lib/model/highlight';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
 import logger from 'lib/api/logger';
@@ -22,7 +22,7 @@ async function fetchHighlights(
     const user = await verifyAuth(req);
     logger.verbose(`Fetching (${id}) highlights for ${user}...`);
     const { data, error } = await supabase
-      .from<DBHighlight>('highlights')
+      .from<Highlight>('highlights')
       .select()
       .eq('user', Number(user.id))
       .eq('message', id)
@@ -48,7 +48,7 @@ async function createHighlight(
     if (Number(user.id) !== body.user)
       throw new APIError('You can only create highlights for yourself', 403);
     const { data, error } = await supabase
-      .from<DBHighlight>('highlights')
+      .from<Highlight>('highlights')
       .insert({ ...body, id: undefined });
     handleSupabaseError('creating', 'highlight', body, error);
     res.status(201).json(data ? data[0] : body);

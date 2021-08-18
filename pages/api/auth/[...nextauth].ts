@@ -20,20 +20,21 @@ export default NextAuth({
       // @see {@link https://developers.google.com/identity/protocols/oauth2/scopes#gmail}
       scope: Object.values(SCOPES).join(' '),
       profile(profile) {
-        const user: User = {
-          id: profile.id,
+        console.log('Profile:', profile);
+        console.log('Typeof ID:', typeof profile.id);
+        return {
+          id: Number(profile.id) as number & string,
           name: profile.name,
           photo: profile.picture,
           locale: profile.locale,
           email: profile.email,
-          phone: '',
+          phone: null,
           token: '',
           label: '',
           filter: '',
           subscriptions: [],
           scopes: [],
         };
-        return user as User & Record<string, unknown>;
       },
     }),
   ],
@@ -54,13 +55,13 @@ export default NextAuth({
       if (user && account && profile) {
         const created = {
           ...(user as User),
-          id: account.id || profile.id || user.id || token.sub,
+          id: Number(account.id || profile.id || user.id || token.sub),
           name: profile.name || user.name || token.name || '',
           photo: profile.image || user.photo || token.picture || '',
           email: profile.email || user.email || token.email || '',
           locale: profile.locale || user.locale,
           scopes: (account.scope as string).split(' '),
-          token: account.refresh_token,
+          token: account.refresh_token || '',
         };
         const res = (await to(getUser(created.id)))[1];
         created.subscriptions = res?.subscriptions || [];
@@ -81,7 +82,7 @@ export default NextAuth({
       // payload size limits), I fetch that data from our database here.
       // @see {@link https://next-auth.js.org/configuration/callbacks#session-callback}
       console.time('fetch-session');
-      const user = await getUser((token as { sub: string }).sub);
+      const user = await getUser(Number((token as { sub: string }).sub));
       logger.verbose(`Fetching session for ${user}...`);
       console.timeEnd('fetch-session');
       return { ...session, user };

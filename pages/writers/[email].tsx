@@ -17,8 +17,8 @@ export default function WritersPage(): JSX.Element {
   const { user, loggedIn } = useUser();
   const { data, setSize } = useMessages({ writer: query.email as string });
   const writer = useMemo(
-    () => user.subscriptions.find((s) => s.email === query.email),
-    [query.email, user.subscriptions]
+    () => user?.subscriptions.find((s) => s.email === query.email),
+    [query.email, user?.subscriptions]
   );
 
   useEffect(() => {

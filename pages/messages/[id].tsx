@@ -43,7 +43,7 @@ export default function MessagePage(): JSX.Element {
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
   );
 
-  const [scroll, setScroll] = useState<number>(message.scroll);
+  const [scroll, setScroll] = useState<number>(message?.scroll || 0);
   useEffect(() => {
     function handleScroll(): void {
       const scrollPercent = getVerticalScrollPercentage(document.body);
@@ -65,10 +65,10 @@ export default function MessagePage(): JSX.Element {
     const url = `/api/messages/${message.id}`;
     const updated = { ...message, scroll, archived: !message.archived };
     // To make this feel as reactive and fast as possible, we:
-    // 1. Mutate local data (both the message page data and feed page data).
-    // 2. Trigger the `PUT` request to update server-side data.
+    // 1. Mutate local message (both the message page message and feed page message).
+    // 2. Trigger the `PUT` request to update server-side message.
     // 3. Navigate back.
-    // 4. Once the `PUT` request resolves, mutate the message page data.
+    // 4. Once the `PUT` request resolves, mutate the message page message.
     await mutate(url, updated, false);
     // TODO: Find an elegant way to mutate all the different possible feed
     // queries (e.g. for the archive page, quick read page, writers pages).
@@ -96,16 +96,16 @@ export default function MessagePage(): JSX.Element {
     // Don't try to update the scroll position if we're archiving the message.
     // @see {@link https://github.com/readhammock/hammock/issues/37}
     if (archiving) return () => {};
-    // TODO: Save the message scroll position in our database every second.
+    // TODO: Save the message scroll position in our messagebase every second.
     // Currently, this saves the scroll position after a second of no scrolling.
     // Instead, I want to schedule an update every one second where we:
     // - If the scroll position hasn't changed since the last save, skip.
-    // - Otherwise, save the latest scroll position in our database.
+    // - Otherwise, save the latest scroll position in our messagebase.
     async function saveScrollPosition(): Promise<void> {
-      if (!message.id) return;
+      if (!message?.id) return;
       const url = `/api/messages/${message.id}`;
       const updated = { ...message, scroll };
-      // TODO: Mutate the data used in `/feed` to match.
+      // TODO: Mutate the message used in `/feed` to match.
       // See: https://github.com/vercel/swr/issues/1156
       await mutate(url, fetcher(url, 'put', updated));
     }
@@ -119,31 +119,33 @@ export default function MessagePage(): JSX.Element {
   // newsletter in viewport (scroll percent should be relative to newsletter).
   const hasScrolled = useRef<boolean>(false);
   useEffect(() => {
-    if (hasScrolled.current) return;
+    if (hasScrolled.current || !message?.scroll) return;
     window.scrollTo(0, message.scroll * document.body.scrollHeight);
     hasScrolled.current = true;
-  }, [message.scroll]);
+  }, [message?.scroll]);
 
   return (
-    <Page title={message.subject} name='Message' login>
+    <Page title={message?.subject} name='Message' login>
       <Controls
-        disabled={!data || archiving}
-        archived={message.archived}
+        disabled={!message || archiving}
+        archived={message?.archived || false}
         archive={archive}
       />
       <div className='page'>
         <header>
-          <h1 className={cn({ loading: !data })}>{trim(message.subject)}</h1>
-          <h2 className={cn({ loading: !data })}>
-            {trim(message.snippet.split('.')[0])}
+          <h1 className={cn({ loading: !message })}>
+            {trim(message?.subject || '')}
+          </h1>
+          <h2 className={cn({ loading: !message })}>
+            {trim(message?.snippet.split('.')[0] || '')}
           </h2>
-          <Link href={`/writers/${message.email}`}>
-            <a className={cn('author', { disabled: !data })}>
-              <h3 className={cn({ loading: !data })}>
-                {data && message.name}
-                {data && <span>·</span>}
-                {data &&
-                  message.date.toLocaleString('en', {
+          <Link href={message ? `/writers/${message.email}` : '#'}>
+            <a className={cn('author', { disabled: !message })}>
+              <h3 className={cn({ loading: !message })}>
+                {message && message.name}
+                {message && <span>·</span>}
+                {message &&
+                  new Date(message.date).toLocaleString('en', {
                     month: 'short',
                     day: 'numeric',
                   })}
@@ -151,7 +153,7 @@ export default function MessagePage(): JSX.Element {
             </a>
           </Link>
         </header>
-        <Article message={data ? message : undefined} />
+        <Article message={message} />
       </div>
       <style jsx>{`
         .page {
