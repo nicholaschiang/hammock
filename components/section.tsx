@@ -27,7 +27,7 @@ export default function Section({
           <MessageRow
             date={date}
             loading={!m}
-            message={m}
+            message={m ? (m as Message) : undefined}
             key={m ? (m as Message).id : idx}
           />
         ))}
