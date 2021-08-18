@@ -51,9 +51,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '12'
-      - uses: actions/download-artifact@v2
-        with:
-          name: build
       - uses: actions/cache@v2
         with:
           path: |
@@ -63,6 +60,9 @@ jobs:
             node_modules
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - run: yarn install --immutable --immutable-cache
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
       - run: yarn start & yarn wait-on http-get://localhost:3000
       - run: yarn start:cy --record --parallel --headless --group ${{ matrix.browser }} -b ${{ matrix.browser }}
       - uses: codecov/codecov-action@v1
