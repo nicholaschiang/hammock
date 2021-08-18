@@ -20,8 +20,6 @@ export default NextAuth({
       // @see {@link https://developers.google.com/identity/protocols/oauth2/scopes#gmail}
       scope: Object.values(SCOPES).join(' '),
       profile(profile) {
-        console.log('Profile:', profile);
-        console.log('Typeof ID:', typeof profile.id);
         return {
           id: Number(profile.id) as number & string,
           name: profile.name,
