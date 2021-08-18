@@ -41,14 +41,14 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
   );
 
   return (
-    <Link href={sub ? `/writers/${sub.from.email}` : ''}>
+    <Link href={sub ? `/writers/${sub.email}` : ''}>
       <a>
         <li className={cn({ disabled: !sub?.from })}>
-          <Avatar src={sub?.from.photo} loading={!sub} size={36} />
+          <Avatar src={sub?.photo} loading={!sub} size={36} />
           {!sub && <div className='name-wrapper loading' />}
           {sub && (
             <div className='name-wrapper'>
-              <span className='name nowrap'>{sub.from.name}</span>
+              <span className='name nowrap'>{sub.name}</span>
               <button
                 onClick={favorite}
                 type='button'
@@ -156,8 +156,8 @@ export default function WritersPage(): JSX.Element {
     () =>
       user.subscriptions.sort((a, b) => {
         if (!data) {
-          if (a.from.name < b.from.name) return -1;
-          if (a.from.name > b.from.name) return 1;
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
           return 0;
         }
         const messages = data
@@ -165,16 +165,16 @@ export default function WritersPage(): JSX.Element {
           .sort(
             (c, d) => new Date(d.date).valueOf() - new Date(c.date).valueOf()
           );
-        const idxA = messages.findIndex((l) => l.from.email === a.from.email);
-        const idxB = messages.findIndex((l) => l.from.email === b.from.email);
+        const idxA = messages.findIndex((l) => l.email === a.email);
+        const idxB = messages.findIndex((l) => l.email === b.email);
         // B goes after A because B isn't in the feed
         if (idxA !== -1 && idxB === -1) return -1;
         // A goes after B because A isn't in the feed
         if (idxA === -1 && idxB !== -1) return 1;
         // Neither are in the feed; sort alphabetically.
         if (idxA === -1 && idxB === -1) {
-          if (a.from.name < b.from.name) return -1;
-          if (a.from.name > b.from.name) return 1;
+          if (a.name < b.name) return -1;
+          if (a.name > b.name) return 1;
           return 0;
         }
         // B goes after A because it appears later in the feed
@@ -208,7 +208,7 @@ export default function WritersPage(): JSX.Element {
         {loggedIn && !!favorites.length && (
           <ul>
             {favorites.map((sub) => (
-              <WriterRow key={sub.from.email} sub={sub} />
+              <WriterRow key={sub.email} sub={sub} />
             ))}
           </ul>
         )}
@@ -222,7 +222,7 @@ export default function WritersPage(): JSX.Element {
         {loggedIn && !!all.length && (
           <ul>
             {all.map((sub) => (
-              <WriterRow key={sub.from.email} sub={sub} />
+              <WriterRow key={sub.email} sub={sub} />
             ))}
           </ul>
         )}

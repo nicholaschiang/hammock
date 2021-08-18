@@ -43,7 +43,7 @@ async function subscriptionsAPI(
       const subscriptions: Subscription[] = [];
       (await getGmailMessages(messageIds, client, 'METADATA')).forEach((m) => {
         const msg = messageFromGmail(m);
-        if (!subscriptions.some((l) => l.from.email === msg.from.email))
+        if (!subscriptions.some((l) => l.email === msg.email))
           subscriptions.push(msg);
       });
       res.status(200).json({

@@ -72,12 +72,12 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                     borderRadius: '100%',
                     verticalAlign: 'middle',
                   }}
-                  src={message.from.photo}
+                  src={message.photo}
                   height={24}
                   width={24}
                   alt=''
                 />
-                {message.from.name}
+                {message.name}
               </p>
               <h3
                 style={{

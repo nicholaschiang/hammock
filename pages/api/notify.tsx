@@ -71,7 +71,7 @@ async function notifyAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
               from: { name: 'Hammock', email: 'team@readhammock.com' },
               bcc: { name: 'Hammock', email: 'team@readhammock.com' },
               subject: `Read in Hammock: ${messages
-                .map((m) => m.from.name)
+                .map((m) => m.name)
                 .join(', ')}`,
               html: renderToStaticMarkup(
                 <Email user={user} messages={messages} />

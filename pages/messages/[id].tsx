@@ -137,10 +137,10 @@ export default function MessagePage(): JSX.Element {
           <h2 className={cn({ loading: !data })}>
             {trim(message.snippet.split('.')[0])}
           </h2>
-          <Link href={`/writers/${message.from.email}`}>
+          <Link href={`/writers/${message.email}`}>
             <a className={cn('author', { disabled: !data })}>
               <h3 className={cn({ loading: !data })}>
-                {data && message.from.name}
+                {data && message.name}
                 {data && <span>·</span>}
                 {data &&
                   message.date.toLocaleString('en', {

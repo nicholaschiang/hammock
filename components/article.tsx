@@ -123,7 +123,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     setTweet((prev) =>
       highlight
         ? `“${highlight?.text || ''}” — ${
-            message?.from.name || 'Newsletter'
+            message?.name || 'Newsletter'
           }\n\nvia @readhammock\nhttps://readhammock.com/try`
         : prev
     );

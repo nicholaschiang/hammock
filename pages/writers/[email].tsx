@@ -17,7 +17,7 @@ export default function WritersPage(): JSX.Element {
   const { user, loggedIn } = useUser();
   const { data, setSize } = useMessages({ writer: query.email as string });
   const writer = useMemo(
-    () => user.subscriptions.find((s) => s.from.email === query.email),
+    () => user.subscriptions.find((s) => s.email === query.email),
     [query.email, user.subscriptions]
   );
 
@@ -45,7 +45,7 @@ export default function WritersPage(): JSX.Element {
         >
           {!loggedIn && <Section />}
           {loggedIn && (
-            <Section header={writer?.from.name} messages={data?.flat()} date />
+            <Section header={writer?.name} messages={data?.flat()} date />
           )}
           {loggedIn && data && !data?.flat().length && (
             <Empty>You’re all caught up with your reading!</Empty>
