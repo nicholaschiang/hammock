@@ -1264,6 +1264,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@istanbuljs/nyc-config-typescript@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "@istanbuljs/nyc-config-typescript@npm:1.0.1"
+  dependencies:
+    "@istanbuljs/schema": ^0.1.2
+  peerDependencies:
+    nyc: ">=15"
+    source-map-support: "*"
+    ts-node: "*"
+  checksum: 28c19a10ee0d9d46cf8602ffe296c43997b3b6d153f6c15dda99e4a25f7ed56cc5bc43574a0d24aa3685e5155fb09a50291115662820a1849044c91dd5d513d3
+  languageName: node
+  linkType: hard
+
 "@istanbuljs/schema@npm:^0.1.2":
   version: 0.1.3
   resolution: "@istanbuljs/schema@npm:0.1.3"
@@ -9851,6 +9864,7 @@ fsevents@~2.3.1:
   resolution: "newsletter@workspace:."
   dependencies:
     "@cypress/code-coverage": ^3.9.10
+    "@istanbuljs/nyc-config-typescript": ^1.0.1
     "@mozilla/readability": ^0.4.1
     "@plaiceholder/base64": ^1.0.0
     "@plaiceholder/css": ^1.0.0
@@ -9903,6 +9917,7 @@ fsevents@~2.3.1:
     he: ^1.2.0
     html-to-text: ^8.0.0
     husky: ^6.0.0
+    istanbul-lib-coverage: ^3.0.0
     jsdom: ^16.6.0
     nanoid: ^3.1.23
     next: ^11.0.0

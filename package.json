@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.9.10",
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
     "@plaiceholder/base64": "^1.0.0",
     "@plaiceholder/css": "^1.0.0",
     "@types/analytics-node": "^3.1.4",
@@ -92,6 +93,7 @@
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "husky": "^6.0.0",
+    "istanbul-lib-coverage": "^3.0.0",
     "node-jose-tools": "^1.6.28",
     "prettier": "^2.3.1",
     "pretty-quick": "^3.1.0",
