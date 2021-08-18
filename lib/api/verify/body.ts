@@ -1,29 +1,11 @@
 import { APIError } from 'lib/model/error';
 import logger from 'lib/api/logger';
 
-interface ModelConstructor<Model, ModelJSON> {
-  fromJSON: (json: ModelJSON) => Model;
-}
-
-/**
- * Verifies that the given HTTP request body is the JSON form of a certain data
- * model.
- * @param body - The HTTP request body (i.e. the model in JSON form).
- * @param isModelJSON - Custom typeguard that checks if the body is valid JSON.
- * @param Model - Constructor for the model class (`M`).
- * @return A new instance of the model class (`M`) initialized using the given
- * JSON body (i.e. the result of `M.fromJSON(body)`).
- * @example
- * const match = await verifyBody(req.body, isMatchJSON, Match);
- * @example
- * const match = await verifyBody<MatchJSON, Match>(req.body, isMatchJSON, Match);
- */
-export default function verifyBody<
-  M,
-  MJ = M,
-  MC extends ModelConstructor<M, MJ> = ModelConstructor<M, MJ>
->(body: unknown, isModelJSON: (body: unknown) => body is MJ, Model?: MC): M {
+export default function verifyBody<M>(
+  body: unknown,
+  isModel: (body: unknown) => body is M
+): M {
   logger.verbose('Verifying request body...');
-  if (!isModelJSON(body)) throw new APIError('Invalid request body', 400);
-  return Model ? Model.fromJSON(body) : ((body as unknown) as M);
+  if (!isModel(body)) throw new APIError('Invalid request body', 400);
+  return body;
 }

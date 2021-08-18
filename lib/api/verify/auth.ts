@@ -29,7 +29,7 @@ export default async function verifyAuth(
   const session = await getSession({ req });
   console.timeEnd('verify-auth');
   if (!session) throw new APIError('You are not authenticated', 401);
-  const user = User.fromJSON(session.user);
+  const { user } = session;
   setUser({ id: user.id, username: user.name, email: user.email });
   // TODO: Throw a `403 Forbidden` error here instead of a `401 Unauthorized`.
   if (requiredUserId && user.id !== requiredUserId)

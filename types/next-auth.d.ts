@@ -1,29 +1,29 @@
 import NextAuth from 'next-auth';
 
-import { UserJSON } from 'lib/model/user';
+import { User } from 'lib/model/user';
 
 declare module 'next-auth' {
   /**
    * @typedef {Object} User
    * @description
-   * The shape of the user object returned in the OAuth providers' `profile` 
+   * The shape of the user object returned in the OAuth providers' `profile`
    * callback, or the 2nd parameter of the `session` callback, when using a db.
    * @see {@link https://next-auth.js.org/getting-started/typescript}
    */
-  interface User extends UserJSON {};
- 
+  interface User extends User {}
+
   /**
    * @typedef {Object} Session
    * @description
-   * Returned by `useSession`, `getSession` and received as a prop on the 
+   * Returned by `useSession`, `getSession` and received as a prop on the
    * `Provider` React Context.
    * @see {@link https://next-auth.js.org/getting-started/typescript}
    */
   interface Session extends NextAuth.Session {
-    user: UserJSON;
+    user: User;
   }
 
-  /** 
+  /**
    * @typedef {Object} Profile
    * @description
    * The OAuth profile returned from your provider.

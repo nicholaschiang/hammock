@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import Providers from 'next-auth/providers';
 import to from 'await-to-js';
 
-import { SCOPES, User, UserJSON } from 'lib/model/user';
+import { SCOPES, User } from 'lib/model/user';
 import { getUser, upsertUser } from 'lib/api/db/user';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
@@ -20,7 +20,7 @@ export default NextAuth({
       // @see {@link https://developers.google.com/identity/protocols/oauth2/scopes#gmail}
       scope: Object.values(SCOPES).join(' '),
       profile(profile) {
-        const user: UserJSON = {
+        const user: User = {
           id: profile.id,
           name: profile.name,
           photo: profile.picture,
@@ -33,7 +33,7 @@ export default NextAuth({
           subscriptions: [],
           scopes: [],
         };
-        return user as UserJSON & Record<string, unknown>;
+        return user as User & Record<string, unknown>;
       },
     }),
   ],
@@ -52,8 +52,8 @@ export default NextAuth({
       console.time('process-jwt');
       logger.verbose(`Processing JWT for user (${token.sub})...`);
       if (user && account && profile) {
-        const created = new User({
-          ...User.fromJSON(user as UserJSON),
+        const created = {
+          ...(user as User),
           id: account.id || profile.id || user.id || token.sub,
           name: profile.name || user.name || token.name || '',
           photo: profile.image || user.photo || token.picture || '',
@@ -61,7 +61,7 @@ export default NextAuth({
           locale: profile.locale || user.locale,
           scopes: (account.scope as string).split(' '),
           token: account.refresh_token,
-        });
+        };
         const res = (await to(getUser(created.id)))[1];
         created.subscriptions = res?.subscriptions || [];
         created.label = res?.label || (await getOrCreateLabel(created));
@@ -84,7 +84,7 @@ export default NextAuth({
       const user = await getUser((token as { sub: string }).sub);
       logger.verbose(`Fetching session for ${user}...`);
       console.timeEnd('fetch-session');
-      return { ...session, user: user.toJSON() };
+      return { ...session, user };
     },
   },
   secret: process.env.AUTH_SECRET,

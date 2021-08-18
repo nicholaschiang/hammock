@@ -1,16 +1,16 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
-import { DBMessage, Message, MessageJSON } from 'lib/model/message';
+import { APIError, APIErrorJSON } from 'lib/model/error';
 import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
-import { APIErrorJSON } from 'lib/model/error';
+import { Message } from 'lib/model/message';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
 import supabase from 'lib/api/supabase';
 import verifyAuth from 'lib/api/verify/auth';
 
-export type MessagesRes = MessageJSON[];
+export type MessagesRes = Message[];
 
 /**
  * GET - Lists the messages for the given user.
@@ -36,7 +36,7 @@ async function messagesAPI(
       // TODO: Refactor this and put it in a `getMessages` fx in `lib/api/db`
       // and put the `Query` data model definition in `lib/model/query.ts`.
       let select = supabase
-        .from<DBMessage>('messages')
+        .from<Message>('messages')
         .select()
         .eq('user', Number(user.id))
         .eq('archived', archive === 'true')
@@ -47,16 +47,12 @@ async function messagesAPI(
       if (writer) select = select.eq('email', writer);
       // TODO: Add error catching here once we move this into `getUsers` fx.
       const { data } = await select;
-      const messages = (data || []).map((d) => Message.fromDB(d));
+      if (!data) throw new APIError('No messages found', 404);
       console.timeEnd('fetch-messages');
-      res.status(200).json(messages.map((m) => m.toJSON()));
-      logger.info(`Fetched ${messages.length} messages for ${user}.`);
+      res.status(200).json(data);
+      logger.info(`Fetched ${data?.length} messages for ${user}.`);
       console.timeEnd('get-messages-api');
-      segment.track({
-        userId: user.id,
-        event: 'Messages Listed',
-        properties: messages.map((m) => m.toSegment()),
-      });
+      segment.track({ userId: user.id, event: 'Messages Listed' });
     } catch (e) {
       handle(e, res);
     }

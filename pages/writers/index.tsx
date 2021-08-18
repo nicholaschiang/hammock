@@ -29,17 +29,13 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
       evt.stopPropagation();
       if (!sub) return;
       const idx = user.subscriptions.indexOf(sub);
-      const subscription = new Subscription({
-        ...sub,
-        favorite: !sub.favorite,
-      });
+      const subscription = { ...sub, favorite: !sub.favorite };
       const subs = [
         ...user.subscriptions.slice(0, idx),
         subscription,
         ...user.subscriptions.slice(idx + 1),
       ];
-      const updated = new User({ ...user, subscriptions: subs });
-      setUser(updated);
+      setUser({ ...user, subscriptions: subs });
     },
     [sub, user, setUser]
   );
@@ -147,7 +143,7 @@ export default function WritersPage(): JSX.Element {
   useEffect(() => {
     async function save(): Promise<void> {
       const url = '/api/account';
-      await mutate(url, fetcher(url, 'put', user.toJSON()), false);
+      await mutate(url, fetcher(url, 'put', user), false);
       setUserMutated(false);
     }
     const timeoutId = setTimeout(() => {

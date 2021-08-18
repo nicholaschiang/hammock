@@ -1,10 +1,9 @@
 import Router, { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import useSWR, { mutate } from 'swr';
 import Link from 'next/link';
 import cn from 'classnames';
 
-import { MessageRes } from 'pages/api/messages/[id]';
 import { MessagesRes } from 'pages/api/messages';
 
 import Article from 'components/article';
@@ -40,12 +39,8 @@ export default function MessagePage(): JSX.Element {
   const { mutate: mutateMessages } = useMessages();
   const { setMutated } = useMessagesMutated();
   const { query } = useRouter();
-  const { data } = useSWR<MessageRes>(
+  const { data: message } = useSWR<Message>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
-  );
-  const message = useMemo(
-    () => (data ? Message.fromJSON(data) : new Message()),
-    [data]
   );
 
   const [scroll, setScroll] = useState<number>(message.scroll);
@@ -60,19 +55,15 @@ export default function MessagePage(): JSX.Element {
 
   const [archiving, setArchiving] = useState<boolean>(false);
   const archive = useCallback(async () => {
-    if (!message.id) return;
+    if (!message?.id) return;
     if (message.archived) {
-      window.analytics?.track('Message Unarchived', message.toSegment());
+      window.analytics?.track('Message Unarchived');
     } else {
-      window.analytics?.track('Message Archived', message.toSegment());
+      window.analytics?.track('Message Archived');
     }
     setArchiving(true);
     const url = `/api/messages/${message.id}`;
-    const updated = {
-      ...message.toJSON(),
-      scroll,
-      archived: !message.archived,
-    };
+    const updated = { ...message, scroll, archived: !message.archived };
     // To make this feel as reactive and fast as possible, we:
     // 1. Mutate local data (both the message page data and feed page data).
     // 2. Trigger the `PUT` request to update server-side data.
@@ -113,7 +104,7 @@ export default function MessagePage(): JSX.Element {
     async function saveScrollPosition(): Promise<void> {
       if (!message.id) return;
       const url = `/api/messages/${message.id}`;
-      const updated = { ...message.toJSON(), scroll };
+      const updated = { ...message, scroll };
       // TODO: Mutate the data used in `/feed` to match.
       // See: https://github.com/vercel/swr/issues/1156
       await mutate(url, fetcher(url, 'put', updated));

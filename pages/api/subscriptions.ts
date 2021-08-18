@@ -47,7 +47,7 @@ async function subscriptionsAPI(
           subscriptions.push(msg);
       });
       res.status(200).json({
-        subscriptions: subscriptions.map((s) => s.toJSON()),
+        subscriptions: subscriptions,
         nextPageToken: data.nextPageToken || '',
       });
       logger.info(`Fetched ${subscriptions.length} subscriptions for ${user}.`);

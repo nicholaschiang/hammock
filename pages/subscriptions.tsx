@@ -15,10 +15,25 @@ import Page from 'components/page';
 
 import { APIError } from 'lib/model/error';
 import { Subscription } from 'lib/model/subscription';
+import { User } from 'lib/model/user';
+import clone from 'lib/utils/clone';
 import { fetcher } from 'lib/fetch';
 import { period } from 'lib/utils';
 import useLoading from 'lib/hooks/loading';
 import { useUser } from 'lib/context/user';
+
+function hasSub(user: User | undefined, sub: Subscription): boolean {
+  return !!user && user.subscriptions.some((s) => s.email === sub.email);
+}
+
+function addSub(user: User | undefined, sub: Subscription): void {
+  if (!hasSub(user, sub)) user?.subscriptions.push(sub);
+}
+
+function deleteSub(user: User | undefined, sub: Subscription): void {
+  const idx = user?.subscriptions.findIndex((s) => s.email === sub.email);
+  if (idx && idx >= 0) user?.subscriptions.splice(idx, 1);
+}
 
 const NUM_PAGES = 10;
 const LOADING_MSGS = [
@@ -225,14 +240,10 @@ function SubscriptionRow({
         disabled={!onSelected}
         onClick={onSelected ? () => onSelected(!selected) : undefined}
       >
-        <Avatar
-          src={subscription?.from.photo}
-          loading={!subscription}
-          size={36}
-        />
+        <Avatar src={subscription?.photo} loading={!subscription} size={36} />
         {!subscription && <span className='name loading' />}
         {subscription && (
-          <span className='name nowrap'>{subscription.from.name}</span>
+          <span className='name nowrap'>{subscription.name}</span>
         )}
         <span className='check'>
           <input
@@ -358,8 +369,7 @@ export default function SubscriptionsPage(): JSX.Element {
     const subs: Subscription[] = [];
     data?.forEach((d) => {
       d.subscriptions.forEach((s) => {
-        if (!subs.find((l) => l.from.email === s.from.email))
-          subs.push(Subscription.fromJSON(s));
+        if (!subs.find((l) => l.email === s.email)) subs.push(s);
       });
     });
     return subs;
@@ -374,7 +384,7 @@ export default function SubscriptionsPage(): JSX.Element {
     try {
       window.analytics?.track('Subscriptions Saved');
       const url = '/api/account';
-      await mutate(url, fetcher(url, 'put', user.toJSON()), false);
+      await mutate(url, fetcher(url, 'put', user), false);
       setUserMutated(false);
       void fetch('/api/sync');
       await Router.push('/feed');
@@ -412,12 +422,13 @@ export default function SubscriptionsPage(): JSX.Element {
   useEffect(() => {
     if (hasBeenUpdated.current) return;
     setUser((prev) => {
-      const updated = prev.clone;
+      if (!prev) return undefined;
+      const updated = clone(prev);
       // TODO: Perhaps I should add a URL query param that specifies if we want
       // to pre-select all the important subscriptions. Right now, we only
       // pre-select if the user doesn't already have any subscriptions selected.
       if (updated.subscriptions.length) return prev;
-      important.forEach((i) => updated.addSubscription(i));
+      important.forEach((i) => addSub(updated, i));
       if (dequal(updated, prev)) return prev;
       return updated;
     });
@@ -442,19 +453,19 @@ export default function SubscriptionsPage(): JSX.Element {
           <ul>
             {important.map((r) => (
               <SubscriptionRow
-                key={r.from.email}
+                key={r.email}
                 subscription={r}
-                selected={user.hasSubscription(r)}
+                selected={hasSub(user, r)}
                 onSelected={(isSelected: boolean) => {
                   hasBeenUpdated.current = true;
                   window.analytics?.track(
-                    `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
-                    r.toSegment()
+                    `Subscription ${isSelected ? 'Selected' : 'Deselected'}`
                   );
                   setUser((prev) => {
-                    const updated = prev.clone;
-                    if (isSelected) updated.addSubscription(r);
-                    if (!isSelected) updated.deleteSubscription(r);
+                    if (!prev) return undefined;
+                    const updated = clone(prev);
+                    if (isSelected) addSub(updated, r);
+                    if (!isSelected) deleteSub(updated, r);
                     if (dequal(updated, prev)) return prev;
                     return updated;
                   });
@@ -470,22 +481,20 @@ export default function SubscriptionsPage(): JSX.Element {
           <ul>
             {other.map((r) => (
               <SubscriptionRow
-                key={r.from.email}
+                key={r.email}
                 subscription={r}
-                selected={user.hasSubscription(r)}
+                selected={hasSub(user, r)}
                 onSelected={(isSelected: boolean) => {
                   hasBeenUpdated.current = true;
                   window.analytics?.track(
-                    `Subscription ${isSelected ? 'Selected' : 'Deselected'}`,
-                    r.toSegment()
+                    `Subscription ${isSelected ? 'Selected' : 'Deselected'}`
                   );
                   setUser((prev) => {
-                    const updated = prev.clone;
-                    if (isSelected) updated.addSubscription(r);
-                    if (!isSelected) updated.deleteSubscription(r);
-                    if (dequal(updated, prev)) {
-                      return prev;
-                    }
+                    if (!prev) return undefined;
+                    const updated = clone(prev);
+                    if (isSelected) addSub(updated, r);
+                    if (!isSelected) deleteSub(updated, r);
+                    if (dequal(updated, prev)) return prev;
                     return updated;
                   });
                 }}
@@ -496,7 +505,7 @@ export default function SubscriptionsPage(): JSX.Element {
         {!data && <ul>{loader}</ul>}
         {data && !other.length && <Empty>No subscriptions found.</Empty>}
         <Button
-          disabled={!data || loading || !user.subscriptions.length}
+          disabled={!data || loading || !user?.subscriptions.length}
           onClick={onSave}
         >
           Save subscriptions
