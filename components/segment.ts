@@ -15,10 +15,16 @@ export default function Segment(): null {
 
   const prevIdentity = useRef<Record<string, unknown>>();
   useEffect(() => {
-    const identity = user.toSegment();
+    const identity = {
+      id: user?.id,
+      name: user?.name,
+      email: user?.email,
+      phone: user?.phone,
+      avatar: user?.photo,
+    };
     if (dequal(prevIdentity.current, identity)) return;
-    if (user.id) window.analytics?.alias(user.id);
-    window.analytics?.identify(user.id, identity);
+    if (user?.id) window.analytics?.alias(user.id.toString());
+    window.analytics?.identify(user?.id.toString(), identity);
     prevIdentity.current = identity;
   }, [user]);
 

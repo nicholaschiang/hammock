@@ -41,13 +41,13 @@ export default function Page({
 
   // Scrappy fix to sync the user's Gmail with our database when they login.
   // @see {@link https://github.com/readhammock/hammock/issues/38}
-  useSWR(sync && user.subscriptions.length ? '/api/sync' : null);
+  useSWR(sync && user?.subscriptions.length ? '/api/sync' : null);
 
   // Redirect to the subscriptions page if the user doesn't have any selected.
   useEffect(() => {
-    if (!sync || !loggedIn || user.subscriptions.length) return;
+    if (!sync || !loggedIn || user?.subscriptions.length) return;
     void Router.replace('/subscriptions');
-  }, [sync, loggedIn, user.subscriptions.length]);
+  }, [sync, loggedIn, user?.subscriptions.length]);
 
   // Change the web app manifest colors based on the user's theme.
   // @see {@link https://stackoverflow.com/a/57760135/10023158}

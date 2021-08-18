@@ -7,7 +7,7 @@ import { htmlToText } from 'html-to-text';
 import readingTime from 'reading-time';
 import utf8 from 'utf8';
 
-import { Category, Contact } from 'lib/model/subscription';
+import { Category } from 'lib/model/subscription';
 import { GmailMessage } from 'lib/api/gmail';
 import { Message } from 'lib/model/message';
 import logger from 'lib/api/logger';
@@ -53,7 +53,11 @@ function getIcon(name: string, email: string): string {
  * @param The from header from Gmail's API.
  * @return The from header parsed into name and email strings.
  */
-function parseFrom(from: string): Contact {
+function parseFrom(from: string): {
+  name: string;
+  email: string;
+  photo: string;
+} {
   const matches = /(.*) <(.*)>/.exec(from);
   if (!matches) return { name: from, email: from, photo: '' };
   let name = matches[1].trim();
@@ -179,7 +183,7 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
   }
 
   const { name, email, photo } = parseFrom(getHeader('from'));
-  let category: Category | undefined;
+  let category: Category = 'other';
   if (
     whitelist.some(
       (l) =>
@@ -189,8 +193,6 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
     hasWhitelistDomain(email)
   ) {
     category = 'important';
-  } else if (getHeader('list-unsubscribe')) {
-    category = 'other';
   }
 
   const raw = getRawHTML(gmailMessage);
@@ -198,15 +200,21 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
 
   console.timeEnd(`parse-gmail-message-${gmailMessage.id}`);
 
-  return new Message({
+  return {
     raw,
     html,
     time,
+    name,
+    email,
+    photo,
     category,
+    user: 0,
+    scroll: 0,
+    favorite: false,
+    archived: false,
     id: gmailMessage.id || '',
-    date: new Date(Number(gmailMessage.internalDate)),
-    from: { name, email, photo },
+    date: new Date(Number(gmailMessage.internalDate)).toISOString(),
     subject: getHeader('subject'),
     snippet: getSnippet(gmailMessage),
-  });
+  };
 }

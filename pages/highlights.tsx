@@ -5,7 +5,7 @@ import cn from 'classnames';
 import { useCallback } from 'react';
 import { useSWRInfinite } from 'swr';
 
-import { DBHighlightWithMessage } from 'pages/api/highlights';
+import { HighlightWithMessage } from 'pages/api/highlights';
 
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
@@ -15,7 +15,7 @@ import Page from 'components/page';
 import { HITS_PER_PAGE } from 'lib/model/query';
 
 interface HighlightProps {
-  highlight?: DBHighlightWithMessage;
+  highlight?: HighlightWithMessage;
 }
 
 function HighlightRow({ highlight }: HighlightProps): JSX.Element {
@@ -126,14 +126,14 @@ const loader = Array(5)
 
 export default function HighlightsPage(): JSX.Element {
   const getKey = useCallback(
-    (pageIdx: number, prev: DBHighlightWithMessage[] | null) => {
+    (pageIdx: number, prev: HighlightWithMessage[] | null) => {
       if (prev && !prev.length) return null;
       if (!prev || pageIdx === 0) return '/api/highlights';
       return `/api/highlights?page=${pageIdx}`;
     },
     []
   );
-  const { data, setSize } = useSWRInfinite<DBHighlightWithMessage[]>(getKey);
+  const { data, setSize } = useSWRInfinite<HighlightWithMessage[]>(getKey);
 
   return (
     <Page name='Highlights' login sync>

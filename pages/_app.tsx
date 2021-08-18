@@ -8,10 +8,10 @@ import NProgress from 'components/nprogress';
 import Segment from 'components/segment';
 
 import { Theme, ThemeContext } from 'lib/context/theme';
-import { User, UserJSON } from 'lib/model/user';
 import { APIError } from 'lib/model/error';
 import { CallbackParam } from 'lib/model/callback';
 import { MessagesMutatedContext } from 'lib/hooks/messages';
+import { User } from 'lib/model/user';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
@@ -71,13 +71,16 @@ const dark = `
 
 export default function App({ Component, pageProps }: AppProps): JSX.Element {
   const [userMutated, setUserMutated] = useState<boolean>(false);
-  const { data, error } = useSWR<UserJSON, APIError>('/api/account', fetcher, {
-    isPaused: () => userMutated,
-  });
-  const user = useMemo(() => (data ? User.fromJSON(data) : new User()), [data]);
+  const { data: user, error } = useSWR<User, APIError>(
+    '/api/account',
+    fetcher,
+    {
+      isPaused: () => userMutated,
+    }
+  );
   const userLoaded = useRef<boolean>(false);
   const loggedIn = useMemo(() => {
-    if (user.id) {
+    if (user?.id) {
       userLoaded.current = true;
       return true;
     }
@@ -88,24 +91,28 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     return userLoaded.current ? false : undefined;
   }, [user, error]);
   const setUser = useCallback(
-    (param: CallbackParam<User>) => {
+    (param: CallbackParam<User | undefined>) => {
       let updated = user;
       if (typeof param === 'function') updated = param(updated);
       if (typeof param === 'object') updated = param;
       if (!dequal(updated, user)) setUserMutated(true);
       // Trigger revalidation if we haven't received any account data yet.
       // @see {@link https://github.com/readhammock/hammock/issues/33}
-      void mutate('/api/account', updated.toJSON(), loggedIn === undefined);
+      void mutate('/api/account', updated, loggedIn === undefined);
     },
     [loggedIn, user]
   );
   useEffect(() => {
-    if (!user.id) {
+    if (!user?.id) {
       configureScope((scope) => scope.setUser(null));
     } else {
-      setSentryUser({ id: user.id, username: user.name, email: user.email });
+      setSentryUser({
+        id: user.id.toString(),
+        username: user.name,
+        email: user.email || undefined,
+      });
     }
-  }, [user.id, user.name, user.email]);
+  }, [user]);
 
   const [theme, setTheme] = useState<Theme>('system');
   useEffect(() => {

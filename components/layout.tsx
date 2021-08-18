@@ -4,6 +4,7 @@ import cn from 'classnames';
 import NavBar from 'components/nav-bar';
 
 import breakpoints from 'lib/breakpoints';
+import { caps } from 'lib/utils';
 import useNow from 'lib/hooks/now';
 import { useUser } from 'lib/context/user';
 
@@ -16,12 +17,13 @@ export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
   const { user } = useUser();
   const now = useNow();
   const title = useMemo(() => {
-    if (!user.firstName) return '';
+    if (!user?.name) return '';
     const hourOfDay = now.getHours();
-    if (hourOfDay < 12) return `Good morning, ${user.firstName}`;
-    if (hourOfDay < 18) return `Good afternoon, ${user.firstName}`;
-    return `Good evening, ${user.firstName}`;
-  }, [now, user.firstName]);
+    const firstName = caps(user.name.split(' ')[0] || '');
+    if (hourOfDay < 12) return `Good morning, ${firstName}`;
+    if (hourOfDay < 18) return `Good afternoon, ${firstName}`;
+    return `Good evening, ${firstName}`;
+  }, [now, user]);
 
   return (
     <div className='page'>

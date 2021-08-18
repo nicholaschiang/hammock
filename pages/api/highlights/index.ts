@@ -2,8 +2,8 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
 import { APIErrorJSON } from 'lib/model/error';
-import { DBHighlight } from 'lib/model/highlight';
-import { DBMessage } from 'lib/model/message';
+import { Highlight } from 'lib/model/highlight';
+import { Message } from 'lib/model/message';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
 import logger from 'lib/api/logger';
@@ -13,13 +13,13 @@ import verifyAuth from 'lib/api/verify/auth';
 
 export const HITS_PER_PAGE = 10;
 export type HighlightsQuery = { page?: string };
-export type DBHighlightWithMessage = Omit<DBHighlight, 'message'> & {
-  message: DBMessage;
+export type HighlightWithMessage = Omit<Highlight, 'message'> & {
+  message: Message;
 };
 
 async function highlightsAPI(
   req: Req,
-  res: Res<DBHighlightWithMessage[] | APIErrorJSON>
+  res: Res<HighlightWithMessage[] | APIErrorJSON>
 ): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -32,7 +32,7 @@ async function highlightsAPI(
       const user = await verifyAuth(req);
       logger.verbose(`Fetching highlights for ${user}...`);
       const { data, error } = await supabase
-        .from<DBHighlightWithMessage>('highlights')
+        .from<HighlightWithMessage>('highlights')
         .select('*, message (*)')
         .eq('user', Number(user.id))
         .order('id', { ascending: false })

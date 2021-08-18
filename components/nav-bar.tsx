@@ -194,7 +194,7 @@ export default function NavBar(): JSX.Element {
           ref={buttonRef}
           type='button'
         >
-          <Avatar loading={!loggedIn} src={user.photo} size={48} />
+          <Avatar loading={!loggedIn} src={user?.photo} size={48} />
         </button>
         <div ref={menuRef} className={cn('menu', { open })}>
           <MenuLink href='/subscriptions'>Subscriptions</MenuLink>

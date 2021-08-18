@@ -7,7 +7,7 @@ async function removeLabels(user: User, client: Gmail): Promise<void> {
   logger.info(`Removing labels for ${user}...`);
   console.time('remove-labels');
   const { data } = await client.users.messages.list({
-    q: `-from:(${user.subscriptionEmails.join(' OR ')})`,
+    q: `-from:(${user.subscriptions.map((s) => s.email).join(' OR ')})`,
     labelIds: [user.label],
     maxResults: 2500,
     userId: 'me',

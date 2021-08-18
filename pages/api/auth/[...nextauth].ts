@@ -2,7 +2,7 @@ import NextAuth from 'next-auth';
 import Providers from 'next-auth/providers';
 import to from 'await-to-js';
 
-import { SCOPES, User, UserJSON } from 'lib/model/user';
+import { SCOPES, User } from 'lib/model/user';
 import { getUser, upsertUser } from 'lib/api/db/user';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
@@ -20,20 +20,19 @@ export default NextAuth({
       // @see {@link https://developers.google.com/identity/protocols/oauth2/scopes#gmail}
       scope: Object.values(SCOPES).join(' '),
       profile(profile) {
-        const user: UserJSON = {
-          id: profile.id,
+        return {
+          id: Number(profile.id) as number & string,
           name: profile.name,
           photo: profile.picture,
           locale: profile.locale,
           email: profile.email,
-          phone: '',
+          phone: null,
           token: '',
           label: '',
           filter: '',
           subscriptions: [],
           scopes: [],
         };
-        return user as UserJSON & Record<string, unknown>;
       },
     }),
   ],
@@ -52,16 +51,16 @@ export default NextAuth({
       console.time('process-jwt');
       logger.verbose(`Processing JWT for user (${token.sub})...`);
       if (user && account && profile) {
-        const created = new User({
-          ...User.fromJSON(user as UserJSON),
-          id: account.id || profile.id || user.id || token.sub,
+        const created = {
+          ...(user as User),
+          id: Number(account.id || profile.id || user.id || token.sub),
           name: profile.name || user.name || token.name || '',
           photo: profile.image || user.photo || token.picture || '',
           email: profile.email || user.email || token.email || '',
           locale: profile.locale || user.locale,
           scopes: (account.scope as string).split(' '),
-          token: account.refresh_token,
-        });
+          token: account.refresh_token || '',
+        };
         const res = (await to(getUser(created.id)))[1];
         created.subscriptions = res?.subscriptions || [];
         created.label = res?.label || (await getOrCreateLabel(created));
@@ -81,10 +80,10 @@ export default NextAuth({
       // payload size limits), I fetch that data from our database here.
       // @see {@link https://next-auth.js.org/configuration/callbacks#session-callback}
       console.time('fetch-session');
-      const user = await getUser((token as { sub: string }).sub);
+      const user = await getUser(Number((token as { sub: string }).sub));
       logger.verbose(`Fetching session for ${user}...`);
       console.timeEnd('fetch-session');
-      return { ...session, user: user.toJSON() };
+      return { ...session, user };
     },
   },
   secret: process.env.AUTH_SECRET,

@@ -2,11 +2,11 @@ import cn from 'classnames';
 
 import MessageRow from 'components/message-row';
 
-import { Message, MessageJSON } from 'lib/model/message';
+import { Message } from 'lib/model/message';
 import breakpoints from 'lib/breakpoints';
 
 export interface SectionProps {
-  messages: MessageJSON[];
+  messages: Message[];
   header: string;
   date?: boolean;
 }
@@ -27,8 +27,8 @@ export default function Section({
           <MessageRow
             date={date}
             loading={!m}
-            message={m ? Message.fromJSON(m) : undefined}
-            key={m ? (m as MessageJSON).id : idx}
+            message={m ? (m as Message) : undefined}
+            key={m ? (m as Message).id : idx}
           />
         ))}
       </div>

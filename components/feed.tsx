@@ -7,13 +7,13 @@ import Section from 'components/section';
 
 import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
 import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
-import { MessageJSON } from 'lib/model/message';
+import { Message } from 'lib/model/message';
 import { isSameDay } from 'lib/utils';
 import useNow from 'lib/hooks/now';
 
 interface FeedSectionProps {
   date: Date;
-  messages: MessageJSON[];
+  messages: Message[];
 }
 
 function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {

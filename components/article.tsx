@@ -64,7 +64,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   }, []);
   useEffect(() => {
     function listener(evt: PointerEvent): void {
-      if (!articleRef.current || !message || !user.id) return;
+      if (!articleRef.current || !message || !user?.id) return;
       const sel = window.getSelection() || document.getSelection();
       if (!sel || sel.isCollapsed) return;
       const range = sel.getRangeAt(0);
@@ -89,7 +89,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     }
     window.addEventListener('pointerup', listener);
     return () => window.removeEventListener('pointerup', listener);
-  }, [message, user.id]);
+  }, [message, user]);
   const html = useMemo(
     () => (message ? highlightHTML(message.html, data || []) : ''),
     [message, data]
@@ -98,20 +98,14 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     setHighlight(undefined);
     if (!message || !highlight) return;
     if (!data?.some((h) => h.id === highlight.id)) {
-      window.analytics?.track('Highlight Created', {
-        highlight: highlight.text,
-        message: message.toSegment(),
-      });
+      window.analytics?.track('Highlight Created');
       const url = `/api/messages/${message.id}/highlights`;
       const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
       await mutate(url, add, false);
       await fetcher(url, 'post', highlight);
       await mutate(url);
     } else {
-      window.analytics?.track('Highlight Deleted', {
-        highlight: highlight.text,
-        message: message.toSegment(),
-      });
+      window.analytics?.track('Highlight Deleted');
       const url = `/api/messages/${message.id}/highlights`;
       const remove = (p?: Highlight[]) => {
         const idx = p?.findIndex((h) => h.id === highlight.id);
@@ -129,7 +123,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     setTweet((prev) =>
       highlight
         ? `“${highlight?.text || ''}” — ${
-            message?.from.name || 'Newsletter'
+            message?.name || 'Newsletter'
           }\n\nvia @readhammock\nhttps://readhammock.com/try`
         : prev
     );
@@ -137,23 +131,16 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const onTweet = useCallback(async () => {
     setHighlight(undefined);
     if (!message || !highlight) return;
-    window.analytics?.track('Highlight Tweeted', {
-      tweet,
-      highlight: highlight.text,
-      message: message.toSegment(),
-    });
+    window.analytics?.track('Highlight Tweeted');
     if (!data?.some((h) => h.id === highlight.id)) {
-      window.analytics?.track('Highlight Created', {
-        highlight: highlight.text,
-        message: message.toSegment(),
-      });
+      window.analytics?.track('Highlight Created');
       const url = `/api/messages/${message.id}/highlights`;
       const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
       await mutate(url, add, false);
       await fetcher(url, 'post', highlight);
       await mutate(url);
     }
-  }, [message, highlight, tweet, data]);
+  }, [message, highlight, data]);
 
   return (
     <>
