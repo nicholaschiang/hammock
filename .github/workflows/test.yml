@@ -1,0 +1,69 @@
+name: Test
+
+on:
+  push:
+
+env:
+  NODE_ENV: test
+  PERCY_TOKEN: ${{ secrets.PERCY_TOKEN }}
+  PERCY_PARALLEL_NONCE: ${{ github.run_id }}
+  PERCY_PARALLEL_TOTAL: 10
+  CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+  NOTIFY_TOKEN: ${{ secrets.NOTIFY_TOKEN }}
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+  SEGMENT_WRITE_KEY: ${{ secrets.SEGMENT_WRITE_KEY }}
+  AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+  OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
+  OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/Cypress
+            ~/.cache/yarn
+            .next/cache
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+      - run: yarn install --immutable --immutable-cache
+      - run: yarn build
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: .next
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+      - uses: actions/download-artifact@v2
+        with:
+          name: build
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/Cypress
+            ~/.cache/yarn
+            .next/cache
+            node_modules
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+      - run: yarn install --immutable --immutable-cache
+      - run: yarn start & yarn wait-on http-get://localhost:3000
+      - run: yarn start:cy --record --parallel --headless --group ${{ matrix.browser }} -b ${{ matrix.browser }}
+      - uses: codecov/codecov-action@v1
+        if: ${{ success() || failure() }}
