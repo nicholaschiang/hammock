@@ -19,7 +19,8 @@ function showsMessages(dark = false): void {
   cy.wait('@get-messages');
   cy.getBySel('empty').should('not.exist');
   cy.getBySel('message-row')
-    .should('have.length', messages.length)
+    .should('have.attr', 'data-loading', 'false')
+    .and('have.length', messages.length)
     .as('messages');
   messages.forEach((message, idx) => {
     cy.get('@messages')
