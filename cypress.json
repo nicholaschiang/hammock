@@ -1,0 +1,9 @@
+{
+  "projectId": "vfv5ph",
+  "baseUrl": "http://localhost:3000",
+  "env": {
+    "codeCoverage": {
+      "url": "/api/coverage"
+    }
+  }
+}

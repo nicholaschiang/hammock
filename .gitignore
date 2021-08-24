@@ -13,6 +13,7 @@
 
 # Testing
 /coverage
+/.nyc_output/
 
 # Next.js
 /.next/

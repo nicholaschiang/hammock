@@ -1,0 +1,126 @@
+{
+  "id": 117690600984539140000,
+  "name": "Nicholas Chiang",
+  "photo": "https://lh3.googleusercontent.com/a-/AOh14GgM4Vw-BU-hNuHQCsH3obo_A6hqLHO_146_tnOa1cc=s96-c",
+  "email": "nicholas.h.chiang@gmail.com",
+  "phone": null,
+  "locale": "en",
+  "token": "1//0d2K1p9D6sD9oCgYIARAAGA0SNwF-L9IrMHCAtzROPKiysLzAnWLLNR6TSpKWeHGOBHzkOqssAxk9HJFs2NxAzGUY1vjyWeSjS4M",
+  "scopes": [
+    "https://www.googleapis.com/auth/gmail.settings.basic",
+    "https://www.googleapis.com/auth/gmail.labels",
+    "https://www.googleapis.com/auth/userinfo.email",
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "openid"
+  ],
+  "label": "Label_31",
+  "filter": "ANe1BmiNU3xlxfo19dL64g-oKvwpMH7l5_ii0A",
+  "subscriptions": [
+    {
+      "name": "Vox Sentences",
+      "email": "newsletter@vox.com",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=vox.com",
+      "category": "important",
+      "favorite": false
+    },
+    {
+      "name": "Ben Thompson",
+      "email": "email@stratechery.com",
+      "photo": "https://pbs.twimg.com/profile_images/978622651370323969/8uxRCpZp_400x400.jpg",
+      "category": "important",
+      "favorite": true
+    },
+    {
+      "name": "Benedict Evans",
+      "email": "list@ben-evans.com",
+      "photo": "https://pbs.twimg.com/profile_images/845396356579508224/1ruiOPLI_400x400.jpg",
+      "category": "important",
+      "favorite": true
+    },
+    {
+      "name": "The Defiant",
+      "email": "thedefiant@substack.com",
+      "photo": "https://cdn.substack.com/image/fetch/w_392,h_392,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F83696d76-4c3a-4e12-a156-326733d7b0bd_400x400.png",
+      "category": "important",
+      "favorite": false
+    },
+    {
+      "name": "Counterpoint",
+      "email": "counterpoint@substack.com",
+      "photo": "https://cdn.substack.com/image/fetch/w_392,h_392,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2Fe2e3333e-589d-4892-9f62-4e7c3ad7b16d_256x256.png",
+      "category": "important",
+      "favorite": false
+    },
+    {
+      "name": "Smile Partner",
+      "email": "hello@mail.inspiremore.com",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=inspiremore.com",
+      "category": "other",
+      "favorite": false
+    },
+    {
+      "name": "Robinhood Snacks",
+      "email": "noreply@robinhood.com",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=robinhood.com",
+      "category": "other",
+      "favorite": false
+    },
+    {
+      "name": "The New York Times",
+      "email": "nytdirect@nytimes.com",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=nytimes.com",
+      "category": "other",
+      "favorite": true
+    },
+    {
+      "name": "Morning Brew",
+      "email": "crew@morningbrew.com",
+      "photo": "https://i0.wp.com/fortheinterested.com/wp-content/uploads/2021/03/morning-brew-meta-image.jpeg?fit=1200%2C630&ssl=1",
+      "category": "important",
+      "favorite": true
+    },
+    {
+      "name": "Bit Project",
+      "email": "info@bitproject.org",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=bitproject.org",
+      "category": "other",
+      "favorite": false
+    },
+    {
+      "name": "Chan Zuckerberg Initiative",
+      "email": "info@chanzuckerberg.com",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=chanzuckerberg.com",
+      "category": "other",
+      "favorite": false
+    },
+    {
+      "name": "Below the Fold",
+      "email": "owls@belowthefold.news",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=belowthefold.news",
+      "category": "other",
+      "favorite": false
+    },
+    {
+      "name": "Josh Comeau",
+      "email": "me@joshwcomeau.com",
+      "photo": "https://www.joshwcomeau.com/images/og-default.png",
+      "category": "important",
+      "favorite": true
+    },
+    {
+      "name": "Matt D'Avella",
+      "email": "hi@mattdavella.com",
+      "photo": "https://www.google.com/s2/favicons?sz=64&domain_url=mattdavella.com",
+      "category": "other",
+      "favorite": false
+    },
+    {
+      "name": "Technically",
+      "email": "technically@substack.com",
+      "photo": "https://cdn.substack.com/image/fetch/w_392,h_392,c_fill,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fbucketeer-e05bbc84-baa3-437e-9518-adb32be77984.s3.amazonaws.com%2Fpublic%2Fimages%2F91faf905-23bc-4189-98e2-095ba05cd769_256x256.png",
+      "category": "important",
+      "favorite": false
+    }
+  ]
+}

@@ -4,7 +4,7 @@ export interface EmptyProps {
 
 export default function Empty({ children }: EmptyProps): JSX.Element {
   return (
-    <div className='empty'>
+    <div className='empty' data-cy='empty'>
       {children}
       <style jsx>{`
         .empty {

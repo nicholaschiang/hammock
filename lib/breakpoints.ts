@@ -1,1 +1,1 @@
-export default { mobile: '1000px' };
+export default { mobile: '800px' };

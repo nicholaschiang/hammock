@@ -50,8 +50,8 @@ function MenuButton({
           background: var(--accents-2);
         }
 
-        button.disabled {
-          cursor: not-allowed;
+        button:disabled {
+          cursor: loading;
         }
       `}</style>
     </button>
@@ -191,12 +191,13 @@ export default function NavBar(): JSX.Element {
         <button
           onClick={() => setOpen((prev) => !prev)}
           className='reset avatar'
+          data-cy='menu-button'
           ref={buttonRef}
           type='button'
         >
           <Avatar loading={!loggedIn} src={user?.photo} size={48} />
         </button>
-        <div ref={menuRef} className={cn('menu', { open })}>
+        <div ref={menuRef} className={cn('menu', { open })} data-cy='menu'>
           <MenuLink href='/subscriptions'>Subscriptions</MenuLink>
           <MenuLink href='/archive'>Archive</MenuLink>
           <div className='line' />
@@ -234,7 +235,7 @@ export default function NavBar(): JSX.Element {
             ]}
           />
           <div className='line' />
-          <MenuButton onClick={logout}>
+          <MenuButton disabled={loggingOut} onClick={logout}>
             {loggingOut ? 'Logging out...' : 'Logout'}
           </MenuButton>
         </div>

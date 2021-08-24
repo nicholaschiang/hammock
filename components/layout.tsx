@@ -16,7 +16,7 @@ export interface LayoutProps {
 export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
   const { user } = useUser();
   const now = useNow();
-  const title = useMemo(() => {
+  const greeting = useMemo(() => {
     if (!user?.name) return '';
     const hourOfDay = now.getHours();
     const firstName = caps(user.name.split(' ')[0] || '');
@@ -31,7 +31,12 @@ export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
       <div className='wrapper'>
         {spacer && <div className='spacer' />}
         <header>
-          <h1 className={cn('nowrap', { loading: !title })}>{title}</h1>
+          <h1
+            className={cn('nowrap', { loading: !greeting })}
+            data-cy='greeting'
+          >
+            {greeting}
+          </h1>
         </header>
         {children}
       </div>

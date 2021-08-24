@@ -18,10 +18,14 @@ export default function MessageRow({
 }: MessageRowProps): JSX.Element {
   return (
     <Link href={message ? `/messages/${message.id}` : '#'}>
-      <a className={cn('row', { disabled: loading })}>
+      <a
+        className={cn('row', { disabled: loading })}
+        data-cy='message-row'
+        data-loading={loading}
+      >
         <div className='from'>
           <Avatar src={message?.photo} loading={loading} size={24} />
-          <span className={cn('name', { loading })}>
+          <span className={cn('name', { loading })} data-cy='name'>
             {date
               ? new Date(message?.date || new Date()).toLocaleString('en', {
                   month: 'short',
@@ -31,12 +35,16 @@ export default function MessageRow({
           </span>
         </div>
         <div className='header'>
-          <h3 className={cn('subject', { loading })}>{message?.subject}</h3>
-          <div className={cn('time', { loading })}>
+          <h3 className={cn('subject', { loading })} data-cy='subject'>
+            {message?.subject}
+          </h3>
+          <div className={cn('time', { loading })} data-cy='time'>
             {message ? `${message.time} min` : ''}
           </div>
         </div>
-        <p className={cn('snippet', { loading })}>{message?.snippet}</p>
+        <p className={cn('snippet', { loading })} data-cy='snippet'>
+          {message?.snippet}
+        </p>
         <style jsx>{`
           .row {
             display: block;
