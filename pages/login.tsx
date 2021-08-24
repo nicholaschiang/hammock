@@ -69,12 +69,12 @@ function Section({ icon, header, children }: SectionProps): JSX.Element {
 // Next.js auth error codes and their corresponding user-facing messages.
 // @see {@link https://git.io/JZ3q4}
 const ERRORS: Record<string, string> = {
-  Signin: 'Try signing with a different account.',
-  OAuthSignin: 'Try signing with a different account.',
-  OAuthCallback: 'Try signing with a different account.',
-  OAuthCreateAccount: 'Try signing with a different account.',
-  EmailCreateAccount: 'Try signing with a different account.',
-  Callback: 'Try signing with a different account.',
+  Signin: 'Try signing in with a different account.',
+  OAuthSignin: 'Try signing in with a different account.',
+  OAuthCallback: 'Try signing in with a different account.',
+  OAuthCreateAccount: 'Try signing in with a different account.',
+  EmailCreateAccount: 'Try signing in with a different account.',
+  Callback: 'Try signing in with a different account.',
   OAuthAccountNotLinked:
     'To confirm your identity, sign in with the same account you used originally.',
   EmailSignin: 'Check your email address.',
@@ -137,7 +137,9 @@ export default function LoginPage(): JSX.Element {
             Continue signing in
           </Button>
           {error && (
-            <p className='error'>Hmm, it looks like we hit a snag. {error}</p>
+            <p className='error' data-cy='error'>
+              Hmm, it looks like we hit a snag. {error}
+            </p>
           )}
         </div>
         <style jsx>{`
