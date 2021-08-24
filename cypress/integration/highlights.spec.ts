@@ -3,14 +3,15 @@ import highlights from 'cypress/fixtures/highlights.json';
 function showsEmptyState(dark = false): void {
   localStorage.setItem('theme', dark ? 'dark' : 'light');
   cy.visit('/highlights');
+  cy.get('html').should('have.class', dark ? 'dark' : 'light');
   cy.getBySel('highlight-row').should('have.attr', 'data-loading', 'true');
-  cy.percySnapshot(`Feed Page Fallback${dark ? ' Dark' : ''}`);
+  cy.percySnapshot(`Highlights Page Fallback${dark ? ' Dark' : ''}`);
   cy.wait('@get-account');
   cy.wait('@get-highlights');
   cy.getBySel('empty').contains(
     'Nothing to see here... yet. Go highlight something!'
   );
-  cy.percySnapshot(`Feed Page Empty${dark ? ' Dark' : ''}`);
+  cy.percySnapshot(`Highlights Page Empty${dark ? ' Dark' : ''}`);
 }
 
 function showshighlights(dark = false): void {
@@ -36,13 +37,14 @@ function showshighlights(dark = false): void {
         cy.get('blockquote').should('have.text', highlight.text);
       });
   });
-  cy.percySnapshot(`Feed Page${dark ? ' Dark' : ''}`);
+  cy.getBySel('greeting').should('not.have.class', 'loading');
+  cy.percySnapshot(`Highlights Page${dark ? ' Dark' : ''}`);
   cy.scrollTo('bottom');
   cy.getBySel('highlight-row')
     .should('have.length', highlights.length + 5)
     .last()
     .should('have.attr', 'data-loading', 'true');
-  cy.percySnapshot(`Feed Page Loading${dark ? ' Dark' : ''}`);
+  cy.percySnapshot(`Highlights Page Loading${dark ? ' Dark' : ''}`);
 }
 
 describe('Highlights', () => {

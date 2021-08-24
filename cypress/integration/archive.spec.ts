@@ -3,6 +3,7 @@ import messages from 'cypress/fixtures/messages.json';
 function showsEmptyState(dark = false): void {
   localStorage.setItem('theme', dark ? 'dark' : 'light');
   cy.visit('/archive');
+  cy.get('html').should('have.class', dark ? 'dark' : 'light');
   cy.getBySel('message-row').should('have.attr', 'data-loading', 'true');
   cy.percySnapshot(`Archive Page Fallback${dark ? ' Dark' : ''}`);
   cy.wait('@get-account');
@@ -34,6 +35,7 @@ function showsMessages(dark = false): void {
         cy.getBySel('snippet').should('have.text', message.snippet);
       });
   });
+  cy.getBySel('greeting').should('not.have.class', 'loading');
   cy.percySnapshot(`Archive Page${dark ? ' Dark' : ''}`);
   cy.scrollTo('bottom');
   cy.getBySel('message-row')

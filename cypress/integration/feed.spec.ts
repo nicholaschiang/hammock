@@ -4,6 +4,7 @@ import user from 'cypress/fixtures/user.json';
 function showsEmptyState(dark = false): void {
   localStorage.setItem('theme', dark ? 'dark' : 'light');
   cy.visit('/feed');
+  cy.get('html').should('have.class', dark ? 'dark' : 'light');
   cy.getBySel('message-row').should('have.attr', 'data-loading', 'true');
   cy.percySnapshot(`Feed Page Fallback${dark ? ' Dark' : ''}`);
   cy.wait('@get-account');
@@ -34,6 +35,7 @@ function showsMessages(dark = false): void {
         cy.getBySel('snippet').should('have.text', message.snippet);
       });
   });
+  cy.getBySel('greeting').should('not.have.class', 'loading');
   cy.percySnapshot(`Feed Page${dark ? ' Dark' : ''}`);
   cy.scrollTo('bottom');
   cy.getBySel('message-row')
@@ -121,11 +123,11 @@ describe('Feed', () => {
         });
     });
 
-    it('shows empty state', () => showsEmptyState(false));
+    it.only('shows empty state', () => showsEmptyState(false));
 
     it('shows messages', () => showsMessages(false));
 
-    it('shows empty state dark mode', () => showsEmptyState(true));
+    it.only('shows empty state dark mode', () => showsEmptyState(true));
 
     it('shows messages dark mode', () => showsMessages(true));
 
