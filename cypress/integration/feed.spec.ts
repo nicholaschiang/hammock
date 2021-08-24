@@ -123,11 +123,11 @@ describe('Feed', () => {
         });
     });
 
-    it.only('shows empty state', () => showsEmptyState(false));
+    it('shows empty state', () => showsEmptyState(false));
 
     it('shows messages', () => showsMessages(false));
 
-    it.only('shows empty state dark mode', () => showsEmptyState(true));
+    it('shows empty state dark mode', () => showsEmptyState(true));
 
     it('shows messages dark mode', () => showsMessages(true));
 
