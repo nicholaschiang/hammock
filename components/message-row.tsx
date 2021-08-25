@@ -26,7 +26,7 @@ export default function MessageRow({
         <div className='from'>
           <Avatar src={message?.photo} loading={loading} size={24} />
           <span className={cn('name', { loading })} data-cy='name'>
-            {date
+            {date && !loading
               ? new Date(message?.date || new Date()).toLocaleString('en', {
                   month: 'short',
                   day: 'numeric',
