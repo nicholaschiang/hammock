@@ -55,53 +55,63 @@ async function migrate() {
         favorite: s.favorite,
       })),
     }));
-  logger.verbose(`Inserting ${docs.length} user rows...`);
+  logger.info(`Inserting ${docs.length} user rows...`);
   const { data, error } = await supabase.from('users').insert(users);
   if (error) logger.error(`Error inserting user rows: ${error.message}`);
-  /*
-   *const messages = [];
-   *const highlights = [];
-   *await Promise.all(docs.map(async (userDoc) => {
-   *  logger.verbose(`Fetching message docs for user (${userDoc.id})...`);
-   *  const { docs } = await userDoc.ref
-   *    .collection('messages')
-   *    .orderBy('date', 'desc')
-   *    .limit(50)
-   *    .get();
-   *  logger.verbose(`Parsing ${docs.length} message docs for user (${userDoc.id})...`);
-   *  docs.map((d) => d.data()).forEach((d) => {
-   *    messages.push({
-   *      user: Number(userDoc.id),
-   *      id: d.id,
-   *      name: d.name,
-   *      email: d.email,
-   *      photo: d.photo,
-   *      category: d.category || 'other',
-   *      favorite: d.favorite,
-   *      date: d.date.toDate(),
-   *      subject: d.subject,
-   *      snippet: d.snippet,
-   *      raw: d.raw,
-   *      html: d.html,
-   *      archived: d.archived,
-   *      scroll: d.scroll,
-   *      time: d.time,
-   *    });
-   *    d.highlights.map((h) => {
-   *      highlights.push({
-   *        message: d.id,
-   *        user: Number(userDoc.id),
-   *        start: h.start,
-   *        startOffset: h.startOffset,
-   *        end: h.end,
-   *        endOffset: h.endOffset,
-   *        text: h.text,
-   *        deleted: h.deleted,
-   *      });
-   *    });
-   *  });
-   *}));
-   */
+  const messages = [];
+  const highlights = [];
+  await Promise.all(
+    docs.map(async (userDoc) => {
+      logger.verbose(`Fetching message docs for user (${userDoc.id})...`);
+      const { docs } = await userDoc.ref
+        .collection('messages')
+        .orderBy('date', 'desc')
+        .limit(50)
+        .get();
+      logger.verbose(
+        `Parsing ${docs.length} message docs for user (${userDoc.id})...`
+      );
+      docs
+        .map((d) => d.data())
+        .forEach((d) => {
+          messages.push({
+            user: Number(userDoc.id),
+            id: d.id,
+            name: d.from.name,
+            email: email(d.from.email),
+            photo: url(d.from.photo),
+            category: d.category || 'other',
+            favorite: d.favorite,
+            date: d.date.toDate(),
+            subject: d.subject,
+            snippet: d.snippet,
+            raw: d.raw,
+            html: d.html,
+            archived: d.archived,
+            scroll: d.scroll,
+            time: d.time,
+          });
+          d.highlights.map((h) => {
+            highlights.push({
+              message: d.id,
+              user: Number(userDoc.id),
+              start: h.start,
+              startOffset: h.startOffset,
+              end: h.end,
+              endOffset: h.endOffset,
+              text: h.text,
+              deleted: h.deleted,
+            });
+          });
+        });
+    })
+  );
+  logger.info(`Inserting ${messages.length} message rows...`);
+  const { error: err } = await supabase.from('messages').insert(messages);
+  if (err) logger.error(`Error inserting message rows: ${err.message}`);
+  logger.info(`Inserting ${highlights.length} highlight rows...`);
+  const { error: e } = await supabase.from('highlights').insert(highlights);
+  if (e) logger.error(`Error inserting highlight rows: ${e.message}`);
   debugger;
 }
 
