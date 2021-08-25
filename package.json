@@ -95,6 +95,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "firebase-admin": "^9.11.1",
     "husky": "^6.0.0",
     "istanbul-lib-coverage": "^3.0.0",
     "node-jose-tools": "^1.6.28",
