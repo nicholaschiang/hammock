@@ -47,6 +47,8 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     return newSections;
   }, [data]);
 
+  // TODO: Ensure that there aren't duplicate keys in the infinite scroller due
+  // to local mutations and revalidations for only certain message pages.
   return (
     <InfiniteScroll
       dataLength={data?.flat().length || 0}

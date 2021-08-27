@@ -103,18 +103,14 @@ export default function MessagePage(): JSX.Element {
     // Don't try to update the scroll position if we're archiving the message.
     // @see {@link https://github.com/readhammock/hammock/issues/37}
     if (archiving) return () => {};
-    // TODO: Save the message scroll position in our messagebase every second.
-    // Currently, this saves the scroll position after a second of no scrolling.
-    // Instead, I want to schedule an update every one second where we:
-    // - If the scroll position hasn't changed since the last save, skip.
-    // - Otherwise, save the latest scroll position in our messagebase.
+    if (message?.scroll === scroll) return () => {};
     async function saveScrollPosition(): Promise<void> {
       if (!message?.id) return;
       const url = `/api/messages/${message.id}`;
       const updated = { ...message, scroll };
       // TODO: Mutate the message used in `/feed` to match.
       // See: https://github.com/vercel/swr/issues/1156
-      await mutate(url, fetcher(url, 'put', updated));
+      await mutate(url, fetcher(url, 'put', updated), false);
     }
     const timeoutId = setTimeout(() => {
       void saveScrollPosition();
