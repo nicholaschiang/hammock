@@ -8,22 +8,6 @@ import gmail from 'lib/api/gmail';
 import logger from 'lib/api/logger';
 import messageFromGmail from 'lib/api/message-from-gmail';
 
-/**
- * Syncs our database with the user's Gmail account:
- * 1. Calls `messages.list` with the user's specified newsletter filters to get
- *    all the past newsletter messages.
- * 2. If a message ID already exists in our database, we skip it.
- * 3. Otherwise, we fetch the full (`format=FULL`) message data, parse it, and
- *    add the sanitized data model to our database.
- *
- * Rate limit for Gmail's API is 250 quota units per second per user. Each
- * `messages.get` request consumes 5 quota units. Thus, I have to limit requests
- * to 250/5 = 50 per second.
- * @see {@link https://developers.google.com/gmail/api/reference/quota}
- *
- * @return {string} - The next page token (call `syncGmail` again with that
- * token to sync the next 10 messages). Only returned if we're not up-to-date.
- */
 export default async function syncGmail(
   user: User,
   pageToken?: string

@@ -7,7 +7,8 @@ import { getUser, upsertUser } from 'lib/api/db/user';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
 import logger from 'lib/api/logger';
-import syncGmail from 'lib/api/sync-gmail';
+import syncGmail from 'lib/api/gmail/sync';
+import watchGmail from 'lib/api/gmail/watch';
 
 export default NextAuth({
   providers: [
@@ -65,8 +66,14 @@ export default NextAuth({
         created.subscriptions = res?.subscriptions || [];
         created.label = res?.label || (await getOrCreateLabel(created));
         created.filter = res?.filter || (await getOrCreateFilter(created));
-        logger.verbose(`Creating document for ${created}...`);
-        await Promise.all([upsertUser(created), syncGmail(created)]);
+        logger.verbose(
+          `Creating document for ${created.name} (${created.id})...`
+        );
+        await Promise.all([
+          upsertUser(created),
+          syncGmail(created),
+          watchGmail(created),
+        ]);
       }
       // Don't include user data in the JWT because it's larger than the max
       // cookie payload size supported by most browsers (~4096 bytes).
@@ -81,7 +88,7 @@ export default NextAuth({
       // @see {@link https://next-auth.js.org/configuration/callbacks#session-callback}
       console.time('fetch-session');
       const user = await getUser(Number((token as { sub: string }).sub));
-      logger.verbose(`Fetching session for ${user}...`);
+      logger.verbose(`Fetching session for ${user.name} (${user.id})...`);
       console.timeEnd('fetch-session');
       return { ...session, user };
     },
