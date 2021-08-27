@@ -1,6 +1,6 @@
-import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useMemo } from 'react';
 
 import Empty from 'components/empty';
 import Section from 'components/section';
