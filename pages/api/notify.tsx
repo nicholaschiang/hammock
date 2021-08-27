@@ -12,7 +12,7 @@ import { User } from 'lib/model/user';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import supabase from 'lib/api/supabase';
-import syncGmail from 'lib/api/sync-gmail';
+import syncGmail from 'lib/api/gmail/sync';
 
 /**
  * GET - Sends notification emails with a summary of all the new newsletters in

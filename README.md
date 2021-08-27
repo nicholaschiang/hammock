@@ -32,13 +32,24 @@ Included below are some high-level descriptions of how Hammock is implemented.
 The purpose of this writing is not so much to act as documentation but rather to
 encourage better README-driven development.
 
-#### Newsletters
+#### Gmail Sync
 
-Hammock fetches your messages from our Firestore database which syncs with your
-Gmail account using [push
-notifications](https://developers.google.com/gmail/api/guides/push) and [async
-synchronization](https://developers.google.com/gmail/api/guides/sync) that is
-triggered whenever the user fetches their messages.
+Our Gmail sync is composed of various methods to ensure that our
+Supabase-managed PostgreSQL database is always up-to-date with our users' Gmail
+inboxes:
+
+1. When the user first signs up, they call our `/api/sync` endpoint which starts
+   [a full sync](https://developers.google.com/gmail/api/guides/sync#full_synchronization)
+   using Gmail's `messages.list` API endpoint. This endpoint syncs 10 messages
+   and then redirects (using the `nextPageToken`) to `/api/sync` recursively to
+   sync the next 10 messages and so on and so forth. We save the current sync
+   cursor (the `nextPageToken` returned by the last `messages.list` call) in our
+   database so subsequent calls to `/api/sync` start right where we left off.
+2. When the user signs up, we also setup [a Google Pub/Sub subscription](https://cloud.google.com/pubsub/docs/push)
+   using Gmail's [`users.watch`](https://googleapis.dev/nodejs/googleapis/latest/gmail/classes/Resource$Users.html#watch)
+   API endpoint. This [push subscription](https://cloud.google.com/pubsub/docs/subscriber#push-subscription)
+   then calls our `/api/push` endpoint which uses Gmail's [`history.list`](https://googleapis.dev/nodejs/googleapis/latest/gmail/classes/Resource$Users$History.html#list)
+   API to sync newly received messages as they come in.
 
 ## Development
 

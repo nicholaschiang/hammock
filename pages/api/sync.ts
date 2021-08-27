@@ -4,7 +4,7 @@ import { withSentry } from '@sentry/nextjs';
 import { APIErrorJSON } from 'lib/model/error';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
-import syncGmail from 'lib/api/sync-gmail';
+import syncGmail from 'lib/api/gmail/sync';
 import verifyAuth from 'lib/api/verify/auth';
 
 /**

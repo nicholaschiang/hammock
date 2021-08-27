@@ -8,18 +8,19 @@ import getOrCreateLabel from 'lib/api/get/label';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
-import syncGmail from 'lib/api/sync-gmail';
+import syncGmail from 'lib/api/gmail/sync';
 import updateGmailMessages from 'lib/api/update/gmail-messages';
 import { upsertUser } from 'lib/api/db/user';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
+import watchGmail from 'lib/api/gmail/watch';
 
 async function fetchAccount(req: Req, res: Res<User>): Promise<void> {
   console.time('get-account');
   try {
     const user = await verifyAuth(req);
     res.status(200).json(user);
-    logger.info(`Fetched ${user}.`);
+    logger.info(`Fetched ${user.name} (${user.id}).`);
     segment.track({ userId: user.id, event: 'User Fetched' });
   } catch (e) {
     handle(e, res);
@@ -32,7 +33,7 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
   try {
     const body = verifyBody<User>(req.body, isUser);
     await verifyAuth(req, body.id);
-    await Promise.all([upsertUser(body), syncGmail(body)]);
+    await Promise.all([upsertUser(body), syncGmail(body), watchGmail(body)]);
     res.status(200).json(body);
     logger.info(`Updated ${body}.`);
     segment.track({ userId: body.id, event: 'User Updated' });

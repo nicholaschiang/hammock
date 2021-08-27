@@ -30,15 +30,18 @@ async function redirectAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
       ) {
         Object.entries(SCOPES).some(([scope, url]) => {
           if (user.scopes.includes(url)) return false;
-          logger.error(`Missing ${scope} scope (${url}) for ${user}...`);
+          logger.error(
+            `Missing ${scope} scope (${url}) for ${user.name} (${user.id})...`
+          );
           res.redirect(`/login?error=${scope}`);
           return true;
         });
       } else if (user?.subscriptions.length) {
-        logger.info(`Redirecting ${user} to feed...`);
+        logger.info(`Redirecting ${user.name} (${user.id}) to feed...`);
         res.redirect('/feed');
       } else {
-        logger.info(`Redirecting ${user} to subscriptions...`);
+        const string = user ? ` ${user.name} (${user.id}) ` : ' ';
+        logger.info(`Redirecting${string}to subscriptions...`);
         res.redirect('/subscriptions');
       }
     } catch (e) {

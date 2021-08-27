@@ -23,6 +23,15 @@ export async function updateMessage(message: Message): Promise<Message> {
   return data ? data[0] : message;
 }
 
+export async function deleteMessage(id: string): Promise<void> {
+  logger.verbose(`Deleting message (${id}) row...`);
+  const { error } = await supabase
+    .from<Message>('messages')
+    .delete()
+    .eq('id', id);
+  handle('deleting', 'message row', id, error);
+}
+
 export async function getMessage(id: string): Promise<Message> {
   logger.verbose(`Selecting message (${id}) row...`);
   const { data, error } = await supabase
