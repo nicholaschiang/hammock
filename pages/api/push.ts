@@ -75,6 +75,7 @@ export default async function push(req: Req, res: Res): Promise<void> {
           }
         )
       );
+      res.status(200).end();
     } catch (e) {
       handle(e, res);
     }
