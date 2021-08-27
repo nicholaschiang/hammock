@@ -10,10 +10,10 @@ import Article from 'components/article';
 import Controls from 'components/controls';
 import Page from 'components/page';
 
-import useMessages from 'lib/hooks/messages';
 import { Message } from 'lib/model/message';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
+import useMessages from 'lib/hooks/messages';
 
 /**
  * Extends the built-in browser `String#trim` method to account for zero-width

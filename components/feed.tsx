@@ -5,8 +5,8 @@ import { useMemo } from 'react';
 import Empty from 'components/empty';
 import Section from 'components/section';
 
-import { MessagesQuery } from 'lib/model/query';
 import { Message } from 'lib/model/message';
+import { MessagesQuery } from 'lib/model/query';
 import { isSameDay } from 'lib/utils';
 import useMessages from 'lib/hooks/messages';
 import useNow from 'lib/hooks/now';
