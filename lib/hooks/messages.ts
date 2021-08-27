@@ -48,16 +48,25 @@ export default function useMessages(
     },
     [href]
   );
+  const { mutated, setMutated } = useContext(MessagesMutatedContext);
   const { data, mutate, ...rest } = useSWRInfinite<MessagesRes, APIError>(
     getKey,
-    config
+    {
+      revalidateOnMount: !mutated,
+      revalidateOnFocus: !mutated,
+      revalidateOnReconnect: !mutated,
+      ...config,
+    }
   );
+  useEffect(() => {
+    // Preload data when the user arrives at the message page first.
+    if (!data) void mutate();
+  }, [data, mutate]);
   useEffect(() => {
     data?.flat().forEach((message) => {
       void globalMutate(`/api/messages/${message.id}`, message, false);
     });
   }, [data]);
-  const { mutated, setMutated } = useContext(MessagesMutatedContext);
   const hasMore = useMemo(
     () => !data || data[data.length - 1].length === HITS_PER_PAGE || mutated,
     [data, mutated]

@@ -36,7 +36,10 @@ function getVerticalScrollPercentage(elm: HTMLElement): number {
 }
 
 export default function MessagePage(): JSX.Element {
-  const { mutate: mutateMessages, setMutated } = useMessages();
+  const { mutate: mutateMessages, setMutated } = useMessages(
+    {},
+    { revalidateOnMount: false }
+  );
   const { query } = useRouter();
   const { data: message } = useSWR<Message>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
@@ -96,6 +99,7 @@ export default function MessagePage(): JSX.Element {
       setMutated(false);
     }
     void update();
+    // TODO: Go back when unarchiving as well and mutate the archive data too.
     if (updated.archived) Router.back();
   }, [setMutated, mutateMessages, scroll, message]);
 
