@@ -7,6 +7,7 @@ import { User } from 'lib/model/user';
 import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
+import logger from 'lib/api/logger';
 import messageFromGmail from 'lib/api/message-from-gmail';
 import supabase from 'lib/api/supabase';
 import verifyBody from 'lib/api/verify/body';
@@ -40,9 +41,11 @@ export default async function push(req: Req, res: Res): Promise<void> {
       // The actual data payload is base64 encoded in the `message.data` field.
       // @see {@link https://developers.google.com/gmail/api/guides/push#receiving_notifications}
       const { message } = verifyBody<PushMessage>(req.body, isPushMessage);
+      logger.verbose(`Parsing message body (${message.data})...`);
       const { emailAddress, historyId } = JSON.parse(
         Buffer.from(message.data, 'base64').toString('utf-8')
       ) as { emailAddress: string; historyId: string };
+      logger.verbose(`Fetching user (${emailAddress}) token...`);
       const { data, error } = await supabase
         .from<User>('users')
         .select('token')
@@ -50,6 +53,9 @@ export default async function push(req: Req, res: Res): Promise<void> {
       if (!data?.length)
         throw new APIError(`User (${emailAddress}) not found`, 404);
       handleSupabaseError('selecting', 'user', emailAddress, error);
+      logger.verbose(
+        `Fetching user (${emailAddress}) history (${historyId})...`
+      );
       const client = gmail(data[0].token);
       const { data: history } = await client.users.history.list({
         historyTypes: ['messageAdded', 'messageDeleted'],
@@ -57,18 +63,33 @@ export default async function push(req: Req, res: Res): Promise<void> {
         maxResults: 500,
         userId: 'me',
       });
+      logger.verbose(
+        `Parsing ${history.history?.length} history records for user (${emailAddress})...`
+      );
       await Promise.all(
         (history.history || []).map(
           async ({ messagesAdded, messagesDeleted }) => {
             const added = (messagesAdded || []).map((m) => m.message);
-            const deleted = (messagesDeleted || []).map((m) => m.message);
+            logger.verbose(
+              `Adding ${added.length} messages for user (${emailAddress})...`
+            );
             await Promise.all(
               added.map(async (m) => {
+                logger.verbose(
+                  `Creating message: ${JSON.stringify(m, null, 2)}`
+                );
                 if (m) await createMessage(messageFromGmail(m));
               })
             );
+            const deleted = (messagesDeleted || []).map((m) => m.message);
+            logger.verbose(
+              `Deleting ${deleted.length} messages for user (${emailAddress})...`
+            );
             await Promise.all(
               deleted.map(async (m) => {
+                logger.verbose(
+                  `Deleting message: ${JSON.stringify(m, null, 2)}`
+                );
                 if (m?.id) await deleteMessage(m.id);
               })
             );
