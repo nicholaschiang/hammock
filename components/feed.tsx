@@ -28,7 +28,7 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
 }
 
 export default function Feed(query: MessagesQuery): JSX.Element {
-  const { data, setSize, hasMore } = useMessages(query);
+  const { data, setSize, hasMore, href } = useMessages(query);
   const sections = useMemo(() => {
     const newSections: FeedSectionProps[] = [];
     data?.flat().forEach((message) => {
@@ -59,7 +59,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
       <Head>
         <link
           rel='preload'
-          href='/api/messages'
+          href={href}
           crossOrigin='anonymous'
           type='application/json'
           as='fetch'

@@ -36,7 +36,7 @@ function getVerticalScrollPercentage(elm: HTMLElement): number {
 }
 
 export default function MessagePage(): JSX.Element {
-  const { mutate: mutateMessages } = useMessages();
+  const { mutate: mutateMessages, setMutated } = useMessages();
   const { query } = useRouter();
   const { data: message } = useSWR<Message>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
@@ -86,9 +86,18 @@ export default function MessagePage(): JSX.Element {
         }),
       false
     );
-    void mutate(url, fetcher(url, 'put', updated), false);
+    async function update(): Promise<void> {
+      await mutate(url, fetcher(url, 'put', updated), false);
+      // Refresh the feed so that we know whether or not we have more messages
+      // to be loaded in the infinite scroller (e.g. if we remove a message from
+      // the feed because it's been archived, we no longer have HITS_PER_PAGE
+      // messages BUT there might still be more messages to be loaded).
+      await mutateMessages();
+      setMutated(false);
+    }
+    void update();
     if (updated.archived) Router.back();
-  }, [mutateMessages, scroll, message]);
+  }, [setMutated, mutateMessages, scroll, message]);
 
   useEffect(() => {
     // Don't try to update the scroll position if we're archiving the message.

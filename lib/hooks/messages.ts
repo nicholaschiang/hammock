@@ -18,27 +18,35 @@ import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
 import { APIError } from 'lib/model/error';
 import { Callback } from 'lib/model/callback';
 
-export const MessagesMutatedContext = createContext({
+export interface MessagesMutated {
+  mutated: boolean;
+  setMutated: Callback<boolean>;
+}
+
+export const MessagesMutatedContext = createContext<MessagesMutated>({
   mutated: false,
-  setMutated: (() => {}) as Callback<boolean>,
+  setMutated: () => {},
 });
+
+export type Messages = SWRInfiniteResponse<MessagesRes> &
+  MessagesMutated & { hasMore: boolean; href: string };
 
 export default function useMessages(
   query: MessagesQuery = {},
   config: SWRInfiniteConfiguration = {}
-): SWRInfiniteResponse<MessagesRes> & { hasMore: boolean } {
+): Messages {
+  const href = useMemo(() => {
+    const params = new URLSearchParams(query);
+    const queryString = params.toString();
+    return queryString ? `/api/messages?${queryString}` : '/api/messages';
+  }, [query]);
   const getKey = useCallback(
     (pageIdx: number, prev: MessagesRes | null) => {
-      const params = new URLSearchParams(query);
       if (prev && !prev.length) return null;
-      if (!prev || pageIdx === 0) {
-        const queryString = params.toString();
-        return queryString ? `/api/messages?${queryString}` : '/api/messages';
-      }
-      params.append('page', pageIdx.toString());
-      return `/api/messages?${params.toString()}`;
+      if (!prev || pageIdx === 0) return href;
+      return `${href}${href.includes('?') ? '&' : '?'}page=${pageIdx}`;
     },
-    [query]
+    [href]
   );
   const { data, mutate, ...rest } = useSWRInfinite<MessagesRes, APIError>(
     getKey,
@@ -50,17 +58,6 @@ export default function useMessages(
     });
   }, [data]);
   const { mutated, setMutated } = useContext(MessagesMutatedContext);
-  useEffect(() => {
-    // If the message page mutates these messages to e.g. archive a message and
-    // thus remove it from the `/feed` page, we have to refresh the messages so
-    // that we know whether or not there's more to load in the infinite scroll
-    // b/c a mutated `/api/messages` response might not have 5 messages.
-    async function refresh(): Promise<void> {
-      if (mutated) await mutate();
-      setMutated(false);
-    }
-    void refresh();
-  }, [mutated, setMutated, mutate]);
   const hasMore = useMemo(
     () => !data || data[data.length - 1].length === HITS_PER_PAGE || mutated,
     [data, mutated]
@@ -79,5 +76,13 @@ export default function useMessages(
     },
     [mutate, setMutated]
   );
-  return { data, hasMore, mutate: mutateMessages, ...rest };
+  return {
+    data,
+    hasMore,
+    href,
+    mutated,
+    setMutated,
+    mutate: mutateMessages,
+    ...rest,
+  };
 }
