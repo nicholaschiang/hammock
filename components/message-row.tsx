@@ -23,17 +23,19 @@ export default function MessageRow({
         data-cy='message-row'
         data-loading={loading}
       >
-        <div className='from'>
-          <Avatar src={message?.photo} loading={loading} size={24} />
-          <span className={cn('name', { loading })} data-cy='name'>
-            {date && !loading
-              ? new Date(message?.date || new Date()).toLocaleString('en', {
-                  month: 'short',
-                  day: 'numeric',
-                })
-              : message?.name}
-          </span>
-        </div>
+        <Link href={message ? `/writers/${message.email}` : '#'}>
+          <a className='from'>
+            <Avatar src={message?.photo} loading={loading} size={24} />
+            <span className={cn('name', { loading })} data-cy='name'>
+              {date && !loading
+                ? new Date(message?.date || new Date()).toLocaleString('en', {
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                : message?.name}
+            </span>
+          </a>
+        </Link>
         <div className='header'>
           <h3 className={cn('subject', { loading })} data-cy='subject'>
             {message?.subject}
@@ -71,6 +73,7 @@ export default function MessageRow({
           }
 
           .from {
+            text-decoration: none;
             display: flex;
             height: 24px;
           }
