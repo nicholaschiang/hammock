@@ -40,9 +40,8 @@ async function redirectAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
         logger.info(`Redirecting ${user.name} (${user.id}) to feed...`);
         res.redirect('/feed');
       } else {
-        logger.info(
-          `Redirecting ${user.name} (${user.id}) to subscriptions...`
-        );
+        const string = user ? ` ${user.name} (${user.id}) ` : ' ';
+        logger.info(`Redirecting${string}to subscriptions...`);
         res.redirect('/subscriptions');
       }
     } catch (e) {
