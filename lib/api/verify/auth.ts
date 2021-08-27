@@ -1,5 +1,6 @@
 import { NextApiRequest } from 'next';
 import { getSession } from 'next-auth/client';
+import { nanoid } from 'nanoid';
 import { setUser } from '@sentry/nextjs';
 
 import { APIError } from 'lib/model/error';
@@ -24,10 +25,11 @@ export default async function verifyAuth(
   req: NextApiRequest,
   requiredUserId?: number
 ): Promise<User> {
-  console.time('verify-auth');
+  const timeId = `verify-auth-${nanoid()}`;
+  console.time(timeId);
   logger.verbose('Verifying authentication session...');
   const session = await getSession({ req });
-  console.timeEnd('verify-auth');
+  console.timeEnd(timeId);
   if (!session) throw new APIError('You are not authenticated', 401);
   const { user } = session;
   setUser({

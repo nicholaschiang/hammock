@@ -23,7 +23,9 @@ async function fetchMessageAPI(
     const user = await verifyAuth(req);
     const message = await getMessage(id);
     res.status(200).json(message);
-    logger.info(`Fetched ${message} for ${user}.`);
+    logger.info(
+      `Fetched message (${message.id}) for ${user.name} (${user.id}).`
+    );
     console.timeEnd(`fetch-message-${id}`);
     segment.track({ userId: user.id, event: 'Message Fetched' });
   } catch (e) {
@@ -37,10 +39,14 @@ async function updateMessageAPI(
 ): Promise<void> {
   try {
     const body = verifyBody<Message>(req.body, isMessage);
+    console.time(`update-message-${body.id}`);
     const user = await verifyAuth(req);
     const message = await updateMessage(body);
     res.status(200).json(message);
-    logger.info(`Updated ${message} for ${user}.`);
+    logger.info(
+      `Updated message (${message.id}) for ${user.name} (${user.id}).`
+    );
+    console.timeEnd(`update-message-${body.id}`);
     segment.track({ userId: user.id, event: 'Message Updated' });
   } catch (e) {
     handle(e, res);
