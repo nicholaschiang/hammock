@@ -10,10 +10,10 @@ import Article from 'components/article';
 import Controls from 'components/controls';
 import Page from 'components/page';
 
-import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { Message } from 'lib/model/message';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
+import useMessages from 'lib/hooks/messages';
 
 /**
  * Extends the built-in browser `String#trim` method to account for zero-width
@@ -36,8 +36,10 @@ function getVerticalScrollPercentage(elm: HTMLElement): number {
 }
 
 export default function MessagePage(): JSX.Element {
-  const { mutate: mutateMessages } = useMessages();
-  const { setMutated } = useMessagesMutated();
+  const { mutate: mutateMessages, setMutated } = useMessages(
+    {},
+    { revalidateOnMount: false }
+  );
   const { query } = useRouter();
   const { data: message } = useSWR<Message>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
@@ -87,8 +89,17 @@ export default function MessagePage(): JSX.Element {
         }),
       false
     );
-    setMutated(true);
-    void mutate(url, fetcher(url, 'put', updated), false);
+    async function update(): Promise<void> {
+      await mutate(url, fetcher(url, 'put', updated), false);
+      // Refresh the feed so that we know whether or not we have more messages
+      // to be loaded in the infinite scroller (e.g. if we remove a message from
+      // the feed because it's been archived, we no longer have HITS_PER_PAGE
+      // messages BUT there might still be more messages to be loaded).
+      await mutateMessages();
+      setMutated(false);
+    }
+    void update();
+    // TODO: Go back when unarchiving as well and mutate the archive data too.
     if (updated.archived) Router.back();
   }, [setMutated, mutateMessages, scroll, message]);
 
@@ -96,18 +107,14 @@ export default function MessagePage(): JSX.Element {
     // Don't try to update the scroll position if we're archiving the message.
     // @see {@link https://github.com/readhammock/hammock/issues/37}
     if (archiving) return () => {};
-    // TODO: Save the message scroll position in our messagebase every second.
-    // Currently, this saves the scroll position after a second of no scrolling.
-    // Instead, I want to schedule an update every one second where we:
-    // - If the scroll position hasn't changed since the last save, skip.
-    // - Otherwise, save the latest scroll position in our messagebase.
+    if (message?.scroll === scroll) return () => {};
     async function saveScrollPosition(): Promise<void> {
       if (!message?.id) return;
       const url = `/api/messages/${message.id}`;
       const updated = { ...message, scroll };
       // TODO: Mutate the message used in `/feed` to match.
       // See: https://github.com/vercel/swr/issues/1156
-      await mutate(url, fetcher(url, 'put', updated));
+      await mutate(url, fetcher(url, 'put', updated), false);
     }
     const timeoutId = setTimeout(() => {
       void saveScrollPosition();

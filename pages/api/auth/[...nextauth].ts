@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth';
 import Providers from 'next-auth/providers';
+import { nanoid } from 'nanoid';
 import to from 'await-to-js';
 
 import { SCOPES, User } from 'lib/model/user';
@@ -49,7 +50,8 @@ export default NextAuth({
       return baseUrl;
     },
     async jwt(token, user, account, profile) {
-      console.time('process-jwt');
+      const timeId = `process-jwt-${nanoid()}`;
+      console.time(timeId);
       logger.verbose(`Processing JWT for user (${token.sub})...`);
       if (user && account && profile) {
         const created = {
@@ -79,17 +81,18 @@ export default NextAuth({
       // cookie payload size supported by most browsers (~4096 bytes).
       // @see {@link https://next-auth.js.org/faq#what-are-the-disadvantages-of-json-web-tokens}
       // @see {@link http://browsercookielimits.iain.guru/}
-      console.timeEnd('process-jwt');
+      console.timeEnd(timeId);
       return token;
     },
     async session(session, token) {
       // Instead of including user data in the JWT itself (because of cookie
       // payload size limits), I fetch that data from our database here.
       // @see {@link https://next-auth.js.org/configuration/callbacks#session-callback}
-      console.time('fetch-session');
+      const timeId = `fetch-session-${nanoid()}`;
+      console.time(timeId);
       const user = await getUser(Number((token as { sub: string }).sub));
       logger.verbose(`Fetching session for ${user.name} (${user.id})...`);
-      console.timeEnd('fetch-session');
+      console.timeEnd(timeId);
       return { ...session, user };
     },
   },

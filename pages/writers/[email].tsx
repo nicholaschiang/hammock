@@ -8,14 +8,15 @@ import MessageRow from 'components/message-row';
 import Page from 'components/page';
 import Section from 'components/section';
 
-import { HITS_PER_PAGE } from 'lib/model/query';
 import useMessages from 'lib/hooks/messages';
 import { useUser } from 'lib/context/user';
 
 export default function WritersPage(): JSX.Element {
   const { query } = useRouter();
   const { user, loggedIn } = useUser();
-  const { data, setSize } = useMessages({ writer: query.email as string });
+  const { data, setSize, hasMore } = useMessages({
+    writer: query.email as string,
+  });
   const writer = useMemo(
     () => user?.subscriptions.find((s) => s.email === query.email),
     [query.email, user?.subscriptions]
@@ -38,7 +39,7 @@ export default function WritersPage(): JSX.Element {
         <InfiniteScroll
           dataLength={data?.flat().length || 0}
           next={() => setSize((prev) => prev + 1)}
-          hasMore={!data || data[data.length - 1].length === HITS_PER_PAGE}
+          hasMore={hasMore}
           style={{ overflow: undefined }}
           scrollThreshold={0.65}
           loader={loader}

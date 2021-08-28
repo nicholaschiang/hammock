@@ -1,14 +1,14 @@
-import { useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useMemo } from 'react';
 
 import Empty from 'components/empty';
 import Section from 'components/section';
 
-import { HITS_PER_PAGE, MessagesQuery } from 'lib/model/query';
-import useMessages, { useMessagesMutated } from 'lib/hooks/messages';
 import { Message } from 'lib/model/message';
+import { MessagesQuery } from 'lib/model/query';
 import { isSameDay } from 'lib/utils';
+import useMessages from 'lib/hooks/messages';
 import useNow from 'lib/hooks/now';
 
 interface FeedSectionProps {
@@ -28,7 +28,7 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
 }
 
 export default function Feed(query: MessagesQuery): JSX.Element {
-  const { data, setSize, mutate: mutateMessages } = useMessages(query);
+  const { data, setSize, hasMore, href } = useMessages(query);
   const sections = useMemo(() => {
     const newSections: FeedSectionProps[] = [];
     data?.flat().forEach((message) => {
@@ -47,27 +47,13 @@ export default function Feed(query: MessagesQuery): JSX.Element {
     return newSections;
   }, [data]);
 
-  // TODO: Refactor this to reduce code duplication with the `/highlights` page.
-  const { mutated, setMutated } = useMessagesMutated();
-  useEffect(() => {
-    // If the message page mutates these messages to e.g. archive a message and
-    // thus remove it from the `/feed` page, we have to refresh the messages so
-    // that we know whether or not there's more to load in the infinite scroll
-    // b/c a mutated `/api/messages` response might not have 5 messages.
-    async function refresh(): Promise<void> {
-      if (mutated) await mutateMessages();
-      setMutated(false);
-    }
-    void refresh();
-  }, [mutated, setMutated, mutateMessages]);
-
+  // TODO: Ensure that there aren't duplicate keys in the infinite scroller due
+  // to local mutations and revalidations for only certain message pages.
   return (
     <InfiniteScroll
       dataLength={data?.flat().length || 0}
       next={() => setSize((prev) => prev + 1)}
-      hasMore={
-        !data || data[data.length - 1].length === HITS_PER_PAGE || mutated
-      }
+      hasMore={hasMore}
       style={{ overflow: undefined }}
       scrollThreshold={0.65}
       loader={<Section />}
@@ -75,7 +61,7 @@ export default function Feed(query: MessagesQuery): JSX.Element {
       <Head>
         <link
           rel='preload'
-          href='/api/messages'
+          href={href}
           crossOrigin='anonymous'
           type='application/json'
           as='fetch'
