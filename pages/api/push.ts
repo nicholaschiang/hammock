@@ -55,10 +55,10 @@ export default async function push(req: Req, res: Res): Promise<void> {
       if (!data?.length)
         throw new APIError(`User (${emailAddress}) not found`, 404);
       handleSupabaseError('selecting', 'user', emailAddress, error);
-      logger.verbose(
-        `Fetching user (${emailAddress}) history (${historyId})...`
-      );
       const user = data[0];
+      logger.verbose(
+        `Fetching ${user.name} (${user.id}) history (${historyId})...`
+      );
       const client = gmail(user.token);
       const { data: history } = await client.users.history.list({
         historyTypes: ['messageAdded', 'messageDeleted'],
