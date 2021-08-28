@@ -10,6 +10,20 @@ Sentry.init({
   dsn:
     SENTRY_DSN ||
     'https://714cd7f7323d4a5b8ef2c0a580fb034d@o956434.ingest.sentry.io/5905800',
+  integrations: [
+    new Sentry.Integrations.BrowserTracing({
+      shouldCreateSpanForRequest(url) {
+        const preloads = [
+          '/api/account',
+          '/api/messages',
+          '/api/sync',
+          '/api/subscriptions',
+          '/api/highlights',
+        ];
+        return preloads.every((p) => !url.endsWith(p));
+      },
+    }),
+  ],
   // Adjust this value in production, or use tracesSampler for greater control
   tracesSampleRate: 1.0,
   // ...
