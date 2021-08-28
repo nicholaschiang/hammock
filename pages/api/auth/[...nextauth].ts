@@ -68,9 +68,7 @@ export default NextAuth({
         created.subscriptions = res?.subscriptions || [];
         created.label = res?.label || (await getOrCreateLabel(created));
         created.filter = res?.filter || (await getOrCreateFilter(created));
-        logger.verbose(
-          `Creating document for ${created.name} (${created.id})...`
-        );
+        logger.verbose(`Creating ${created.name} (${created.id})...`);
         await Promise.all([
           upsertUser(created),
           syncGmail(created),
