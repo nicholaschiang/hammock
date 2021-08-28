@@ -1,9 +1,11 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import to from 'await-to-js';
 
-import { createMessage, deleteMessage } from 'lib/api/db/message';
+import { createMessage, deleteMessage, getMessage } from 'lib/api/db/message';
 import { isDateJSON, isJSON } from 'lib/model/json';
 import { APIError } from 'lib/model/error';
 import { User } from 'lib/model/user';
+import getGmailMessages from 'lib/api/get/gmail-messages';
 import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
@@ -48,7 +50,7 @@ export default async function push(req: Req, res: Res): Promise<void> {
       logger.verbose(`Fetching user (${emailAddress}) token...`);
       const { data, error } = await supabase
         .from<User>('users')
-        .select('token')
+        .select()
         .eq('email', emailAddress);
       if (!data?.length)
         throw new APIError(`User (${emailAddress}) not found`, 404);
@@ -56,7 +58,8 @@ export default async function push(req: Req, res: Res): Promise<void> {
       logger.verbose(
         `Fetching user (${emailAddress}) history (${historyId})...`
       );
-      const client = gmail(data[0].token);
+      const user = data[0];
+      const client = gmail(user.token);
       const { data: history } = await client.users.history.list({
         historyTypes: ['messageAdded', 'messageDeleted'],
         startHistoryId: historyId,
@@ -64,21 +67,28 @@ export default async function push(req: Req, res: Res): Promise<void> {
         userId: 'me',
       });
       logger.verbose(
-        `Parsing ${history.history?.length} history records for user (${emailAddress})...`
+        `Parsing ${history.history?.length} history records for ${user.name} (${user.id})...`
       );
+      const toAdd: string[] = [];
       await Promise.all(
         (history.history || []).map(
           async ({ messagesAdded, messagesDeleted }) => {
             const added = (messagesAdded || []).map((m) => m.message);
             logger.verbose(
-              `Adding ${added.length} messages for user (${emailAddress})...`
+              `Adding ${added.length} messages for ${user.name} (${user.id})...`
             );
             await Promise.all(
               added.map(async (m) => {
-                logger.verbose(
-                  `Creating message: ${JSON.stringify(m, null, 2)}`
-                );
-                if (m) await createMessage(messageFromGmail(m));
+                if (!m?.id) {
+                  logger.error('Message missing valid identifier.');
+                } else {
+                  const [err] = await to(getMessage(m.id));
+                  if (err) {
+                    toAdd.push(m.id);
+                  } else {
+                    logger.verbose(`Message (${m.id}) already exists.`);
+                  }
+                }
               })
             );
             const deleted = (messagesDeleted || []).map((m) => m.message);
@@ -87,14 +97,30 @@ export default async function push(req: Req, res: Res): Promise<void> {
             );
             await Promise.all(
               deleted.map(async (m) => {
-                logger.verbose(
-                  `Deleting message: ${JSON.stringify(m, null, 2)}`
-                );
-                if (m?.id) await deleteMessage(m.id);
+                if (!m?.id) {
+                  logger.error('Message missing valid identifier.');
+                } else {
+                  logger.verbose(`Deleting message (${m.id})...`);
+                  await deleteMessage(m.id);
+                }
               })
             );
           }
         )
+      );
+      logger.verbose(
+        `Fetching ${toAdd.length} messages for ${user.name} (${user.id})...`
+      );
+      const gmailMessages = await getGmailMessages(toAdd, client);
+      logger.verbose(
+        `Saving ${gmailMessages.length} messages for ${user.name} (${user.id})...`
+      );
+      await Promise.all(
+        gmailMessages.map(async (gmailMessage) => {
+          const msg = messageFromGmail(gmailMessage);
+          msg.user = user.id;
+          await createMessage(msg);
+        })
       );
       res.status(200).end();
     } catch (e) {
