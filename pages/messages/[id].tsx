@@ -97,6 +97,7 @@ export default function MessagePage(): JSX.Element {
       // messages BUT there might still be more messages to be loaded).
       await mutateMessages();
       setMutated(false);
+      setArchiving(false);
     }
     void update();
     // TODO: Go back when unarchiving as well and mutate the archive data too.
