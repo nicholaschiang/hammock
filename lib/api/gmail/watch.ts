@@ -10,6 +10,8 @@ export default async function watchGmail(user: User): Promise<void> {
     return;
   }
   const client = gmail(user.token);
+  logger.verbose(`Stopping Gmail watch for ${user.name} (${user.id})...`);
+  await client.users.stop({ userId: 'me' });
   logger.verbose(`Setting up Gmail watch for ${user.name} (${user.id})...`);
   await client.users.watch({
     userId: 'me',
