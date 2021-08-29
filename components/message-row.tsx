@@ -24,7 +24,7 @@ export default function MessageRow({
         data-loading={loading}
       >
         <Link href={message ? `/writers/${message.email}` : '#'}>
-          <a className='from'>
+          <div className='from'>
             <Avatar src={message?.photo} loading={loading} size={24} />
             <span className={cn('name', { loading })} data-cy='name'>
               {date && !loading
@@ -34,7 +34,7 @@ export default function MessageRow({
                   })
                 : message?.name}
             </span>
-          </a>
+          </div>
         </Link>
         <div className='header'>
           <h3 className={cn('subject', { loading })} data-cy='subject'>
@@ -73,7 +73,6 @@ export default function MessageRow({
           }
 
           .from {
-            text-decoration: none;
             display: flex;
             height: 24px;
           }
