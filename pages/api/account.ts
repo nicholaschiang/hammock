@@ -2,9 +2,11 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
 import { User, isUser } from 'lib/model/user';
+import { addLabels, removeLabels } from 'lib/api/gmail/labels';
 import { APIErrorJSON } from 'lib/model/error';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
+import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import { removeMessages } from 'lib/api/db/message';
@@ -32,6 +34,7 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
   console.time('put-account');
   try {
     const body = verifyBody<User>(req.body, isUser);
+    const client = gmail(body.token);
     await verifyAuth(req, body.id);
     body.label = body.label || (await getOrCreateLabel(body));
     body.filter = body.filter || (await getOrCreateFilter(body));
@@ -42,6 +45,8 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
       syncGmail(body),
       watchGmail(body),
       removeMessages(body),
+      addLabels(body, client),
+      removeLabels(body, client),
     ]);
     res.status(200).json(body);
     logger.info(`Updated ${body.name} (${body.id}).`);
