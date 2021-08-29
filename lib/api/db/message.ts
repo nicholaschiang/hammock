@@ -43,7 +43,7 @@ export async function removeMessages(user: User): Promise<void> {
     .not(
       'email',
       'in',
-      user.subscriptions.map((s) => s.email)
+      `(${user.subscriptions.map((s) => s.email).join(',')})`
     );
   handle(
     'removing',
