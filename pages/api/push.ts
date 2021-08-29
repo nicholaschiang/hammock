@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import { withSentry } from '@sentry/nextjs';
 
 import { createMessage, deleteMessage } from 'lib/api/db/message';
 import { isDateJSON, isJSON } from 'lib/model/json';
@@ -33,7 +34,7 @@ function isPushMessage(msg: unknown): msg is PushMessage {
   return true;
 }
 
-export default async function push(req: Req, res: Res): Promise<void> {
+async function pushAPI(req: Req, res: Res): Promise<void> {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     res.status(405).end(`Method ${req.method as string} Not Allowed`);
@@ -109,3 +110,5 @@ export default async function push(req: Req, res: Res): Promise<void> {
     }
   }
 }
+
+export default withSentry(pushAPI);
