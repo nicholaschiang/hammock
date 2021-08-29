@@ -17,8 +17,8 @@ export default async function syncGmail(
     logger.warn(`Skipping sync for no subscriptions for ${usr}...`);
     return '';
   }
-  if (!user.scopes.includes(SCOPES.READ)) {
-    logger.error(`Skipping sync for ${usr} without READ scope...`);
+  if (!user.scopes.includes(SCOPES.MODIFY)) {
+    logger.error(`Skipping sync for ${usr} without MODIFY scope...`);
     return '';
   }
   const client = gmail(user.token);

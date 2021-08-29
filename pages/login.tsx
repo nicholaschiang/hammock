@@ -88,7 +88,8 @@ const SCOPE_ERRORS: Record<keyof typeof SCOPES, string> = {
     'To function correctly, Hammock needs to know your email address. Please login again.',
   PROFILE:
     'To function correctly, Hammock needs to view your Google profile. Please login again.',
-  READ: 'To fetch your newsletters, Hammock needs to view your email messages. We never store any message content; your emails remain safely in Gmail. Please login again and grant Hammock view access to Gmail.',
+  MODIFY:
+    'To fetch, mark as read, and retroactively label your newsletters, Hammock needs to view and modify your email messages. We never store any message content; your emails remain safely in Gmail. Please login again and grant Hammock modify access to Gmail.',
   LABEL:
     'To create the “Hammock” label, Hammock needs to edit your email labels. Please login again and grant Hammock edit access to Gmail’s labels.',
   FILTER:
