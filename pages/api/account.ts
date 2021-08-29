@@ -34,21 +34,21 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
   console.time('put-account');
   try {
     const body = verifyBody<User>(req.body, isUser);
-    await verifyAuth(req, body.id);
-    await Promise.all([upsertUser(body), syncGmail(body), watchGmail(body)]);
-    res.status(200).json(body);
-    logger.info(`Updated ${body.name} (${body.id}).`);
-    segment.track({ userId: body.id, event: 'User Updated' });
-    body.label = await getOrCreateLabel(body);
-    body.filter = await getOrCreateFilter(body);
     const client = gmail(body.token);
+    await verifyAuth(req, body.id);
+    body.label = body.label || (await getOrCreateLabel(body));
+    body.filter = body.filter || (await getOrCreateFilter(body));
     await Promise.all([
       upsertUser(body),
+      syncGmail(body),
+      watchGmail(body),
       removeMessages(body),
       addLabels(body, client),
       removeLabels(body, client),
     ]);
-    logger.info(`Retro-updated messages for ${body.name} (${body.id}).`);
+    res.status(200).json(body);
+    logger.info(`Updated ${body.name} (${body.id}).`);
+    segment.track({ userId: body.id, event: 'User Updated' });
   } catch (e) {
     handle(e, res);
   }
