@@ -118,8 +118,14 @@ export default async function push(req: Req, res: Res): Promise<void> {
       await Promise.all(
         gmailMessages.map(async (gmailMessage) => {
           const msg = messageFromGmail(gmailMessage);
-          msg.user = user.id;
-          await createMessage(msg);
+          if (user.subscriptions.some((s) => s.email === msg.email)) {
+            msg.user = user.id;
+            await createMessage(msg);
+          } else {
+            logger.warn(
+              `Skipping message (${msg.id}) ${user.name} (${user.id}) isn't subscribed to...`
+            );
+          }
         })
       );
       res.status(200).end();
