@@ -200,8 +200,6 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
 
   console.timeEnd(`parse-gmail-message-${gmailMessage.id}`);
 
-  logger.verbose(`Message date: ${gmailMessage.internalDate}`);
-
   return {
     raw,
     html,
