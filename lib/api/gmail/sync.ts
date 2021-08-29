@@ -12,16 +12,17 @@ export default async function syncGmail(
   user: User,
   pageToken?: string
 ): Promise<string> {
+  const usr = `${user.name} (${user.id})`;
   if (!user.subscriptions.length) {
-    logger.warn(`Skipping sync for no subscriptions for ${user}...`);
+    logger.warn(`Skipping sync for no subscriptions for ${usr}...`);
     return '';
   }
   if (!user.scopes.includes(SCOPES.READ)) {
-    logger.error(`Skipping sync for ${user} without READ scope...`);
+    logger.error(`Skipping sync for ${usr} without READ scope...`);
     return '';
   }
   const client = gmail(user.token);
-  logger.verbose(`Fetching messages for ${user}...`);
+  logger.verbose(`Fetching messages for ${usr}...`);
   const { data } = await client.users.messages.list({
     q: getQuery(user),
     maxResults: 10,
@@ -29,7 +30,7 @@ export default async function syncGmail(
     pageToken,
   });
   const messageIds = (data.messages || []).map((m) => m.id as string);
-  logger.verbose(`Processing ${messageIds.length} messages for ${user}...`);
+  logger.verbose(`Processing ${messageIds.length} messages for ${usr}...`);
   const toSyncMessageIds: string[] = [];
   await Promise.all(
     messageIds.map(async (id) => {
@@ -37,9 +38,9 @@ export default async function syncGmail(
       if (err) toSyncMessageIds.push(id);
     })
   );
-  logger.verbose(`Fetching ${toSyncMessageIds.length} messages for ${user}...`);
+  logger.verbose(`Fetching ${toSyncMessageIds.length} messages for ${usr}...`);
   const gmailMessages = await getGmailMessages(toSyncMessageIds, client);
-  logger.verbose(`Saving ${gmailMessages.length} messages for ${user}...`);
+  logger.verbose(`Saving ${gmailMessages.length} messages for ${usr}...`);
   await Promise.all(
     gmailMessages.map(async (gmailMessage) => {
       const message = messageFromGmail(gmailMessage);

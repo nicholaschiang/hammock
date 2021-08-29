@@ -30,9 +30,10 @@ async function messagesAPI(
       const { quickRead, archive, resume, writer, page } =
         req.query as MessagesQuery;
       const user = await verifyAuth(req);
+      const usr = `${user.name} (${user.id})`;
       const pg = Number.isNaN(Number(page)) ? 0 : Number(page);
       console.time('fetch-messages');
-      logger.verbose(`Fetching messages for ${user}...`);
+      logger.verbose(`Fetching messages for ${usr}...`);
       // TODO: Refactor this and put it in a `getMessages` fx in `lib/api/db`
       // and put the `Query` data model definition in `lib/model/query.ts`.
       let select = supabase
@@ -50,7 +51,7 @@ async function messagesAPI(
       if (!data) throw new APIError('No messages found', 404);
       console.timeEnd('fetch-messages');
       res.status(200).json(data);
-      logger.info(`Fetched ${data?.length} messages for ${user}.`);
+      logger.info(`Fetched ${data?.length} messages for ${usr}.`);
       console.timeEnd('get-messages-api');
       segment.track({ userId: user.id, event: 'Messages Listed' });
     } catch (e) {
