@@ -33,22 +33,21 @@ async function notifyAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
       const now = new Date();
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       logger.info('Fetching users...');
-      // TODO: Once this lands from experimental, send notifications to everyone
-      // instead of just these five beta test users.
       const { data: users } = await supabase.from<User>('users').select();
       const emails: MailDataRequired[] = [];
-      logger.info(`Fetching messages for ${users?.length} users...`);
+      logger.info(`Fetching messages for ${users?.length || 0} users...`);
       await Promise.all(
         (users || []).map(async (user) => {
+          const usr = `${user.name} (${user.id})`;
           // TODO: Filter for message dates that are today in the user's time zone
           // (this will require us to store user time zones in our db).
-          logger.verbose(`Syncing messages for ${user}...`);
+          logger.verbose(`Syncing messages for ${usr}...`);
           // We only have to sync the latest 10 messages because that's all that
           // we're looking at in our email notification anyways. That's why this
           // doesn't care about the `nextPageToken` and isn't recursive.
           const [e] = await to(syncGmail(user));
-          if (e) logger.warn(`Error syncing ${user}'s messages: ${e.stack}`);
-          logger.verbose(`Fetching messages for ${user}...`);
+          if (e) logger.warn(`Error syncing for ${usr}: ${e.stack || ''}`);
+          logger.verbose(`Fetching messages for ${usr}...`);
           const { data: messages } = await supabase
             .from<Message>('messages')
             .select()
@@ -57,13 +56,9 @@ async function notifyAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
             .order('date', { ascending: false })
             .limit(3);
           if (!messages?.length) {
-            logger.verbose(
-              `Skipping email for ${user} with no new messages...`
-            );
+            logger.verbose(`Skipping email for ${usr} with no new messages...`);
           } else {
-            logger.verbose(
-              `Queuing email for ${user} with ${messages.length} new messages...`
-            );
+            logger.verbose(`Queuing email for ${usr} with new messages...`);
             emails.push({
               to: { name: user.name, email: user.email || '' },
               from: { name: 'Hammock', email: 'team@readhammock.com' },
