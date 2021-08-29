@@ -1,11 +1,12 @@
 import { APIError } from 'lib/model/error';
 import { Message } from 'lib/model/message';
+import { User } from 'lib/model/user';
 import handle from 'lib/api/db/error';
 import logger from 'lib/api/logger';
 import supabase from 'lib/api/supabase';
 
 export async function createMessage(message: Message): Promise<Message> {
-  logger.verbose(`Inserting message (${message}) row...`);
+  logger.verbose(`Inserting message (${message.id}) row...`);
   const { data, error } = await supabase
     .from<Message>('messages')
     .insert(message);
@@ -14,7 +15,7 @@ export async function createMessage(message: Message): Promise<Message> {
 }
 
 export async function updateMessage(message: Message): Promise<Message> {
-  logger.verbose(`Updating message (${message}) row...`);
+  logger.verbose(`Updating message (${message.id}) row...`);
   const { data, error } = await supabase
     .from<Message>('messages')
     .update(message)
@@ -30,6 +31,26 @@ export async function deleteMessage(id: string): Promise<void> {
     .delete()
     .eq('id', id);
   handle('deleting', 'message row', id, error);
+}
+
+// Deletes messages that are in our database that are no longer subscribed to.
+export async function removeMessages(user: User): Promise<void> {
+  logger.verbose(`Removing messages for ${user.name} (${user.id})...`);
+  const { error } = await supabase
+    .from<Message>('messages')
+    .delete()
+    .eq('user', user.id)
+    .not(
+      'email',
+      'in',
+      user.subscriptions.map((s) => s.email)
+    );
+  handle(
+    'removing',
+    'messages',
+    user.subscriptions.map((s) => s.email),
+    error
+  );
 }
 
 export async function getMessage(id: string): Promise<Message> {

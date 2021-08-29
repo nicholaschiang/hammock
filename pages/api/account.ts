@@ -2,14 +2,16 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
 import { User, isUser } from 'lib/model/user';
+import { addLabels, removeLabels } from 'lib/api/gmail/labels';
 import { APIErrorJSON } from 'lib/model/error';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
+import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import { removeMessages } from 'lib/api/db/message';
 import segment from 'lib/api/segment';
 import syncGmail from 'lib/api/gmail/sync';
-import updateGmailMessages from 'lib/api/update/gmail-messages';
 import { upsertUser } from 'lib/api/db/user';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
@@ -35,12 +37,18 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
     await verifyAuth(req, body.id);
     await Promise.all([upsertUser(body), syncGmail(body), watchGmail(body)]);
     res.status(200).json(body);
-    logger.info(`Updated ${body}.`);
+    logger.info(`Updated ${body.name} (${body.id}).`);
     segment.track({ userId: body.id, event: 'User Updated' });
     body.label = await getOrCreateLabel(body);
     body.filter = await getOrCreateFilter(body);
-    await Promise.all([upsertUser(body), updateGmailMessages(body)]);
-    logger.info(`Retroactively filtered messages for ${body}.`);
+    const client = gmail(body.token);
+    await Promise.all([
+      upsertUser(body),
+      removeMessages(body),
+      addLabels(body, client),
+      removeLabels(body, client),
+    ]);
+    logger.info(`Retro-updated messages for ${body.name} (${body.id}).`);
   } catch (e) {
     handle(e, res);
   }
