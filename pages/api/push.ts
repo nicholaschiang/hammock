@@ -1,7 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
-import to from 'await-to-js';
 
-import { createMessage, deleteMessage, getMessage } from 'lib/api/db/message';
+import { createMessage, deleteMessage } from 'lib/api/db/message';
 import { isDateJSON, isJSON } from 'lib/model/json';
 import { APIError } from 'lib/model/error';
 import { User } from 'lib/model/user';
@@ -56,9 +55,8 @@ export default async function push(req: Req, res: Res): Promise<void> {
         throw new APIError(`User (${emailAddress}) not found`, 404);
       handleSupabaseError('selecting', 'user', emailAddress, error);
       const user = data[0];
-      logger.verbose(
-        `Fetching ${user.name} (${user.id}) history (${historyId})...`
-      );
+      const userStr = `${user.name} (${user.id})`;
+      logger.verbose(`Fetching history (${historyId}) for ${userStr}...`);
       const client = gmail(user.token);
       const { data: history } = await client.users.history.list({
         historyTypes: ['messageAdded', 'messageDeleted'],
@@ -66,68 +64,45 @@ export default async function push(req: Req, res: Res): Promise<void> {
         maxResults: 500,
         userId: 'me',
       });
-      logger.verbose(
-        `Parsing ${history.history?.length} history records for ${user.name} (${user.id})...`
-      );
-      const toAdd: string[] = [];
-      await Promise.all(
-        (history.history || []).map(
-          async ({ messagesAdded, messagesDeleted }) => {
-            const added = (messagesAdded || []).map((m) => m.message);
-            logger.verbose(
-              `Adding ${added.length} messages for ${user.name} (${user.id})...`
-            );
-            await Promise.all(
-              added.map(async (m) => {
-                if (!m?.id) {
-                  logger.error('Message missing valid identifier.');
-                } else {
-                  const [err] = await to(getMessage(m.id));
-                  if (err) {
-                    toAdd.push(m.id);
-                  } else {
-                    logger.verbose(`Message (${m.id}) already exists.`);
-                  }
-                }
-              })
-            );
-            const deleted = (messagesDeleted || []).map((m) => m.message);
-            logger.verbose(
-              `Deleting ${deleted.length} messages for user (${emailAddress})...`
-            );
-            await Promise.all(
-              deleted.map(async (m) => {
-                if (!m?.id) {
-                  logger.error('Message missing valid identifier.');
-                } else {
-                  logger.verbose(`Deleting message (${m.id})...`);
-                  await deleteMessage(m.id);
-                }
-              })
-            );
-          }
-        )
-      );
-      logger.verbose(
-        `Fetching ${toAdd.length} messages for ${user.name} (${user.id})...`
-      );
-      const gmailMessages = await getGmailMessages(toAdd, client);
-      logger.verbose(
-        `Saving ${gmailMessages.length} messages for ${user.name} (${user.id})...`
-      );
-      await Promise.all(
-        gmailMessages.map(async (gmailMessage) => {
-          const msg = messageFromGmail(gmailMessage);
-          if (user.subscriptions.some((s) => s.email === msg.email)) {
-            msg.user = user.id;
-            await createMessage(msg);
+      // We have to keep track of which messages were added/deleted when to
+      // cover edge cases where, for example:
+      // 1. The 1st history record contains message A in `messagesAdded`.
+      // 2. The 2nd history record contains message B in `messagesAdded`.
+      // 3. The 3rd history record contains messages A in `messagesDeleted`.
+      // In that case, we want to only try to fetch and add message B.
+      const deleted = new Set<string>();
+      const added = new Set<string>();
+      const length = history.history?.length || 0;
+      logger.verbose(`Parsing ${length} history records for ${userStr}...`);
+      history.history?.forEach(({ messagesAdded, messagesDeleted }) => {
+        messagesAdded?.forEach((m) => {
+          if (m.message?.id) {
+            deleted.delete(m.message.id);
+            added.add(m.message.id);
           } else {
-            logger.warn(
-              `Skipping message (${msg.id}) ${user.name} (${user.id}) isn't subscribed to...`
-            );
+            logger.warn(`Message added (${JSON.stringify(m)}) missing ID.`);
           }
-        })
-      );
+        });
+        messagesDeleted?.forEach((m) => {
+          if (m.message?.id) {
+            added.delete(m.message.id);
+            deleted.add(m.message.id);
+          } else {
+            logger.warn(`Message deleted (${JSON.stringify(m)}) missing ID.`);
+          }
+        });
+      });
+      logger.verbose(`Deleting ${deleted.size} messages for ${userStr}...`);
+      await Promise.all([...deleted].map((id) => deleteMessage(id)));
+      logger.verbose(`Fetching ${added.size} messages for ${userStr}...`);
+      const gmailMessages = await getGmailMessages([...added], client);
+      // TODO: How does this handle a message that has changed in Gmail but
+      // already exists in our database (e.g. updates v.s. upserts)?
+      const msgs = gmailMessages
+        .map((m) => ({ ...messageFromGmail(m), user: user.id }))
+        .filter((m) => user.subscriptions.some((s) => s.email === m.email));
+      logger.verbose(`Creating ${msgs.length} messages for ${userStr}...`);
+      await Promise.all(msgs.map((m) => createMessage(m)));
       res.status(200).end();
     } catch (e) {
       handle(e, res);
