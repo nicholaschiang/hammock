@@ -51,16 +51,12 @@ export default function useMessages(
   const { data, mutate, ...rest } = useSWRInfinite<MessagesRes, APIError>(
     getKey,
     {
-      revalidateOnMount: !mutated,
+      revalidateIfStale: !mutated,
       revalidateOnFocus: !mutated,
       revalidateOnReconnect: !mutated,
       ...config,
     }
   );
-  useEffect(() => {
-    // Preload data when the user arrives at the message page first.
-    if (!data) void mutate();
-  }, [data, mutate]);
   useEffect(() => {
     data?.flat().forEach((message) => {
       void globalMutate(`/api/messages/${message.id}`, message, false);

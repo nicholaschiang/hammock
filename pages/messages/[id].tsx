@@ -38,7 +38,7 @@ function getVerticalScrollPercentage(elm: HTMLElement): number {
 export default function MessagePage(): JSX.Element {
   const { mutate: mutateMessages, setMutated } = useMessages(
     {},
-    { revalidateOnMount: false }
+    { revalidateIfStale: false }
   );
   const { query } = useRouter();
   const { data: message } = useSWR<Message>(
