@@ -1,16 +1,15 @@
 import {
-  SWRInfiniteConfiguration,
-  SWRInfiniteResponse,
-  mutate as globalMutate,
-  useSWRInfinite,
-} from 'swr';
-import {
   createContext,
   useCallback,
   useContext,
   useEffect,
   useMemo,
 } from 'react';
+import useSWRInfinite, {
+  SWRInfiniteConfiguration,
+  SWRInfiniteResponse,
+} from 'swr/infinite';
+import { mutate as globalMutate } from 'swr';
 
 import { MessagesRes } from 'pages/api/messages';
 

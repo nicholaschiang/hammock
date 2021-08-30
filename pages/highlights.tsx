@@ -3,7 +3,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import Link from 'next/link';
 import cn from 'classnames';
 import { useCallback } from 'react';
-import { useSWRInfinite } from 'swr';
+import useSWRInfinite from 'swr/infinite';
 
 import { HighlightWithMessage } from 'pages/api/highlights';
 
