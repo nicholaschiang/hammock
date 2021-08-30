@@ -21,13 +21,14 @@ export default function highlightHTML(
   const doc = new DOMParser().parseFromString(html, 'text/html');
   highlights.forEach((highlight) => {
     try {
-      const { singleNodeValue: start } = doc.evaluate(
+      let { startOffset, endOffset } = highlight;
+      let { singleNodeValue: start } = doc.evaluate(
         `.${highlight.start}`,
         doc.body,
         null,
         XPathResult.FIRST_ORDERED_NODE_TYPE
       );
-      const { singleNodeValue: end } = doc.evaluate(
+      let { singleNodeValue: end } = doc.evaluate(
         `.${highlight.end}`,
         doc.body,
         null,
@@ -38,10 +39,19 @@ export default function highlightHTML(
       // `xpath` without the `<mark>` tag included. Thus, `doc.evaluate` couldn't
       // find the node that the `xpath` pointed to (because the `xpath` is wrong).
       if (!start || !end) return;
-      if (!(start instanceof Text) || !(end instanceof Text)) return;
+      while (!(start instanceof Text)) {
+        start = start.childNodes[startOffset];
+        startOffset = 0;
+      }
+      const endIsText = end instanceof Text;
+      while (!(end instanceof Text)) {
+        end = end.childNodes[endOffset - 1];
+        endOffset = end.childNodes.length;
+      }
+      if (!endIsText) endOffset = end.length;
       if (start === end) {
-        const afterStart = start.splitText(highlight.startOffset);
-        afterStart.splitText(highlight.endOffset - highlight.startOffset);
+        const afterStart = start.splitText(startOffset);
+        afterStart.splitText(endOffset - startOffset);
         const mark = doc.createElement('mark');
         mark.dataset.highlight = highlight.id.toString();
         if (highlight.deleted) mark.dataset.deleted = '';
@@ -74,7 +84,7 @@ export default function highlightHTML(
         next = next.nextSibling as Node;
       }
       // Highlight the start text node.
-      const afterStart = start.splitText(highlight.startOffset);
+      const afterStart = start.splitText(startOffset);
       const mark = doc.createElement('mark');
       mark.dataset.highlight = highlight.id.toString();
       if (highlight.deleted) mark.dataset.deleted = '';
@@ -82,7 +92,7 @@ export default function highlightHTML(
       afterStart.parentNode?.insertBefore(mark, afterStart);
       afterStart.parentNode?.removeChild(afterStart);
       // Highlight the end text node.
-      const afterEnd = end.splitText(highlight.endOffset);
+      const afterEnd = end.splitText(endOffset);
       const mk = doc.createElement('mark');
       mk.dataset.highlight = highlight.id.toString();
       if (highlight.deleted) mk.dataset.deleted = '';
