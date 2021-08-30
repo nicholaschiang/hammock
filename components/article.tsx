@@ -186,7 +186,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         .dialog {
           position: absolute;
           visibility: hidden;
-          left: ${position?.containerX || 0}px;
+          left: ${(position?.containerX || 0) + 10}px;
           top: ${position?.containerY || 0}px;
         }
 
