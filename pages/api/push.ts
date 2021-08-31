@@ -101,7 +101,15 @@ async function pushAPI(req: Req, res: Res): Promise<void> {
       // already exists in our database (e.g. updates v.s. upserts)?
       const msgs = gmailMessages
         .map((m) => ({ ...messageFromGmail(m), user: user.id }))
-        .filter((m) => user.subscriptions.some((s) => s.email === m.email));
+        .filter((m) => {
+          const log = `${m.name} (${m.email}) with subject (${m.subject})`;
+          if (user.subscriptions.some((s) => s.email === m.email)) {
+            logger.debug(`Saving message (${m.id}) from ${log}...`);
+            return true;
+          }
+          logger.debug(`Skipping message (${m.id}) from ${log}...`);
+          return false;
+        });
       logger.verbose(`Creating ${msgs.length} messages for ${userStr}...`);
       await Promise.all(msgs.map((m) => createMessage(m)));
       res.status(200).end();
