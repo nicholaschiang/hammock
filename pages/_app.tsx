@@ -7,10 +7,10 @@ import { dequal } from 'dequal';
 import NProgress from 'components/nprogress';
 import Segment from 'components/segment';
 
+import { Mutated, MutatedContext } from 'lib/hooks/fetch';
 import { Theme, ThemeContext } from 'lib/context/theme';
 import { APIError } from 'lib/model/error';
 import { CallbackParam } from 'lib/model/callback';
-import { MessagesMutatedContext } from 'lib/hooks/messages';
 import { User } from 'lib/model/user';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
@@ -137,7 +137,11 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const [mutated, setMutated] = useState<boolean>(false);
+  const [mutated, setMutated] = useState<Mutated>({
+    highlight: false,
+    message: false,
+    account: false,
+  });
 
   return (
     <UserContext.Provider value={{ user, setUser, setUserMutated, loggedIn }}>
@@ -145,9 +149,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <SWRConfig value={{ fetcher }}>
           <Segment />
           <NProgress />
-          <MessagesMutatedContext.Provider value={{ mutated, setMutated }}>
+          <MutatedContext.Provider value={{ mutated, setMutated }}>
             <Component {...pageProps} />
-          </MessagesMutatedContext.Provider>
+          </MutatedContext.Provider>
         </SWRConfig>
         <style jsx global>{`
           ::selection {
