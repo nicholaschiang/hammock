@@ -18,7 +18,7 @@ import { isHighlightWithMessage } from 'lib/model/highlight';
 import { isMessage } from 'lib/model/message';
 
 export type Type = 'highlight' | 'message' | 'account';
-export type Mutated = { [type in keyof Type]: boolean };
+export type Mutated = { [type in Type]: boolean };
 export type Fetch<T> = Omit<SWRInfiniteResponse<T[]>, 'mutate'> & {
   mutated: (mute: boolean) => void;
   href: string;
