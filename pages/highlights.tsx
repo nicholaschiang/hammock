@@ -2,17 +2,14 @@ import Head from 'next/head';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Link from 'next/link';
 import cn from 'classnames';
-import { useCallback } from 'react';
-import useSWRInfinite from 'swr/infinite';
-
-import { HighlightWithMessage } from 'pages/api/highlights';
 
 import Avatar from 'components/avatar';
 import Empty from 'components/empty';
 import Layout from 'components/layout';
 import Page from 'components/page';
 
-import { HITS_PER_PAGE } from 'lib/model/query';
+import { HighlightWithMessage } from 'lib/model/highlight';
+import useFetch from 'lib/hooks/fetch';
 
 interface HighlightProps {
   highlight?: HighlightWithMessage;
@@ -129,15 +126,13 @@ const loader = Array(5)
 /* eslint-enable react/no-array-index-key */
 
 export default function HighlightsPage(): JSX.Element {
-  const getKey = useCallback(
-    (pageIdx: number, prev: HighlightWithMessage[] | null) => {
-      if (prev && !prev.length) return null;
-      if (!prev || pageIdx === 0) return '/api/highlights';
-      return `/api/highlights?page=${pageIdx}`;
-    },
-    []
+  // Fetch wraps `useSWRInfinite` and keeps track of which resources are being
+  // fetched (`highlight`). It can then be reused to mutate a single resource
+  // and unpause revalidations once that mutation has been updated server-side.
+  const { data, setSize, hasMore } = useFetch<HighlightWithMessage>(
+    'highlight',
+    '/api/highlights'
   );
-  const { data, setSize } = useSWRInfinite<HighlightWithMessage[]>(getKey);
 
   return (
     <Page name='Highlights' login sync>
@@ -154,7 +149,7 @@ export default function HighlightsPage(): JSX.Element {
         <InfiniteScroll
           dataLength={data?.flat().length || 0}
           next={() => setSize((prev) => prev + 1)}
-          hasMore={!data || data[data.length - 1].length === HITS_PER_PAGE}
+          hasMore={hasMore}
           style={{ overflow: undefined }}
           scrollThreshold={0.65}
           loader={loader}

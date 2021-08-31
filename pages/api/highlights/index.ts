@@ -1,9 +1,8 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
+import { HighlightWithMessage } from 'lib/model/highlight';
 import { APIErrorJSON } from 'lib/model/error';
-import { Highlight } from 'lib/model/highlight';
-import { Message } from 'lib/model/message';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
 import logger from 'lib/api/logger';
@@ -13,9 +12,6 @@ import verifyAuth from 'lib/api/verify/auth';
 
 export const HITS_PER_PAGE = 10;
 export type HighlightsQuery = { page?: string };
-export type HighlightWithMessage = Omit<Highlight, 'message'> & {
-  message: Message;
-};
 
 async function highlightsAPI(
   req: Req,

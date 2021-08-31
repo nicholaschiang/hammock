@@ -9,10 +9,12 @@ import useSWRInfinite, {
   SWRInfiniteConfiguration,
   SWRInfiniteResponse,
 } from 'swr/infinite';
+import { captureException } from '@sentry/nextjs';
 import { mutate as globalMutate } from 'swr';
 
 import { Callback } from 'lib/model/callback';
 import { HITS_PER_PAGE } from 'lib/model/query';
+import { isHighlightWithMessage } from 'lib/model/highlight';
 import { isMessage } from 'lib/model/message';
 
 export type Type = 'highlight' | 'message' | 'account';
@@ -45,8 +47,8 @@ export default function useFetch<T extends { id: string | number }>(
   const href = useMemo(() => {
     const params = new URLSearchParams(query);
     const queryString = params.toString();
-    return queryString ? `/api/messages?${queryString}` : '/api/messages';
-  }, [query]);
+    return queryString ? `${url}?${queryString}` : url;
+  }, [query, url]);
   const getKey = useCallback(
     (pageIdx: number, prev: T[] | null) => {
       if (prev && !prev.length) return null;
@@ -75,28 +77,29 @@ export default function useFetch<T extends { id: string | number }>(
       !data || data[data.length - 1].length === HITS_PER_PAGE || mutated[type],
     mutateAll(...args: Parameters<typeof mutate>): ReturnType<typeof mutate> {
       const revalidate = typeof args[1] === 'boolean' ? args[1] : true;
-      console.log('Mutating all:', href);
-      console.log('Revalidating:', revalidate);
-      console.log('Mutated:', !revalidate);
       setMutated((prev) => ({ ...prev, [type]: !revalidate }));
       return mutate(...args);
     },
     mutateSingle(resource: T, revalidate: boolean): ReturnType<typeof mutate> {
-      console.log('Mutating single:', resource);
-      console.log('Revalidating:', revalidate);
-      console.log('Mutated:', !revalidate);
       setMutated((prev) => ({ ...prev, [type]: !revalidate }));
       return mutate(
         (response?: T[][]) =>
           response?.map((res: T[]) => {
             const idx = res.findIndex((m) => m.id === resource.id);
-            if (isMessage(resource) && resource.archived) {
-              if (query.archive === 'true' && idx < 0)
-                return [resource, ...res];
-              if (query.archive !== 'true' && idx >= 0)
+            // TODO: Insert this new resource into the correct sort position.
+            if (idx < 0) return [resource, ...res];
+            try {
+              if (isMessage(resource) && resource.archived)
                 return [...res.slice(0, idx), ...res.slice(idx + 1)];
+            } catch (e) {
+              captureException(e);
             }
-            if (idx < 0) return res;
+            try {
+              if (isHighlightWithMessage(resource) && resource.deleted)
+                return [...res.slice(0, idx), ...res.slice(idx + 1)];
+            } catch (e) {
+              captureException(e);
+            }
             return [...res.slice(0, idx), resource, ...res.slice(idx + 1)];
           }),
         revalidate
