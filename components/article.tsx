@@ -8,6 +8,7 @@ import TweetIcon from 'components/icons/tweet';
 
 import { Highlight, HighlightWithMessage } from 'lib/model/highlight';
 import { Message } from 'lib/model/message';
+import { Note } from 'lib/model/note';
 import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
 import highlightHTML from 'lib/highlight';
@@ -28,6 +29,9 @@ export interface ArticleProps {
 
 export default function Article({ message }: ArticleProps): JSX.Element {
   const { user } = useUser();
+  const { data: notes } = useSWR<Note[]>(
+    message ? `/api/messages/${message.id}/notes` : null
+  );
   const { data: highlights } = useSWR<Highlight[]>(
     message ? `/api/messages/${message.id}/highlights` : null
   );
