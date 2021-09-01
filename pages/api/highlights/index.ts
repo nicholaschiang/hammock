@@ -1,8 +1,8 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
-import { HighlightWithMessage } from 'lib/model/highlight';
 import { APIErrorJSON } from 'lib/model/error';
+import { HighlightWithMessage } from 'lib/model/highlight';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
 import logger from 'lib/api/logger';
