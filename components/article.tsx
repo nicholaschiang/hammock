@@ -28,7 +28,7 @@ export interface ArticleProps {
 
 export default function Article({ message }: ArticleProps): JSX.Element {
   const { user } = useUser();
-  const { data } = useSWR<Highlight[]>(
+  const { data: highlights } = useSWR<Highlight[]>(
     message ? `/api/messages/${message.id}/highlights` : null
   );
   const { mutateAll, mutateSingle } = useFetch<HighlightWithMessage>(
@@ -57,11 +57,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         containerX: target.offsetLeft,
         containerY: target.offsetTop,
       });
-      setHighlight((prev) => data?.find((x) => x.id === id) || prev);
+      setHighlight((prev) => highlights?.find((x) => x.id === id) || prev);
     }
     window.addEventListener('pointerover', listener);
     return () => window.removeEventListener('pointerover', listener);
-  }, [data, highlight]);
+  }, [highlights, highlight]);
   useEffect(() => {
     function listener(evt: PointerEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
@@ -104,13 +104,13 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     return () => window.removeEventListener('pointerup', listener);
   }, [message, user]);
   const html = useMemo(
-    () => (message ? highlightHTML(message.html, data || []) : ''),
-    [message, data]
+    () => (message ? highlightHTML(message.html, highlights || []) : ''),
+    [message, highlights]
   );
   const onHighlight = useCallback(async () => {
     setHighlight(undefined);
     if (!message || !highlight) return;
-    if (!data?.some((h) => h.id === highlight.id)) {
+    if (!highlights?.some((h) => h.id === highlight.id)) {
       window.analytics?.track('Highlight Created');
       const url = `/api/messages/${message.id}/highlights`;
       const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
@@ -136,7 +136,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       await fetcher(`/api/highlights/${highlight.id}`, 'delete');
       await Promise.all([mutateAll(), mutate(url)]);
     }
-  }, [message, highlight, data, mutateAll, mutateSingle]);
+  }, [message, highlight, highlights, mutateAll, mutateSingle]);
   const [tweet, setTweet] = useState<string>('');
   useEffect(() => {
     setTweet((prev) =>
@@ -151,7 +151,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     setHighlight(undefined);
     if (!message || !highlight) return;
     window.analytics?.track('Highlight Tweeted');
-    if (!data?.some((h) => h.id === highlight.id)) {
+    if (!highlights?.some((h) => h.id === highlight.id)) {
       window.analytics?.track('Highlight Created');
       const url = `/api/messages/${message.id}/highlights`;
       const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
@@ -159,7 +159,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       await fetcher(url, 'post', highlight);
       await mutate(url);
     }
-  }, [message, highlight, data]);
+  }, [message, highlight, highlights]);
   const onNote = useCallback(() => {
     void onHighlight();
     setNote(true);
@@ -180,7 +180,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         <div className='buttons' ref={buttonsRef}>
           <button
             className={cn('reset button', {
-              highlighted: data?.some((x) => x.id === highlight?.id),
+              highlighted: highlights?.some((x) => x.id === highlight?.id),
             })}
             type='button'
             onClick={onHighlight}
