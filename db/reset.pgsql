@@ -7,7 +7,8 @@ $$
   drop type category cascade;
   drop type subscription cascade;
   drop table users cascade;
-  drop table highlights cascade;
   drop table messages cascade;
+  drop table highlights cascade;
+  drop table notes cascade;
 $$
 language sql volatile;

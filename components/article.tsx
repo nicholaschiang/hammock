@@ -3,10 +3,12 @@ import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
 
 import HighlightIcon from 'components/icons/highlight';
+import NoteIcon from 'components/icons/note';
 import TweetIcon from 'components/icons/tweet';
 
 import { Highlight, HighlightWithMessage } from 'lib/model/highlight';
 import { Message } from 'lib/model/message';
+import { Note } from 'lib/model/note';
 import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
 import highlightHTML from 'lib/highlight';
@@ -27,7 +29,10 @@ export interface ArticleProps {
 
 export default function Article({ message }: ArticleProps): JSX.Element {
   const { user } = useUser();
-  const { data } = useSWR<Highlight[]>(
+  const { data: notes } = useSWR<Note[]>(
+    message ? `/api/messages/${message.id}/notes` : null
+  );
+  const { data: highlights } = useSWR<Highlight[]>(
     message ? `/api/messages/${message.id}/highlights` : null
   );
   const { mutateAll, mutateSingle } = useFetch<HighlightWithMessage>(
@@ -37,8 +42,11 @@ export default function Article({ message }: ArticleProps): JSX.Element {
 
   const [highlight, setHighlight] = useState<Highlight>();
   const [position, setPosition] = useState<Position>();
+  const [note, setNote] = useState<boolean>(false);
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
+  const noteRef = useRef<HTMLDivElement>(null);
+  const noteTextAreaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
     // when the user's mouse exits the highlight and w/in ~100px of dialog.
@@ -53,16 +61,18 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         containerX: target.offsetLeft,
         containerY: target.offsetTop,
       });
-      setHighlight((prev) => data?.find((x) => x.id === id) || prev);
+      setHighlight((prev) => highlights?.find((x) => x.id === id) || prev);
     }
     window.addEventListener('pointerover', listener);
     return () => window.removeEventListener('pointerover', listener);
-  }, [data, highlight]);
+  }, [highlights, highlight]);
   useEffect(() => {
     function listener(evt: PointerEvent): void {
       if (buttonsRef.current?.contains(evt.target as Node)) return;
+      if (noteRef.current?.contains(evt.target as Node)) return;
       if ((evt.target as Node).nodeName === 'MARK') return;
       setHighlight(undefined);
+      setNote(false);
     }
     window.addEventListener('pointerdown', listener);
     return () => window.removeEventListener('pointerdown', listener);
@@ -70,6 +80,8 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   useEffect(() => {
     function listener(evt: PointerEvent): void {
       if (!articleRef.current || !message || !user?.id) return;
+      if (buttonsRef.current?.contains(evt.target as Node)) return;
+      if (noteRef.current?.contains(evt.target as Node)) return;
       const sel = window.getSelection() || document.getSelection();
       if (!sel || sel.isCollapsed) return;
       const range = sel.getRangeAt(0);
@@ -96,13 +108,13 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     return () => window.removeEventListener('pointerup', listener);
   }, [message, user]);
   const html = useMemo(
-    () => (message ? highlightHTML(message.html, data || []) : ''),
-    [message, data]
+    () => (message ? highlightHTML(message.html, highlights || []) : ''),
+    [message, highlights]
   );
   const onHighlight = useCallback(async () => {
     setHighlight(undefined);
     if (!message || !highlight) return;
-    if (!data?.some((h) => h.id === highlight.id)) {
+    if (!highlights?.some((h) => h.id === highlight.id)) {
       window.analytics?.track('Highlight Created');
       const url = `/api/messages/${message.id}/highlights`;
       const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
@@ -128,7 +140,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       await fetcher(`/api/highlights/${highlight.id}`, 'delete');
       await Promise.all([mutateAll(), mutate(url)]);
     }
-  }, [message, highlight, data, mutateAll, mutateSingle]);
+  }, [message, highlight, highlights, mutateAll, mutateSingle]);
   const [tweet, setTweet] = useState<string>('');
   useEffect(() => {
     setTweet((prev) =>
@@ -143,7 +155,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
     setHighlight(undefined);
     if (!message || !highlight) return;
     window.analytics?.track('Highlight Tweeted');
-    if (!data?.some((h) => h.id === highlight.id)) {
+    if (!highlights?.some((h) => h.id === highlight.id)) {
       window.analytics?.track('Highlight Created');
       const url = `/api/messages/${message.id}/highlights`;
       const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
@@ -151,20 +163,36 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       await fetcher(url, 'post', highlight);
       await mutate(url);
     }
-  }, [message, highlight, data]);
+  }, [message, highlight, highlights]);
+  const onNote = useCallback(() => {
+    void onHighlight();
+    setNote(true);
+    setTimeout(() => noteTextAreaRef.current?.focus(), 100);
+  }, [onHighlight]);
 
   return (
     <>
+      <div className={cn('note', { open: note && position })}>
+        <div className='wrapper' ref={noteRef}>
+          <textarea ref={noteTextAreaRef} />
+          <button className='reset save-note-button' type='button'>
+            Ctrl-Enter to save note
+          </button>
+        </div>
+      </div>
       <div className={cn('dialog', { open: highlight && position })}>
         <div className='buttons' ref={buttonsRef}>
           <button
             className={cn('reset button', {
-              highlighted: data?.some((x) => x.id === highlight?.id),
+              highlighted: highlights?.some((x) => x.id === highlight?.id),
             })}
             type='button'
             onClick={onHighlight}
           >
             <HighlightIcon />
+          </button>
+          <button className='reset button' type='button' onClick={onNote}>
+            <NoteIcon />
           </button>
           <a
             className='reset button'
@@ -194,6 +222,72 @@ export default function Article({ message }: ArticleProps): JSX.Element {
         </article>
       )}
       <style jsx>{`
+        .note {
+          position: absolute;
+          visibility: hidden;
+          opacity: 0;
+          transform: translateX(-5px);
+          transition: opacity 0.2s ease-out 0s, transform 0.2s ease-out 0s;
+          right: 0;
+          top: ${position ? position.containerY + position.y : 0}px;
+        }
+
+        .note.open {
+          visibility: visible;
+          transform: translateX(0px);
+          opacity: 1;
+        }
+
+        .wrapper {
+          position: absolute;
+          top: 0;
+          left: 0;
+          box-shadow: var(--shadow-medium);
+          background: var(--background);
+          border-radius: 6px;
+          overflow: hidden;
+        }
+
+        .note textarea {
+          display: block;
+          font-family: var(--font-sans);
+          font-weight: 400;
+          font-size: 0.85rem;
+          color: var(--on-background);
+          appearance: none;
+          background: none;
+          border: none;
+          border-radius: 0;
+          padding: 12px;
+          margin: 0;
+          width: 200px;
+          min-width: 100px;
+          min-height: 100px;
+        }
+
+        .note textarea:focus {
+          outline: none;
+        }
+
+        .save-note-button {
+          position: absolute;
+          bottom: 12px;
+          right: 12px;
+          margin-left: 12px;
+          border: 1px solid var(--accents-2);
+          background: var(--accents-1);
+          color: var(--accents-5);
+          transition: color 0.2s ease 0s, background 0.2s ease 0s;
+          padding: 2px 8px;
+          border-radius: 4px;
+          font-size: 0.75rem;
+        }
+
+        .save-note-button:hover {
+          color: var(--on-background);
+          background: var(--accents-2);
+        }
+
         .dialog {
           position: absolute;
           visibility: hidden;
