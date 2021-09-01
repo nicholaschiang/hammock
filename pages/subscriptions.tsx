@@ -1,9 +1,10 @@
-import { mutate, useSWRInfinite } from 'swr';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Router from 'next/router';
 import { dequal } from 'dequal';
+import { mutate } from 'swr';
+import useSWRInfinite from 'swr/infinite';
 
 import { SubscriptionsRes } from 'pages/api/subscriptions';
 

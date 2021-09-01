@@ -8,15 +8,20 @@ import MessageRow from 'components/message-row';
 import Page from 'components/page';
 import Section from 'components/section';
 
-import useMessages from 'lib/hooks/messages';
+import { Message } from 'lib/model/message';
+import useFetch from 'lib/hooks/fetch';
 import { useUser } from 'lib/context/user';
 
 export default function WritersPage(): JSX.Element {
   const { query } = useRouter();
   const { user, loggedIn } = useUser();
-  const { data, setSize, hasMore } = useMessages({
-    writer: query.email as string,
-  });
+  const { data, setSize, hasMore } = useFetch<Message>(
+    'message',
+    '/api/messages',
+    {
+      writer: query.email as string,
+    }
+  );
   const writer = useMemo(
     () => user?.subscriptions.find((s) => s.email === query.email),
     [query.email, user?.subscriptions]

@@ -5,12 +5,13 @@ import cn from 'classnames';
 import HighlightIcon from 'components/icons/highlight';
 import TweetIcon from 'components/icons/tweet';
 
-import { Highlight } from 'lib/model/highlight';
+import { Highlight, HighlightWithMessage } from 'lib/model/highlight';
 import { Message } from 'lib/model/message';
 import { fetcher } from 'lib/fetch';
 import fromNode from 'lib/xpath';
 import highlightHTML from 'lib/highlight';
 import numid from 'lib/utils/numid';
+import useFetch from 'lib/hooks/fetch';
 import { useUser } from 'lib/context/user';
 
 interface Position {
@@ -28,6 +29,10 @@ export default function Article({ message }: ArticleProps): JSX.Element {
   const { user } = useUser();
   const { data } = useSWR<Highlight[]>(
     message ? `/api/messages/${message.id}/highlights` : null
+  );
+  const { mutateAll, mutateSingle } = useFetch<HighlightWithMessage>(
+    'highlight',
+    '/api/highlights'
   );
 
   const [highlight, setHighlight] = useState<Highlight>();
@@ -101,23 +106,29 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       window.analytics?.track('Highlight Created');
       const url = `/api/messages/${message.id}/highlights`;
       const add = (p?: Highlight[]) => (p ? [...p, highlight] : [highlight]);
-      await mutate(url, add, false);
+      await Promise.all([
+        mutate(url, add, false),
+        mutateSingle({ ...highlight, message }, false),
+      ]);
       await fetcher(url, 'post', highlight);
-      await mutate(url);
+      await Promise.all([mutateAll(), mutate(url)]);
     } else {
       window.analytics?.track('Highlight Deleted');
       const url = `/api/messages/${message.id}/highlights`;
+      const deleted = { ...highlight, deleted: true };
       const remove = (p?: Highlight[]) => {
         const idx = p?.findIndex((h) => h.id === highlight.id);
         if (!p || !idx || idx < 0) return p;
-        const deleted = { ...highlight, deleted: true };
         return [...p.slice(0, idx), deleted, ...p.slice(idx + 1)];
       };
-      await mutate(url, remove, false);
+      await Promise.all([
+        mutate(url, remove, false),
+        mutateSingle({ ...deleted, message }, false),
+      ]);
       await fetcher(`/api/highlights/${highlight.id}`, 'delete');
-      await mutate(url);
+      await Promise.all([mutateAll(), mutate(url)]);
     }
-  }, [message, highlight, data]);
+  }, [message, highlight, data, mutateAll, mutateSingle]);
   const [tweet, setTweet] = useState<string>('');
   useEffect(() => {
     setTweet((prev) =>

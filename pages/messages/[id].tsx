@@ -4,8 +4,6 @@ import useSWR, { mutate } from 'swr';
 import Link from 'next/link';
 import cn from 'classnames';
 
-import { MessagesRes } from 'pages/api/messages';
-
 import Article from 'components/article';
 import Controls from 'components/controls';
 import Page from 'components/page';
@@ -13,7 +11,7 @@ import Page from 'components/page';
 import { Message } from 'lib/model/message';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
-import useMessages from 'lib/hooks/messages';
+import useFetch from 'lib/hooks/fetch';
 
 /**
  * Extends the built-in browser `String#trim` method to account for zero-width
@@ -36,11 +34,13 @@ function getVerticalScrollPercentage(elm: HTMLElement): number {
 }
 
 export default function MessagePage(): JSX.Element {
-  const { mutate: mutateMessages, setMutated } = useMessages(
-    {},
-    { revalidateOnMount: false }
-  );
   const { query } = useRouter();
+  const { mutateAll, mutateSingle } = useFetch<Message>(
+    'message',
+    '/api/messages',
+    {},
+    { revalidateIfStale: false }
+  );
   const { data: message } = useSWR<Message>(
     typeof query.id === 'string' ? `/api/messages/${query.id}` : null
   );
@@ -74,35 +74,20 @@ export default function MessagePage(): JSX.Element {
     await mutate(url, updated, false);
     // TODO: Find an elegant way to mutate all the different possible feed
     // queries (e.g. for the archive page, quick read page, writers pages).
-    await mutateMessages(
-      (res?: MessagesRes[]) =>
-        res?.map((messages) => {
-          const idx = messages.findIndex((m) => m.id === updated.id);
-          if (idx < 0) return messages;
-          if (updated.archived)
-            return [...messages.slice(0, idx), ...messages.slice(idx + 1)];
-          return [
-            ...messages.slice(0, idx),
-            updated,
-            ...messages.slice(idx + 1),
-          ];
-        }),
-      false
-    );
+    await mutateSingle(updated, false);
     async function update(): Promise<void> {
       await mutate(url, fetcher(url, 'put', updated), false);
       // Refresh the feed so that we know whether or not we have more messages
       // to be loaded in the infinite scroller (e.g. if we remove a message from
       // the feed because it's been archived, we no longer have HITS_PER_PAGE
       // messages BUT there might still be more messages to be loaded).
-      await mutateMessages();
-      setMutated(false);
+      await mutateAll();
       setArchiving(false);
     }
     void update();
     // TODO: Go back when unarchiving as well and mutate the archive data too.
     if (updated.archived) Router.back();
-  }, [setMutated, mutateMessages, scroll, message]);
+  }, [mutateAll, mutateSingle, scroll, message]);
 
   useEffect(() => {
     // Don't try to update the scroll position if we're archiving the message.

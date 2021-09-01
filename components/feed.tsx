@@ -8,7 +8,7 @@ import Section from 'components/section';
 import { Message } from 'lib/model/message';
 import { MessagesQuery } from 'lib/model/query';
 import { isSameDay } from 'lib/utils';
-import useMessages from 'lib/hooks/messages';
+import useFetch from 'lib/hooks/fetch';
 import useNow from 'lib/hooks/now';
 
 interface FeedSectionProps {
@@ -28,7 +28,11 @@ function FeedSection({ date, messages }: FeedSectionProps): JSX.Element {
 }
 
 export default function Feed(query: MessagesQuery): JSX.Element {
-  const { data, setSize, hasMore, href } = useMessages(query);
+  const { data, setSize, hasMore, href } = useFetch<Message>(
+    'message',
+    '/api/messages',
+    query
+  );
   const sections = useMemo(() => {
     const newSections: FeedSectionProps[] = [];
     data?.flat().forEach((message) => {

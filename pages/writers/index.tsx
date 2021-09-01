@@ -10,10 +10,11 @@ import Page from 'components/page';
 import StarBorderIcon from 'components/icons/star-border';
 import StarIcon from 'components/icons/star';
 
+import { Message } from 'lib/model/message';
 import { Subscription } from 'lib/model/subscription';
 import breakpoints from 'lib/breakpoints';
 import { fetcher } from 'lib/fetch';
-import useMessages from 'lib/hooks/messages';
+import useFetch from 'lib/hooks/fetch';
 import { useUser } from 'lib/context/user';
 
 interface WriterRowProps {
@@ -138,7 +139,7 @@ function WriterRow({ sub }: WriterRowProps): JSX.Element {
 
 export default function WritersPage(): JSX.Element {
   const { user, loggedIn, setUserMutated } = useUser();
-  const { data } = useMessages();
+  const { data } = useFetch<Message>('message', '/api/messages');
   useEffect(() => {
     async function save(): Promise<void> {
       const url = '/api/account';
