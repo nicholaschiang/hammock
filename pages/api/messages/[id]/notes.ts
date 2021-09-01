@@ -20,7 +20,8 @@ async function fetchNotes(
     console.time('get-notes-api');
     const id = verifyQueryId(req.query);
     const user = await verifyAuth(req);
-    logger.verbose(`Fetching (${id}) notes for ${user}...`);
+    const usr = `${user.name} (${user.id})`;
+    logger.verbose(`Fetching (${id}) notes for ${usr}...`);
     const { data, error } = await supabase
       .from<Note>('notes')
       .select()
@@ -29,7 +30,7 @@ async function fetchNotes(
       .order('id');
     handleSupabaseError('selecting', 'notes', user.id, error);
     res.status(200).json(data || []);
-    logger.info(`Fetched ${data?.length} (${id}) notes for ${user}.`);
+    logger.info(`Fetched ${data?.length} (${id}) notes for ${usr}.`);
     console.timeEnd('get-notes-api');
     segment.track({ userId: user.id, event: 'Notes Listed' });
   } catch (e) {
@@ -45,6 +46,7 @@ async function createNote(
     console.time('create-note-api');
     const body = verifyBody<Note>(req.body, isNote);
     const user = await verifyAuth(req);
+    const usr = `${user.name} (${user.id})`;
     if (Number(user.id) !== body.user)
       throw new APIError('You can only create notes for yourself', 403);
     const { data, error } = await supabase
@@ -52,7 +54,7 @@ async function createNote(
       .insert({ ...body, id: undefined });
     handleSupabaseError('creating', 'note', body, error);
     res.status(201).json(data ? data[0] : body);
-    logger.info(`Created note (${data ? data[0].id : ''}) for ${user}.`);
+    logger.info(`Created note (${data ? data[0].id : ''}) for ${usr}.`);
     console.timeEnd('create-note-api');
     segment.track({
       userId: user.id,

@@ -20,7 +20,8 @@ async function fetchHighlights(
     console.time('get-highlights-api');
     const id = verifyQueryId(req.query);
     const user = await verifyAuth(req);
-    logger.verbose(`Fetching (${id}) highlights for ${user}...`);
+    const usr = `${user.name} (${user.id})`;
+    logger.verbose(`Fetching (${id}) highlights for ${usr}...`);
     const { data, error } = await supabase
       .from<Highlight>('highlights')
       .select()
@@ -29,7 +30,7 @@ async function fetchHighlights(
       .order('id');
     handleSupabaseError('selecting', 'highlights', user.id, error);
     res.status(200).json(data || []);
-    logger.info(`Fetched ${data?.length} (${id}) highlights for ${user}.`);
+    logger.info(`Fetched ${data?.length} (${id}) highlights for ${usr}.`);
     console.timeEnd('get-highlights-api');
     segment.track({ userId: user.id, event: 'Highlights Listed' });
   } catch (e) {
@@ -45,6 +46,7 @@ async function createHighlight(
     console.time('create-highlight-api');
     const body = verifyBody<Highlight>(req.body, isHighlight);
     const user = await verifyAuth(req);
+    const usr = `${user.name} (${user.id})`;
     if (Number(user.id) !== body.user)
       throw new APIError('You can only create highlights for yourself', 403);
     const { data, error } = await supabase
@@ -52,7 +54,7 @@ async function createHighlight(
       .insert({ ...body, id: undefined });
     handleSupabaseError('creating', 'highlight', body, error);
     res.status(201).json(data ? data[0] : body);
-    logger.info(`Created highlight (${data ? data[0].id : ''}) for ${user}.`);
+    logger.info(`Created highlight (${data ? data[0].id : ''}) for ${usr}.`);
     console.timeEnd('create-highlight-api');
     segment.track({
       userId: user.id,
