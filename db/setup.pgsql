@@ -53,5 +53,12 @@ $$
     "text" text not null,
     "deleted" boolean not null default false
   );
+  create table notes (
+    "message" text references messages(id) on delete cascade on update cascade not null,
+    "user" numeric references users(id) on delete cascade on update cascade not null,
+    "highlight" bigint references highlights(id) on delete cascade on update cascade not null,
+    "id" bigint generated always as identity primary key,
+    "text" text not null
+  );
 $$
 language sql volatile;
