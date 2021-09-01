@@ -146,13 +146,14 @@ export default function MessagePage(): JSX.Element {
             </a>
           </Link>
         </header>
-        <Article message={message} />
+        <Article message={message} scroll={scroll} />
       </div>
       <style jsx>{`
         .page {
           max-width: 648px;
           padding: 0 24px;
           margin: 96px auto;
+          position: relative;
         }
 
         @media (max-width: ${breakpoints.mobile}) {

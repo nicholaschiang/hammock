@@ -28,6 +28,7 @@ const light = `
   --on-background: #000;
   --error: #b00020;
   --on-error: #fff;
+  --warning: #f5a623;
 
   --accents-1: #fafafa;
   --accents-2: #eaeaea;
