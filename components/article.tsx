@@ -18,6 +18,7 @@ import LoadingDots from 'components/loading-dots';
 import StarEmoji from 'components/emojis/star';
 import TweetIcon from 'components/icons/tweet';
 
+import { Emoji, Feedback } from 'lib/model/feedback';
 import { Highlight, HighlightWithMessage } from 'lib/model/highlight';
 import { Message } from 'lib/model/message';
 import { fetcher } from 'lib/fetch';
@@ -175,18 +176,25 @@ export default function Article({
     }
   }, [message, highlight, data]);
   const [feedback, setFeedback] = useState<string>('');
-  const [emoji, setEmoji] = useState<'star' | 'grin' | 'confused' | 'cry'>();
+  const [emoji, setEmoji] = useState<Emoji | null>(null);
   const [sending, setSending] = useState<boolean>(false);
   const [sent, setSent] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const onFeedback = useCallback(
     async (evt: FormEvent) => {
       evt.preventDefault();
-      if (!message) return;
+      if (!message || !user) return;
       setSending(true);
-      window.analytics?.track('Feedback Sent', { feedback, emoji });
+      const body: Feedback = {
+        feedback,
+        emoji,
+        message: message.id,
+        user: user.id,
+        id: 0,
+      };
+      window.analytics?.track('Feedback Sent', body);
       const url = `/api/messages/${message.id}/feedback`;
-      const [err] = await to(fetcher(url, 'post', { feedback, emoji }));
+      const [err] = await to(fetcher(url, 'post', body));
       setSending(false);
       if (err) {
         setError(err.message);
@@ -194,7 +202,7 @@ export default function Article({
         setSent(true);
       }
     },
-    [message, feedback, emoji]
+    [message, feedback, emoji, user]
   );
 
   return (

@@ -53,5 +53,13 @@ $$
     "text" text not null,
     "deleted" boolean not null default false
   );
+  create type emoji as enum('star', 'grin', 'confused', 'cry');
+  create table feedback (
+    "message" text references messages(id) on delete cascade on update cascade not null,
+    "user" numeric references users(id) on delete cascade on update cascade not null,
+    "id" bigint generated always as identity primary key,
+    "feedback" text not null,
+    "emoji" emoji
+  );
 $$
 language sql volatile;
