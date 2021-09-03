@@ -2,7 +2,7 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
-import { Feedback, isFeedback } from 'lib/model/feedback';
+import { EMOJIS, Feedback, isFeedback } from 'lib/model/feedback';
 import { getMessage } from 'lib/api/db/message';
 import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
@@ -29,13 +29,14 @@ async function createFeedback(
       .insert({ ...body, id: undefined });
     handleSupabaseError('creating', 'feedback', body, error);
     const message = await getMessage(body.message);
+    const emoji = body.emoji ? EMOJIS[body.emoji] : '🙂';
     logger.info(`Sending feedback to ${message.name} (${message.email})...`);
     await send({
       to: { name: message.name, email: message.email },
       from: { name: 'Hammock', email: 'team@readhammock.com' },
       bcc: { name: 'Hammock', email: 'team@readhammock.com' },
       replyTo: { name: user.name, email: user.email || 'team@readhammock.com' },
-      subject: `Feedback from ${user.name}`,
+      subject: `${emoji} Feedback from ${user.name}`,
       text: `${body.feedback}\n\n—${user.name}`,
     });
     res.status(201).json(data ? data[0] : body);

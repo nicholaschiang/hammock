@@ -1,9 +1,15 @@
 import { isJSON } from 'lib/model/json';
 
+export const EMOJIS: Record<Emoji, string> = {
+  star: '🤩',
+  grin: '😀',
+  confused: '😕',
+  cry: '😭',
+};
 export type Emoji = 'star' | 'grin' | 'confused' | 'cry';
 export function isEmoji(emoji: unknown): emoji is Emoji {
   if (typeof emoji !== 'string') return false;
-  return ['star', 'grin', 'confused', 'cry'].includes(emoji);
+  return Object.keys(EMOJIS).includes(emoji);
 }
 
 export interface Feedback {
