@@ -8,11 +8,13 @@ import {
 } from 'react';
 import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
+import to from 'await-to-js';
 
 import ConfusedEmoji from 'components/emojis/confused';
 import CryEmoji from 'components/emojis/cry';
 import GrinEmoji from 'components/emojis/grin';
 import HighlightIcon from 'components/icons/highlight';
+import LoadingDots from 'components/loading-dots';
 import StarEmoji from 'components/emojis/star';
 import TweetIcon from 'components/icons/tweet';
 
@@ -54,7 +56,7 @@ export default function Article({
   const [position, setPosition] = useState<Position>();
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
-  const feedbackRef = useRef<HTMLFormElement>(null);
+  const feedbackRef = useRef<HTMLDivElement>(null);
   const feedbackTextAreaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
@@ -174,63 +176,90 @@ export default function Article({
   }, [message, highlight, data]);
   const [feedback, setFeedback] = useState<string>('');
   const [emoji, setEmoji] = useState<'star' | 'grin' | 'confused' | 'cry'>();
+  const [sending, setSending] = useState<boolean>(false);
+  const [sent, setSent] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
   const onFeedback = useCallback(
     async (evt: FormEvent) => {
       evt.preventDefault();
       if (!message) return;
-      const data = { feedback, emoji };
-      window.analytics?.track('Feedback Sent', data);
-      await fetcher(`/api/messages/${message.id}/feedback`, 'post', data);
+      setSending(true);
+      window.analytics?.track('Feedback Sent', { feedback, emoji });
+      const url = `/api/messages/${message.id}/feedback`;
+      const [err] = await to(fetcher(url, 'post', { feedback, emoji }));
+      setSending(false);
+      if (err) {
+        setError(err.message);
+      } else {
+        setSent(true);
+      }
     },
     [message, feedback, emoji]
   );
 
   return (
     <>
-      <div className={cn('feedback', { open: scroll > 0.5 })}>
-        <form onSubmit={onFeedback} ref={feedbackRef}>
-          <textarea
-            ref={feedbackTextAreaRef}
-            placeholder='What do you think of the newsletter so far?'
-            value={feedback}
-            onChange={(evt) => setFeedback(evt.currentTarget.value)}
-          />
-          <div className='actions'>
-            <div className='emojis'>
+      <div className={cn('feedback', { open: scroll > 0.5, sent, error })}>
+        <div className='wrapper' ref={feedbackRef}>
+          <div className='error'>
+            <p>Hmm, it looks like we hit a snag.</p>
+            <p>{error}</p>
+          </div>
+          <div className='confirmation'>
+            <p>Your feedback has been received!</p>
+            <p>Thank you for your help.</p>
+          </div>
+          <form onSubmit={onFeedback}>
+            <textarea
+              disabled={sending}
+              ref={feedbackTextAreaRef}
+              placeholder='What do you think of the newsletter so far?'
+              value={feedback}
+              onChange={(evt) => setFeedback(evt.currentTarget.value)}
+            />
+            <div className='actions'>
+              <div className='emojis'>
+                <button
+                  className={cn('reset emoji', { active: emoji === 'star' })}
+                  onClick={() => setEmoji('star')}
+                  type='button'
+                >
+                  <StarEmoji />
+                </button>
+                <button
+                  className={cn('reset emoji', { active: emoji === 'grin' })}
+                  onClick={() => setEmoji('grin')}
+                  type='button'
+                >
+                  <GrinEmoji />
+                </button>
+                <button
+                  className={cn('reset emoji', {
+                    active: emoji === 'confused',
+                  })}
+                  onClick={() => setEmoji('confused')}
+                  type='button'
+                >
+                  <ConfusedEmoji />
+                </button>
+                <button
+                  className={cn('reset emoji', { active: emoji === 'cry' })}
+                  onClick={() => setEmoji('cry')}
+                  type='button'
+                >
+                  <CryEmoji />
+                </button>
+              </div>
               <button
-                className={cn('reset emoji', { active: emoji === 'star' })}
-                onClick={() => setEmoji('star')}
-                type='button'
+                className='reset send'
+                type='submit'
+                disabled={sending || !feedback}
               >
-                <StarEmoji />
-              </button>
-              <button
-                className={cn('reset emoji', { active: emoji === 'grin' })}
-                onClick={() => setEmoji('grin')}
-                type='button'
-              >
-                <GrinEmoji />
-              </button>
-              <button
-                className={cn('reset emoji', { active: emoji === 'confused' })}
-                onClick={() => setEmoji('confused')}
-                type='button'
-              >
-                <ConfusedEmoji />
-              </button>
-              <button
-                className={cn('reset emoji', { active: emoji === 'cry' })}
-                onClick={() => setEmoji('cry')}
-                type='button'
-              >
-                <CryEmoji />
+                {sending ? <LoadingDots /> : 'Send'}
               </button>
             </div>
-            <button className='reset send' type='submit'>
-              Send
-            </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
       <div className={cn('dialog', { open: highlight && position })}>
         <div className='buttons' ref={buttonsRef}>
@@ -287,7 +316,7 @@ export default function Article({
           opacity: 1;
         }
 
-        .feedback form {
+        .feedback .wrapper {
           position: absolute;
           top: 0;
           left: 0;
@@ -295,9 +324,60 @@ export default function Article({
           box-shadow: 0 1px 24px rgba(0, 0, 0, 0.08);
           background: var(--background);
           border-radius: 8px;
+          overflow: hidden;
+        }
+
+        .feedback .confirmation,
+        .feedback .error {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: var(--background);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-direction: column;
+          z-index: 1;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.2s ease 0s;
+        }
+
+        .feedback.sent .confirmation,
+        .feedback.error .error {
+          opacity: 1;
+          pointer-events: unset;
+        }
+
+        .feedback .confirmation p,
+        .feedback .error p {
+          opacity: 0;
+          transition: opacity 0.2s ease 0s;
+          margin: 4px 8px;
+          font-size: 0.85rem;
+          line-height: 1.25;
+          text-align: center;
+        }
+
+        .feedback .error p {
+          color: var(--error);
+        }
+
+        .feedback.sent .confirmation p,
+        .feedback.error .error p {
+          opacity: 1;
+        }
+
+        .feedback.sent .confirmation p:last-of-type,
+        .feedback.error .confirmation p:last-of-type {
+          transition-delay: 0.2s;
+        }
+
+        .feedback form {
           padding: 0;
           margin: 0;
-          overflow: hidden;
         }
 
         .feedback textarea {
@@ -376,11 +456,23 @@ export default function Article({
           background: var(--on-background);
           color: var(--background);
           transition: all 0.2s ease 0s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 50px;
         }
 
         button.send:hover {
           background: var(--background);
           color: var(--on-background);
+        }
+
+        button.send:disabled {
+          cursor: not-allowed;
+          background: var(--accents-1);
+          border: 1px solid var(--accents-2);
+          color: var(--accents-4);
+          filter: grayscale(1);
         }
 
         .dialog {
