@@ -259,9 +259,9 @@ export default function Article({
                 </button>
               </div>
               <button
-                className='reset send'
-                type='submit'
+                className={cn('reset send', { sending })}
                 disabled={sending || !feedback}
+                type='submit'
               >
                 {sending ? <LoadingDots /> : 'Send'}
               </button>
@@ -481,6 +481,10 @@ export default function Article({
           border: 1px solid var(--accents-2);
           color: var(--accents-4);
           filter: grayscale(1);
+        }
+
+        button.send.sending {
+          cursor: wait;
         }
 
         .dialog {

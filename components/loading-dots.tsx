@@ -6,17 +6,17 @@ export default function LoadingDots({
   size = 4,
 }: LoadingDotsProps): JSX.Element {
   return (
-    <span className='loading'>
+    <span className='load'>
       <span />
       <span />
       <span />
       <style jsx>{`
-        .loading {
+        .load {
           display: inline-flex;
           align-items: center;
         }
 
-        .loading span {
+        .load span {
           animation-name: blink;
           animation-duration: 1.4s;
           animation-iteration-count: infinite;
@@ -29,11 +29,11 @@ export default function LoadingDots({
           width: ${size}px;
         }
 
-        .loading span:nth-of-type(2) {
+        .load span:nth-of-type(2) {
           animation-delay: 0.2s;
         }
 
-        .loading span:nth-of-type(3) {
+        .load span:nth-of-type(3) {
           animation-delay: 0.4s;
         }
 
