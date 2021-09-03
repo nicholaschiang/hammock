@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import useSWR, { mutate } from 'swr';
 import cn from 'classnames';
 
@@ -47,7 +54,7 @@ export default function Article({
   const [position, setPosition] = useState<Position>();
   const articleRef = useRef<HTMLElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
-  const feedbackRef = useRef<HTMLDivElement>(null);
+  const feedbackRef = useRef<HTMLFormElement>(null);
   const feedbackTextAreaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     // TODO: Perhaps add a `mouseout` event listener that will hide the dialog
@@ -165,15 +172,28 @@ export default function Article({
       await mutate(url);
     }
   }, [message, highlight, data]);
+  const [feedback, setFeedback] = useState<string>('');
   const [emoji, setEmoji] = useState<'star' | 'grin' | 'confused' | 'cry'>();
+  const onFeedback = useCallback(
+    async (evt: FormEvent) => {
+      evt.preventDefault();
+      if (!message) return;
+      const data = { feedback, emoji };
+      window.analytics?.track('Feedback Sent', data);
+      await fetcher(`/api/messages/${message.id}/feedback`, 'post', data);
+    },
+    [message, feedback, emoji]
+  );
 
   return (
     <>
       <div className={cn('feedback', { open: scroll > 0.5 })}>
-        <div className='wrapper' ref={feedbackRef}>
+        <form onSubmit={onFeedback} ref={feedbackRef}>
           <textarea
             ref={feedbackTextAreaRef}
             placeholder='What do you think of the newsletter so far?'
+            value={feedback}
+            onChange={(evt) => setFeedback(evt.currentTarget.value)}
           />
           <div className='actions'>
             <div className='emojis'>
@@ -206,11 +226,11 @@ export default function Article({
                 <CryEmoji />
               </button>
             </div>
-            <button className='reset send' type='button'>
+            <button className='reset send' type='submit'>
               Send
             </button>
           </div>
-        </div>
+        </form>
       </div>
       <div className={cn('dialog', { open: highlight && position })}>
         <div className='buttons' ref={buttonsRef}>
@@ -267,7 +287,7 @@ export default function Article({
           opacity: 1;
         }
 
-        .wrapper {
+        .feedback form {
           position: absolute;
           top: 0;
           left: 0;
@@ -275,6 +295,8 @@ export default function Article({
           box-shadow: 0 1px 24px rgba(0, 0, 0, 0.08);
           background: var(--background);
           border-radius: 8px;
+          padding: 0;
+          margin: 0;
           overflow: hidden;
         }
 
