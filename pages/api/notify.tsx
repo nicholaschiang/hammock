@@ -1,5 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
-import mail, { MailDataRequired } from '@sendgrid/mail';
+import { MailDataRequired } from '@sendgrid/mail';
 import { renderToStaticMarkup } from 'react-dom/server';
 import to from 'await-to-js';
 import { withSentry } from '@sentry/nextjs';
@@ -11,6 +11,7 @@ import { Message } from 'lib/model/message';
 import { User } from 'lib/model/user';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
+import send from 'lib/api/sendgrid';
 import supabase from 'lib/api/supabase';
 import syncGmail from 'lib/api/gmail/sync';
 
@@ -75,10 +76,7 @@ async function notifyAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
         })
       );
       logger.info(`Sending ${emails.length} emails...`);
-      if (typeof process.env.SENDGRID_API_KEY !== 'string')
-        throw new APIError('Missing SendGrid API key', 401);
-      mail.setApiKey(process.env.SENDGRID_API_KEY);
-      await mail.send(emails);
+      await send(emails);
       res.status(200).end(`${emails.length} Emails Sent`);
     } catch (e) {
       handle(e, res);
