@@ -3,8 +3,8 @@ import { withSentry } from '@sentry/nextjs';
 
 import { APIError, APIErrorJSON } from 'lib/model/error';
 import { Feedback, isFeedback } from 'lib/model/feedback';
-import { handle } from 'lib/api/error';
 import { getMessage } from 'lib/api/db/message';
+import { handle } from 'lib/api/error';
 import handleSupabaseError from 'lib/api/db/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
@@ -34,8 +34,9 @@ async function createFeedback(
       to: { name: message.name, email: message.email },
       from: { name: 'Hammock', email: 'team@readhammock.com' },
       bcc: { name: 'Hammock', email: 'team@readhammock.com' },
+      replyTo: { name: user.name, email: user.email || 'team@readhammock.com' },
       subject: `Feedback from ${user.name}`,
-      text: `New ${body.emoji} feedback from ${user.name}: ${body.feedback}`,
+      text: `${body.feedback}\n\n—${user.name}`,
     });
     res.status(201).json(data ? data[0] : body);
     logger.info(`Created feedback (${data ? data[0].id : ''}) for ${user}.`);
