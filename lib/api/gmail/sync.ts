@@ -46,7 +46,7 @@ export default async function syncGmail(
       const message = messageFromGmail(gmailMessage);
       message.user = user.id;
       await createMessage(message);
-      logger.debug(`Saved ${message} to Firestore database.`);
+      logger.debug(`Saved message (${message.id}) to database.`);
     })
   );
   return data.nextPageToken || '';
