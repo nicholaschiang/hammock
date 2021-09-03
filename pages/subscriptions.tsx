@@ -33,7 +33,7 @@ function addSub(user: User | undefined, sub: Subscription): void {
 
 function deleteSub(user: User | undefined, sub: Subscription): void {
   const idx = user?.subscriptions.findIndex((s) => s.email === sub.email);
-  if (idx && idx >= 0) user?.subscriptions.splice(idx, 1);
+  if (typeof idx === 'number' && idx >= 0) user?.subscriptions.splice(idx, 1);
 }
 
 const NUM_PAGES = 10;
