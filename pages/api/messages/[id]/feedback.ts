@@ -21,6 +21,7 @@ async function createFeedback(
     const user = await verifyAuth(req);
     if (Number(user.id) !== body.user)
       throw new APIError('You can only create feedback from yourself', 403);
+    logger.info(`Creating ${body.emoji} feedback (${body.feedback})...`);
     const { data, error } = await supabase
       .from<Feedback>('feedback')
       .insert({ ...body, id: undefined });
