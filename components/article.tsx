@@ -362,7 +362,7 @@ export default function Article({
         .feedback .confirmation p,
         .feedback .error p {
           opacity: 0;
-          transition: opacity 0.2s ease 0s;
+          transition: opacity 0.4s ease 0s;
           margin: 4px 8px;
           font-size: 0.85rem;
           line-height: 1.25;
@@ -378,9 +378,14 @@ export default function Article({
           opacity: 1;
         }
 
-        .feedback.sent .confirmation p:last-of-type,
-        .feedback.error .confirmation p:last-of-type {
-          transition-delay: 0.2s;
+        .feedback.sent .confirmation p:nth-of-type(1),
+        .feedback.error .confirmation p:nth-of-type(1) {
+          transition-delay: 0.4s;
+        }
+
+        .feedback.sent .confirmation p:nth-of-type(2),
+        .feedback.error .confirmation p:nth-of-type(2) {
+          transition-delay: 0.8s;
         }
 
         .feedback form {
