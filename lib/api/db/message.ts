@@ -6,7 +6,7 @@ import logger from 'lib/api/logger';
 import supabase from 'lib/api/supabase';
 
 export async function createMessage(message: Message): Promise<Message> {
-  logger.verbose(`Inserting message (${message.id}) row...`);
+  logger.debug(`Inserting message (${message.id}) row...`);
   const { data, error } = await supabase
     .from<Message>('messages')
     .insert(message);
@@ -15,7 +15,7 @@ export async function createMessage(message: Message): Promise<Message> {
 }
 
 export async function updateMessage(message: Message): Promise<Message> {
-  logger.verbose(`Updating message (${message.id}) row...`);
+  logger.debug(`Updating message (${message.id}) row...`);
   const { data, error } = await supabase
     .from<Message>('messages')
     .update(message)
@@ -25,7 +25,7 @@ export async function updateMessage(message: Message): Promise<Message> {
 }
 
 export async function deleteMessage(id: string): Promise<void> {
-  logger.verbose(`Deleting message (${id}) row...`);
+  logger.debug(`Deleting message (${id}) row...`);
   const { error } = await supabase
     .from<Message>('messages')
     .delete()
@@ -35,7 +35,7 @@ export async function deleteMessage(id: string): Promise<void> {
 
 // Deletes messages that are in our database that are no longer subscribed to.
 export async function removeMessages(user: User): Promise<void> {
-  logger.verbose(`Removing messages for ${user.name} (${user.id})...`);
+  logger.debug(`Removing messages for ${user.name} (${user.id})...`);
   const { error } = await supabase
     .from<Message>('messages')
     .delete()
@@ -54,7 +54,7 @@ export async function removeMessages(user: User): Promise<void> {
 }
 
 export async function getMessage(id: string): Promise<Message> {
-  logger.verbose(`Selecting message (${id}) row...`);
+  logger.debug(`Selecting message (${id}) row...`);
   const { data, error } = await supabase
     .from<Message>('messages')
     .select()
