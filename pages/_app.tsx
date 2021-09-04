@@ -15,6 +15,8 @@ import { User } from 'lib/model/user';
 import { UserContext } from 'lib/context/user';
 import { fetcher } from 'lib/fetch';
 
+import 'fonts.css';
+
 const light = `
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
