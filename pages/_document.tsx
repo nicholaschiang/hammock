@@ -1,8 +1,6 @@
 import NextDocument, { Head, Html, Main, NextScript } from 'next/document';
 
-// TODO: Right now the default theme is "light" but eventually we should set the
-// default theme to "system" once "dark" is no longer experimental.
-const themeSnippet = `document.documentElement.classList.add(localStorage.getItem('theme') || 'light');`;
+const themeSnippet = `document.documentElement.classList.add(localStorage.getItem('theme') || 'system');`;
 
 // Prevent FOUC on Firefox due to an age-old script processing bug.
 // @see {@link https://nextjs.org/docs/advanced-features/custom-document}
