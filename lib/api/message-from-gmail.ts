@@ -171,8 +171,7 @@ export function parseRawHTML(raw: string): { time: number; html: string } {
  * @return The converted message (with sanitized HTML and all).
  */
 export default function messageFromGmail(gmailMessage: GmailMessage): Message {
-  console.time(`parse-gmail-message-${gmailMessage.id}`);
-  logger.verbose(`Parsing Gmail message (${gmailMessage.id})...`);
+  logger.debug(`Parsing Gmail message (${gmailMessage.id})...`);
 
   function getHeader(header: string): string {
     return (
@@ -197,8 +196,6 @@ export default function messageFromGmail(gmailMessage: GmailMessage): Message {
 
   const raw = getRawHTML(gmailMessage);
   const { html, time } = raw ? parseRawHTML(raw) : { html: '', time: 0 };
-
-  console.timeEnd(`parse-gmail-message-${gmailMessage.id}`);
 
   return {
     raw,

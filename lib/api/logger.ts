@@ -1,7 +1,7 @@
 import winston from 'winston';
 
 export default winston.createLogger({
-  level: 'debug',
+  level: 'verbose',
   format: winston.format.simple(),
   transports: [new winston.transports.Console()],
 });

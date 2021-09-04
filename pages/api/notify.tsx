@@ -47,7 +47,7 @@ async function notifyAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
           // we're looking at in our email notification anyways. That's why this
           // doesn't care about the `nextPageToken` and isn't recursive.
           const [e] = await to(syncGmail(user));
-          if (e) logger.warn(`Error syncing for ${usr}: ${e.stack || ''}`);
+          if (e) logger.warn(`Error syncing for ${usr}: ${e.message}`);
           logger.verbose(`Fetching messages for ${usr}...`);
           const { data: messages } = await supabase
             .from<Message>('messages')
