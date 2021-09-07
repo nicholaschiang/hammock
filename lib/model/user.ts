@@ -5,7 +5,7 @@ import { APIError } from 'lib/model/error';
 export const SCOPES = {
   EMAIL: 'https://www.googleapis.com/auth/userinfo.email',
   PROFILE: 'https://www.googleapis.com/auth/userinfo.profile',
-  MODIFY: 'https://www.googleapis.com/auth/gmail.modify',
+  READ: 'https://www.googleapis.com/auth/gmail.readonly',
   LABEL: 'https://www.googleapis.com/auth/gmail.labels',
   FILTER: 'https://www.googleapis.com/auth/gmail.settings.basic',
 };

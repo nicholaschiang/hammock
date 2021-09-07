@@ -2,7 +2,6 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
 
 import { User, isUser } from 'lib/model/user';
-import { addLabels, removeLabels } from 'lib/api/gmail/labels';
 import { APIErrorJSON } from 'lib/model/error';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
@@ -45,8 +44,6 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
       syncGmail(body),
       watchGmail(body),
       removeMessages(body),
-      addLabels(body, client),
-      removeLabels(body, client),
     ]);
     res.status(200).json(body);
     logger.info(`Updated ${body.name} (${body.id}).`);

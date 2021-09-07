@@ -4,7 +4,6 @@ import { withSentry } from '@sentry/nextjs';
 import { Message, isMessage } from 'lib/model/message';
 import { getMessage, updateMessage } from 'lib/api/db/message';
 import { APIErrorJSON } from 'lib/model/error';
-import gmail from 'lib/api/gmail';
 import { handle } from 'lib/api/error';
 import logger from 'lib/api/logger';
 import segment from 'lib/api/segment';
@@ -22,11 +21,10 @@ async function fetchMessageAPI(
     const id = verifyQueryId(req.query);
     console.time(`fetch-message-${id}`);
     const user = await verifyAuth(req);
+    const usr = `${user.name} (${user.id})`;
     const message = await getMessage(id);
     res.status(200).json(message);
-    logger.info(
-      `Fetched message (${message.id}) for ${user.name} (${user.id}).`
-    );
+    logger.info(`Fetched message (${message.id}) for ${usr}.`);
     console.timeEnd(`fetch-message-${id}`);
     segment.track({ userId: user.id, event: 'Message Fetched' });
   } catch (e) {
@@ -44,16 +42,6 @@ async function updateMessageAPI(
     const user = await verifyAuth(req);
     const usr = `${user.name} (${user.id})`;
     const message = await updateMessage(body);
-    const client = gmail(user.token);
-    logger.verbose(`Modifying Gmail message (${message.id}) for ${usr}...`);
-    await client.users.messages.modify({
-      userId: 'me',
-      id: message.id,
-      requestBody: {
-        addLabelIds: message.archived ? [] : ['UNREAD'],
-        removeLabelIds: message.archived ? ['UNREAD'] : [],
-      },
-    });
     res.status(200).json(message);
     logger.info(`Updated message (${message.id}) for ${usr}.`);
     console.timeEnd(`update-message-${body.id}`);
