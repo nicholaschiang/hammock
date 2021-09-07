@@ -4,8 +4,8 @@ import logger from 'lib/api/logger';
 
 export default async function watchGmail(user: User): Promise<void> {
   const usr = `${user.name} (${user.id})`;
-  if (!user.scopes.includes(SCOPES.MODIFY)) {
-    logger.error(`Skipping sync for ${usr} without MODIFY scope...`);
+  if (!user.scopes.includes(SCOPES.READ)) {
+    logger.error(`Skipping sync for ${usr} without READ scope...`);
     return;
   }
   const client = gmail(user.token);
