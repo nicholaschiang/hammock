@@ -207,6 +207,44 @@ export default function Article({
 
   return (
     <>
+      <div className={cn('dialog', { open: highlight && position })}>
+        <div className='buttons' ref={buttonsRef}>
+          <button
+            className={cn('reset button', {
+              highlighted: data?.some((x) => x.id === highlight?.id),
+            })}
+            type='button'
+            onClick={onHighlight}
+          >
+            <HighlightIcon />
+          </button>
+          <a
+            className='reset button'
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
+              tweet
+            )}`}
+            target='_blank'
+            rel='noopener noreferrer'
+            onClick={onTweet}
+          >
+            <TweetIcon />
+          </a>
+        </div>
+        <div className='shadows'>
+          <div className='shadow' />
+          <div className='shadow' />
+        </div>
+      </div>
+      {message && (
+        <article ref={articleRef} dangerouslySetInnerHTML={{ __html: html }} />
+      )}
+      {!message && (
+        <article>
+          <p className='loading' />
+          <p className='loading' />
+          <p className='loading' />
+        </article>
+      )}
       <div className={cn('feedback', { open: scroll > 0.5, sent, error })}>
         <div className='wrapper' ref={feedbackRef}>
           <div className='error'>
@@ -269,44 +307,6 @@ export default function Article({
           </form>
         </div>
       </div>
-      <div className={cn('dialog', { open: highlight && position })}>
-        <div className='buttons' ref={buttonsRef}>
-          <button
-            className={cn('reset button', {
-              highlighted: data?.some((x) => x.id === highlight?.id),
-            })}
-            type='button'
-            onClick={onHighlight}
-          >
-            <HighlightIcon />
-          </button>
-          <a
-            className='reset button'
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(
-              tweet
-            )}`}
-            target='_blank'
-            rel='noopener noreferrer'
-            onClick={onTweet}
-          >
-            <TweetIcon />
-          </a>
-        </div>
-        <div className='shadows'>
-          <div className='shadow' />
-          <div className='shadow' />
-        </div>
-      </div>
-      {message && (
-        <article ref={articleRef} dangerouslySetInnerHTML={{ __html: html }} />
-      )}
-      {!message && (
-        <article>
-          <p className='loading' />
-          <p className='loading' />
-          <p className='loading' />
-        </article>
-      )}
       <style jsx>{`
         .feedback {
           position: absolute;
@@ -333,6 +333,20 @@ export default function Article({
           background: var(--background);
           border-radius: 8px;
           overflow: hidden;
+          min-width: 100%;
+        }
+
+        @media (max-width: 1200px) {
+          .feedback {
+            border: 1px solid var(--accents-2);
+            border-radius: 8px;
+            position: unset;
+            width: 100%;
+          }
+
+          .feedback .wrapper {
+            position: unset;
+          }
         }
 
         .feedback .confirmation,
@@ -405,6 +419,7 @@ export default function Article({
           border-radius: 0;
           padding: 12px;
           margin: 0;
+          width: 100%;
           min-width: 250px;
           min-height: 100px;
         }
