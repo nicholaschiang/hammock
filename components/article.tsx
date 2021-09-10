@@ -40,10 +40,7 @@ export interface ArticleProps {
   scroll: number;
 }
 
-export default function Article({
-  message,
-  scroll,
-}: ArticleProps): JSX.Element {
+export default function Article({ message }: ArticleProps): JSX.Element {
   const { user } = useUser();
   const { data } = useSWR<Highlight[]>(
     message ? `/api/messages/${message.id}/highlights` : null
@@ -245,7 +242,7 @@ export default function Article({
           <p className='loading' />
         </article>
       )}
-      <div className={cn('feedback', { open: scroll > 0.5, sent, error })}>
+      <div className={cn('feedback', { open: false, sent, error })}>
         <div className='wrapper' ref={feedbackRef}>
           <div className='error'>
             <p>Hmm, it looks like we hit a snag.</p>
