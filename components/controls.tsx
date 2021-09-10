@@ -126,14 +126,14 @@ export default function Controls({
           .controls {
             bottom: -40px;
             left: unset;
-            right: 8px;
+            right: 24px;
             top: unset;
             transition: bottom 0.2s ease 0s, opacity 0.2s ease 0s;
           }
 
           .controls.visible {
             top: unset;
-            bottom: 8px;
+            bottom: 24px;
           }
 
           .wrapper {

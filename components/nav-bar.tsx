@@ -313,11 +313,11 @@ export default function NavBar(): JSX.Element {
           .wrapper {
             position: fixed;
             z-index: 4;
-            bottom: 8px;
-            right: 8px;
+            bottom: 24px;
+            right: 24px;
             left: unset;
             width: unset;
-            max-width: calc(100vw - 16px);
+            max-width: calc(100vw - 48px);
             background: var(--background);
             box-shadow: var(--shadow-medium);
             border-radius: 48px;
@@ -348,14 +348,6 @@ export default function NavBar(): JSX.Element {
 
           nav::-webkit-scrollbar {
             display: none;
-          }
-        }
-
-        @media (min-width: 600px) {
-          .wrapper {
-            bottom: 12px;
-            right: 12px;
-            max-width: calc(100vw - 24px);
           }
         }
       `}</style>
