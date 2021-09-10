@@ -72,6 +72,7 @@ export default function Controls({
           justify-content: center;
           transition: top 0.2s ease 0s, opacity 0.2s ease 0s;
           pointer-events: none;
+          z-index: 4;
         }
 
         .controls.visible {
