@@ -44,7 +44,7 @@ export default function Controls({
       <div className='wrapper'>
         <button
           onClick={() =>
-            query.ref === 'email' ? Router.push('/feed') : Router.back()
+            query.ref === 'email' ? Router.push('/') : Router.back()
           }
           className='reset button'
           type='button'

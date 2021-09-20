@@ -3,7 +3,7 @@
  "short_name": "Hammock",
  "lang": "en-US",
  "scope": "/",
- "start_url": "/feed",
+ "start_url": "/",
  "display": "standalone",
  "orientation": "portrait",
  "icons": [

@@ -23,7 +23,7 @@ async function redirectAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
       const [err, user] = await to(verifyAuth(req));
       if (err) {
         logger.warn(`${err.name} verifying authentication: ${err.message}`);
-        res.redirect('/feed');
+        res.redirect('/');
       } else if (
         user &&
         !Object.values(SCOPES).every((s) => user.scopes.includes(s))
@@ -38,7 +38,7 @@ async function redirectAPI(req: Req, res: Res<APIErrorJSON>): Promise<void> {
         });
       } else if (user?.subscriptions.length) {
         logger.info(`Redirecting ${user.name} (${user.id}) to feed...`);
-        res.redirect('/feed');
+        res.redirect('/');
       } else {
         const string = user ? ` ${user.name} (${user.id}) ` : ' ';
         logger.info(`Redirecting${string}to subscriptions...`);
