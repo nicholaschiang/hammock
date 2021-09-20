@@ -117,7 +117,7 @@ describe('Feed', () => {
             .and('have.value', 'system')
             .select('dark');
           cy.percySnapshot('Feed Page Menu Dark');
-          cy.contains('button', 'Logout').click().should('be.disabled');
+          cy.contains('button', 'Logout').click();
           cy.url().should('contain', '/login');
           cy.percySnapshot('Login Page Dark');
         });
