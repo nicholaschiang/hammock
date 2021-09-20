@@ -388,7 +388,7 @@ export default function SubscriptionsPage(): JSX.Element {
       await mutate(url, fetcher(url, 'put', user), false);
       setUserMutated(false);
       void fetch('/api/sync');
-      await Router.push('/feed');
+      await Router.push('/');
     } catch (e) {
       setError(period((e as Error).message));
     }

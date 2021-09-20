@@ -240,7 +240,7 @@ export default function NavBar(): JSX.Element {
           </MenuButton>
         </div>
         <nav>
-          <NavLink href='/feed'>Feed</NavLink>
+          <NavLink href='/'>Feed</NavLink>
           <NavLink href='/writers'>Writers</NavLink>
           <NavLink href='/highlights'>Highlights</NavLink>
         </nav>

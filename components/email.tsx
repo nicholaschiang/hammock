@@ -191,7 +191,7 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                     <td align='center' style={{ padding: 0 }}>
                       <div>
                         <a
-                          href='https://readhammock.com/feed'
+                          href='https://app.readhammock.com'
                           style={{
                             fontFamily,
                             borderRadius: '4px',

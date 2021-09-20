@@ -3,7 +3,7 @@ import user from 'cypress/fixtures/user.json';
 
 function showsEmptyState(dark = false): void {
   localStorage.setItem('theme', dark ? 'dark' : 'light');
-  cy.visit('/feed');
+  cy.visit('/');
   cy.get('html').should('have.class', dark ? 'dark' : 'light');
   cy.getBySel('message-row').should('have.attr', 'data-loading', 'true');
   cy.percySnapshot(`Feed Page Fallback${dark ? ' Dark' : ''}`);
@@ -16,7 +16,7 @@ function showsEmptyState(dark = false): void {
 function showsMessages(dark = false): void {
   localStorage.setItem('theme', dark ? 'dark' : 'light');
   cy.intercept('GET', '/api/messages', messages).as('get-messages');
-  cy.visit('/feed');
+  cy.visit('/');
   cy.wait('@get-account');
   cy.wait('@get-messages');
   cy.getBySel('empty').should('not.exist');
@@ -48,7 +48,7 @@ function showsMessages(dark = false): void {
 describe('Feed', () => {
   it('redirects to login page', () => {
     cy.intercept('GET', '/api/account').as('get-account');
-    cy.visit('/feed');
+    cy.visit('/');
     cy.wait('@get-account')
       .its('response')
       .should('have.property', 'statusCode', 401);
@@ -58,7 +58,7 @@ describe('Feed', () => {
   it('redirects to subscriptions page', () => {
     const account = { ...user, subscriptions: [] };
     cy.intercept('GET', '/api/account', account).as('get-account');
-    cy.visit('/feed');
+    cy.visit('/');
     cy.wait('@get-account');
     cy.url().should('contain', '/subscriptions');
   });
@@ -71,7 +71,7 @@ describe('Feed', () => {
     });
 
     it('logs out and changes theme', () => {
-      cy.visit('/feed');
+      cy.visit('/');
       cy.wait('@get-account');
       cy.getBySel('menu').as('menu').should('not.be.visible');
       cy.getBySel('menu-button').as('btn').click();
@@ -135,7 +135,7 @@ describe('Feed', () => {
       const n = new Date();
       const morning = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 6);
       cy.clock(morning.valueOf());
-      cy.visit('/feed');
+      cy.visit('/');
       cy.tick(1000);
       cy.getBySel('greeting').should('contain', 'Good morning');
     });
@@ -149,7 +149,7 @@ describe('Feed', () => {
         12
       );
       cy.clock(afternoon.valueOf());
-      cy.visit('/feed');
+      cy.visit('/');
       cy.tick(1000);
       cy.getBySel('greeting').should('contain', 'Good afternoon');
     });
@@ -158,7 +158,7 @@ describe('Feed', () => {
       const n = new Date();
       const evening = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 18);
       cy.clock(evening.valueOf());
-      cy.visit('/feed');
+      cy.visit('/');
       cy.tick(1000);
       cy.getBySel('greeting').should('contain', 'Good evening');
     });

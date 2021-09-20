@@ -12,14 +12,6 @@ module.exports = withSentryConfig(
         'www.google.com',
       ],
     },
-    async rewrites() {
-      return [
-        {
-          source: '/about',
-          destination: '/',
-        },
-      ];
-    },
     async redirects() {
       return [
         {
