@@ -1,5 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import { withSentry } from '@sentry/nextjs';
+import to from 'await-to-js';
 
 import { User, isUser } from 'lib/model/user';
 import { APIErrorJSON } from 'lib/model/error';
@@ -39,8 +40,8 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
     // edit permission. Right now, it's broken because I only have read access.
     await Promise.all([
       upsertUser(body),
-      syncGmail(body),
-      watchGmail(body),
+      to(syncGmail(body)),
+      to(watchGmail(body)),
       removeMessages(body),
     ]);
     res.status(200).json(body);

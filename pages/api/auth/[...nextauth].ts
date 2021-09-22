@@ -71,8 +71,8 @@ export default NextAuth({
         logger.verbose(`Creating ${created.name} (${created.id})...`);
         await Promise.all([
           upsertUser(created),
-          syncGmail(created),
-          watchGmail(created),
+          to(syncGmail(created)),
+          to(watchGmail(created)),
         ]);
       }
       // Don't include user data in the JWT because it's larger than the max
