@@ -14,7 +14,6 @@ import syncGmail from 'lib/api/gmail/sync';
 import { upsertUser } from 'lib/api/db/user';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
-import watchGmail from 'lib/api/gmail/watch';
 
 async function fetchAccount(req: Req, res: Res<User>): Promise<void> {
   console.time('get-account');
@@ -41,7 +40,6 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
     await Promise.all([
       upsertUser(body),
       to(syncGmail(body)),
-      to(watchGmail(body)),
       removeMessages(body),
     ]);
     res.status(200).json(body);
