@@ -155,7 +155,7 @@ export default function Article({ message }: ArticleProps): JSX.Element {
       highlight
         ? `“${highlight?.text || ''}” — ${
             message?.name || 'Newsletter'
-          }\n\nvia @readhammock\nhttps://readhammock.com/try`
+          }\n\nvia @readhammock\nhttps://app.readhammock.com/try`
         : prev
     );
   }, [message, highlight]);
