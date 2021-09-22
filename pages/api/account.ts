@@ -1,6 +1,6 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
-import { withSentry } from '@sentry/nextjs';
 import to from 'await-to-js';
+import { withSentry } from '@sentry/nextjs';
 
 import { User, isUser } from 'lib/model/user';
 import { APIErrorJSON } from 'lib/model/error';
