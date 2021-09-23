@@ -27,6 +27,7 @@ export default function Dialog({ children, header }: DialogProps): JSX.Element {
           text-align: center;
           padding: 8px 48px;
           line-height: 1.25;
+          width: 100%;
         }
 
         header a {
@@ -37,9 +38,12 @@ export default function Dialog({ children, header }: DialogProps): JSX.Element {
           position: fixed;
           top: 0;
           left: 0;
-          width: 100%;
-          height: 100%;
+          width: 100vw;
+          height: 100vh;
           z-index: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
 
         .dialog {
@@ -48,10 +52,10 @@ export default function Dialog({ children, header }: DialogProps): JSX.Element {
           background: var(--background);
           border-radius: 10px;
           box-shadow: var(--shadow-large);
+          position: relative;
           overflow: auto;
           padding: 0 48px;
-          margin: 48px auto;
-          position: relative;
+          margin: 48px 0;
         }
 
         .scrim {
@@ -74,6 +78,7 @@ export default function Dialog({ children, header }: DialogProps): JSX.Element {
           .dialog {
             box-shadow: none;
             max-height: 100%;
+            margin: 0;
           }
 
           .scrim {
@@ -84,6 +89,10 @@ export default function Dialog({ children, header }: DialogProps): JSX.Element {
         @media (max-width: 450px) {
           .dialog {
             padding: 0 24px;
+          }
+
+          header {
+            padding: 8px 24px;
           }
 
           h1 {
