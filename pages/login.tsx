@@ -21,9 +21,9 @@ function Dialog({ children }: DialogProps): JSX.Element {
     <div className='wrapper'>
       <header>
         We released some improvements to make Hammock faster and more stable.
-        Please log back in to use the latest version. Full changelog{' '}
+        Please log back in to use the latest version.{' '}
         <a href='/changelog' target='_blank' rel='noopener noreferrer'>
-          here
+          Full changelog
         </a>
         .
       </header>
@@ -35,6 +35,7 @@ function Dialog({ children }: DialogProps): JSX.Element {
           color: var(--on-primary);
           padding: 8px 48px;
           text-align: center;
+          line-height: 1.2;
         }
 
         header a {
