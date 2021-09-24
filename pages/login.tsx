@@ -3,7 +3,6 @@ import { signIn } from 'next-auth/client';
 import { useRouter } from 'next/router';
 
 import Button from 'components/button';
-import Dialog from 'components/dialog';
 import LockIcon from 'components/icons/lock';
 import Page from 'components/page';
 import SyncIcon from 'components/icons/sync';
@@ -11,6 +10,105 @@ import UndoIcon from 'components/icons/undo';
 
 import { SCOPES } from 'lib/model/user';
 import useLoading from 'lib/hooks/loading';
+
+interface DialogProps {
+  children: ReactNode;
+}
+
+// TODO: Reduce code duplication between this and the subscription page.
+function Dialog({ children }: DialogProps): JSX.Element {
+  return (
+    <div className='wrapper'>
+      <header>
+        We released some improvements to make Hammock faster and more stable.
+        Please log back in to use the latest version. Full changelog{' '}
+        <a href='/changelog' target='_blank' rel='noopener noreferrer'>
+          here
+        </a>
+        .
+      </header>
+      <div className='dialog'>{children}</div>
+      <div className='scrim' />
+      <style jsx>{`
+        header {
+          background: var(--primary);
+          color: var(--on-primary);
+          padding: 8px 48px;
+          text-align: center;
+        }
+
+        header a {
+          color: unset;
+        }
+
+        .wrapper {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+          overflow: auto;
+        }
+
+        .dialog {
+          max-width: 540px;
+          background: var(--background);
+          border-radius: 10px;
+          box-shadow: var(--shadow-large);
+          position: relative;
+          overflow: auto;
+          padding: 0 48px;
+          margin: 48px auto;
+          position: relative;
+        }
+
+        .scrim {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          background-color: rgba(0, 0, 0, 0.32);
+          backdrop-filter: blur(2px);
+          opacity: 1;
+        }
+
+        @media (max-width: 540px) {
+          .wrapper {
+            background: var(--background);
+          }
+
+          .dialog {
+            box-shadow: none;
+            margin: 0;
+          }
+
+          .scrim {
+            display: none;
+          }
+        }
+
+        @media (max-width: 450px) {
+          .dialog {
+            padding: 0 24px;
+          }
+
+          header {
+            padding: 8px 24px;
+          }
+
+          h1 {
+            margin-top: 24px;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 interface SectionProps {
   icon: ReactNode;
@@ -117,7 +215,7 @@ export default function LoginPage(): JSX.Element {
 
   return (
     <Page name='Login'>
-      <Dialog>
+      <Dialog header>
         <h1>A few things to know, before we get started</h1>
         <div className='line' />
         <Section icon={<SyncIcon />} header='Syncs with your Gmail'>
