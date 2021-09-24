@@ -216,7 +216,7 @@ export default function LoginPage(): JSX.Element {
 
   return (
     <Page name='Login'>
-      <Dialog header>
+      <Dialog>
         <h1>A few things to know, before we get started</h1>
         <div className='line' />
         <Section icon={<SyncIcon />} header='Syncs with your Gmail'>
