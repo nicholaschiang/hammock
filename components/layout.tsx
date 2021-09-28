@@ -100,12 +100,12 @@ export default function Layout({ children, spacer }: LayoutProps): JSX.Element {
             width: unset;
           }
 
-          .spacer {
+          header {
             display: none;
           }
 
-          header {
-            display: none;
+          .spacer {
+            height: 74px;
           }
         }
       `}</style>

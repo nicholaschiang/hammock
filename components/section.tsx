@@ -37,12 +37,14 @@ export default function Section({
           background: var(--background);
           padding-top: 24px;
           position: sticky;
+          height: 74px;
           z-index: 1;
           top: 72px;
         }
 
         @media (max-width: ${breakpoints.mobile}) {
           .section > .header {
+            z-index: 2;
             top: 0;
           }
         }
