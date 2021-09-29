@@ -93,7 +93,6 @@ export default function useFetch<T extends { id: string | number }>(
     ): Promise<void> {
       const revalidate = typeof args[1] === 'boolean' ? args[1] : true;
       setMutated((prev) => ({ ...prev, [type]: !revalidate }));
-      console.log('Mutating:', keys[type]);
       await Promise.all(
         keys[type].map((key) => {
           function keyFx(pageIdx: number, prev: T[] | null): string | null {
@@ -114,7 +113,6 @@ export default function useFetch<T extends { id: string | number }>(
             if (!prev || pageIdx === 0) return key;
             return `${key}${key.includes('?') ? '&' : '?'}page=${pageIdx}`;
           }
-          console.log(`Mutating resource (${resource.id}):`, keys[type]);
           return mutate(
             unstable_serialize(keyFx),
             (response?: T[][]) =>
