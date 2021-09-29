@@ -82,7 +82,9 @@ export default function MessagePage(): JSX.Element {
       // the feed because it's been archived, we no longer have HITS_PER_PAGE
       // messages BUT there might still be more messages to be loaded).
       await mutateAll();
-      setArchiving(false);
+      // Skip the component state update if we've navigated back (to avoid the
+      // error: "Can't perform a state update on an unmounted component.").
+      if (!updated.archived) setArchiving(false);
     }
     void update();
     // TODO: Go back when unarchiving as well and mutate the archive data too.
