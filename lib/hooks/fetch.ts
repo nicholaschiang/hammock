@@ -8,9 +8,10 @@ import {
 import useSWRInfinite, {
   SWRInfiniteConfiguration,
   SWRInfiniteResponse,
+  unstable_serialize,
 } from 'swr/infinite';
 import { captureException } from '@sentry/nextjs';
-import { mutate as globalMutate } from 'swr';
+import { mutate } from 'swr';
 
 import { Callback } from 'lib/model/callback';
 import { HITS_PER_PAGE } from 'lib/model/query';
@@ -18,21 +19,27 @@ import { isHighlightWithMessage } from 'lib/model/highlight';
 import { isMessage } from 'lib/model/message';
 
 export type Type = 'highlight' | 'message' | 'account';
-export type Mutated = { [type in Type]: boolean };
 export type Fetch<T> = Omit<SWRInfiniteResponse<T[]>, 'mutate'> & {
   mutated: (mute: boolean) => void;
   href: string;
   hasMore: boolean;
-} & { mutateAll: SWRInfiniteResponse<T[]>['mutate'] } & {
-  mutateSingle: (
-    resource: T,
-    revalidate: boolean
-  ) => ReturnType<SWRInfiniteResponse<T[]>['mutate']>;
+  mutateAll: (
+    ...args: Parameters<SWRInfiniteResponse<T[]>['mutate']>
+  ) => Promise<void>;
+  mutateSingle: (resource: T, revalidate: boolean) => Promise<void>;
 };
 
-export const MutatedContext = createContext({
+export interface FetchContextType {
+  mutated: Record<Type, boolean>;
+  setMutated: Callback<Record<Type, boolean>>;
+  keys: Record<Type, string[]>;
+  setKeys: Callback<Record<Type, string[]>>;
+}
+export const FetchContext = createContext<FetchContextType>({
   mutated: { highlight: false, message: false, account: false },
-  setMutated: (() => {}) as Callback<Mutated>,
+  setMutated: () => {},
+  keys: { highlight: [], message: [], account: [] },
+  setKeys: () => {},
 });
 
 // Fetch wraps `useSWRInfinite` and keeps track of which resources are being
@@ -57,8 +64,14 @@ export default function useFetch<T extends { id: string | number }>(
     },
     [href]
   );
-  const { mutated, setMutated } = useContext(MutatedContext);
-  const { data, mutate, ...rest } = useSWRInfinite<T[]>(getKey, {
+  const { mutated, setMutated, keys, setKeys } = useContext(FetchContext);
+  useEffect(() => {
+    setKeys((prev) => {
+      if (prev[type].includes(href)) return prev;
+      return { ...prev, [type]: [...prev[type], href] };
+    });
+  }, [type, href, setKeys]);
+  const { data, ...rest } = useSWRInfinite<T[]>(getKey, {
     revalidateIfStale: !mutated[type],
     revalidateOnFocus: !mutated[type],
     revalidateOnReconnect: !mutated[type],
@@ -66,7 +79,7 @@ export default function useFetch<T extends { id: string | number }>(
   });
   useEffect(() => {
     data?.flat().forEach((resource) => {
-      void globalMutate(`${url}/${resource.id}`, resource, false);
+      void mutate(`${url}/${resource.id}`, resource, false);
     });
   }, [data, url]);
   return {
@@ -75,34 +88,57 @@ export default function useFetch<T extends { id: string | number }>(
     href,
     hasMore:
       !data || data[data.length - 1].length === HITS_PER_PAGE || mutated[type],
-    mutateAll(...args: Parameters<typeof mutate>): ReturnType<typeof mutate> {
+    async mutateAll(
+      ...args: Parameters<SWRInfiniteResponse<T[]>['mutate']>
+    ): Promise<void> {
       const revalidate = typeof args[1] === 'boolean' ? args[1] : true;
       setMutated((prev) => ({ ...prev, [type]: !revalidate }));
-      return mutate(...args);
+      console.log('Mutating:', keys[type]);
+      await Promise.all(
+        keys[type].map((key) => {
+          function keyFx(pageIdx: number, prev: T[] | null): string | null {
+            if (prev && !prev.length) return null;
+            if (!prev || pageIdx === 0) return key;
+            return `${key}${key.includes('?') ? '&' : '?'}page=${pageIdx}`;
+          }
+          return mutate(unstable_serialize(keyFx), ...args);
+        })
+      );
     },
-    mutateSingle(resource: T, revalidate: boolean): ReturnType<typeof mutate> {
+    async mutateSingle(resource: T, revalidate: boolean): Promise<void> {
       setMutated((prev) => ({ ...prev, [type]: !revalidate }));
-      return mutate(
-        (response?: T[][]) =>
-          response?.map((res: T[]) => {
-            const idx = res.findIndex((m) => m.id === resource.id);
-            // TODO: Insert this new resource into the correct sort position.
-            if (idx < 0) return [resource, ...res];
-            try {
-              if (isMessage(resource) && resource.archived)
-                return [...res.slice(0, idx), ...res.slice(idx + 1)];
-            } catch (e) {
-              captureException(e);
-            }
-            try {
-              if (isHighlightWithMessage(resource) && resource.deleted)
-                return [...res.slice(0, idx), ...res.slice(idx + 1)];
-            } catch (e) {
-              captureException(e);
-            }
-            return [...res.slice(0, idx), resource, ...res.slice(idx + 1)];
-          }),
-        revalidate
+      await Promise.all(
+        keys[type].map((key) => {
+          function keyFx(pageIdx: number, prev: T[] | null): string | null {
+            if (prev && !prev.length) return null;
+            if (!prev || pageIdx === 0) return key;
+            return `${key}${key.includes('?') ? '&' : '?'}page=${pageIdx}`;
+          }
+          console.log(`Mutating resource (${resource.id}):`, keys[type]);
+          return mutate(
+            unstable_serialize(keyFx),
+            (response?: T[][]) =>
+              response?.map((res: T[]) => {
+                const idx = res.findIndex((m) => m.id === resource.id);
+                // TODO: Insert this new resource into the correct sort position.
+                if (idx < 0) return [resource, ...res];
+                try {
+                  if (isMessage(resource) && resource.archived)
+                    return [...res.slice(0, idx), ...res.slice(idx + 1)];
+                } catch (e) {
+                  captureException(e);
+                }
+                try {
+                  if (isHighlightWithMessage(resource) && resource.deleted)
+                    return [...res.slice(0, idx), ...res.slice(idx + 1)];
+                } catch (e) {
+                  captureException(e);
+                }
+                return [...res.slice(0, idx), resource, ...res.slice(idx + 1)];
+              }),
+            revalidate
+          );
+        })
       );
     },
     mutated(mute: boolean): void {

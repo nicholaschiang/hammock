@@ -7,7 +7,7 @@ import { dequal } from 'dequal';
 import NProgress from 'components/nprogress';
 import Segment from 'components/segment';
 
-import { Mutated, MutatedContext } from 'lib/hooks/fetch';
+import { FetchContext, Type } from 'lib/hooks/fetch';
 import { Theme, ThemeContext } from 'lib/context/theme';
 import { APIError } from 'lib/model/error';
 import { CallbackParam } from 'lib/model/callback';
@@ -140,10 +140,15 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const [mutated, setMutated] = useState<Mutated>({
+  const [mutated, setMutated] = useState<Record<Type, boolean>>({
     highlight: false,
     message: false,
     account: false,
+  });
+  const [keys, setKeys] = useState<Record<Type, string[]>>({
+    highlight: [],
+    message: [],
+    account: [],
   });
 
   return (
@@ -152,9 +157,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <SWRConfig value={{ fetcher }}>
           <Segment />
           <NProgress />
-          <MutatedContext.Provider value={{ mutated, setMutated }}>
+          <FetchContext.Provider value={{ mutated, setMutated, keys, setKeys }}>
             <Component {...pageProps} />
-          </MutatedContext.Provider>
+          </FetchContext.Provider>
         </SWRConfig>
         <style jsx global>{`
           ::selection {
