@@ -49,7 +49,7 @@ export default function useFetch<T extends { id: string | number }>(
   type: Type = 'message',
   url: string = '/api/messages',
   query: Record<string, string> = {},
-  options: SWRInfiniteConfiguration = {}
+  opts: SWRInfiniteConfiguration = {}
 ): Fetch<T> {
   const href = useMemo(() => {
     const params = new URLSearchParams(query);
@@ -74,12 +74,8 @@ export default function useFetch<T extends { id: string | number }>(
   useEffect(() => {
     console.log(`Revalidate ${type}?`, !mutated[type]);
   }, [type, mutated]);
-  const { data, ...rest } = useSWRInfinite<T[]>(getKey, {
-    revalidateIfStale: !mutated[type],
-    revalidateOnFocus: !mutated[type],
-    revalidateOnReconnect: !mutated[type],
-    ...options,
-  });
+  const isPaused = useCallback(() => mutated[type], [mutated, type]);
+  const { data, ...rest } = useSWRInfinite<T[]>(getKey, { isPaused, ...opts });
   useEffect(() => {
     data?.flat().forEach((resource) => {
       void mutate(`${url}/${resource.id}`, resource, false);
