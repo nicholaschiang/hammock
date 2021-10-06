@@ -12,9 +12,9 @@ import { removeMessages } from 'lib/api/db/message';
 import segment from 'lib/api/segment';
 import syncGmail from 'lib/api/gmail/sync';
 import { upsertUser } from 'lib/api/db/user';
-import watchGmail from 'lib/api/gmail/watch';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
+import watchGmail from 'lib/api/gmail/watch';
 
 async function fetchAccount(req: Req, res: Res<User>): Promise<void> {
   console.time('get-account');
