@@ -12,6 +12,7 @@ import { removeMessages } from 'lib/api/db/message';
 import segment from 'lib/api/segment';
 import syncGmail from 'lib/api/gmail/sync';
 import { upsertUser } from 'lib/api/db/user';
+import watchGmail from 'lib/api/gmail/watch';
 import verifyAuth from 'lib/api/verify/auth';
 import verifyBody from 'lib/api/verify/body';
 
@@ -40,6 +41,7 @@ async function updateAccount(req: Req, res: Res<User>): Promise<void> {
     await Promise.all([
       upsertUser(body),
       to(syncGmail(body)),
+      to(watchGmail(body)),
       removeMessages(body),
     ]);
     res.status(200).json(body);

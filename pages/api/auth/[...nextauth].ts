@@ -9,6 +9,7 @@ import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
 import logger from 'lib/api/logger';
 import syncGmail from 'lib/api/gmail/sync';
+import watchGmail from 'lib/api/gmail/watch';
 
 export default NextAuth({
   providers: [
@@ -68,7 +69,11 @@ export default NextAuth({
         created.label = res?.label || (await getOrCreateLabel(created));
         created.filter = res?.filter || (await getOrCreateFilter(created));
         logger.verbose(`Creating ${created.name} (${created.id})...`);
-        await Promise.all([upsertUser(created), to(syncGmail(created))]);
+        await Promise.all([
+          upsertUser(created),
+          to(syncGmail(created)),
+          to(watchGmail(created)),
+        ]);
       }
       // Don't include user data in the JWT because it's larger than the max
       // cookie payload size supported by most browsers (~4096 bytes).

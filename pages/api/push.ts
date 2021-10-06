@@ -62,7 +62,8 @@ async function pushAPI(req: Req, res: Res): Promise<void> {
       const { data: history } = await client.users.history.list({
         historyTypes: ['messageAdded', 'messageDeleted'],
         startHistoryId: historyId,
-        maxResults: 500,
+        labelId: user.label,
+        maxResults: 100,
         userId: 'me',
       });
       // We have to keep track of which messages were added/deleted when to
