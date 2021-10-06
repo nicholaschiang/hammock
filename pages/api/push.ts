@@ -1,4 +1,5 @@
 import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
+import to from 'await-to-js';
 import { withSentry } from '@sentry/nextjs';
 
 import { createMessage, deleteMessage } from 'lib/api/db/message';
@@ -117,7 +118,12 @@ async function pushAPI(req: Req, res: Res): Promise<void> {
           return false;
         });
       logger.verbose(`Creating ${msgs.length} messages for ${userStr}...`);
-      await Promise.all(msgs.map((m) => createMessage(m)));
+      await Promise.all(
+        msgs.map(async (m) => {
+          const [error] = await to(createMessage(m));
+          if (error) logger.warn(`Error creating message: ${error.message}`);
+        })
+      );
       res.status(200).end();
     } catch (e) {
       handle(e, res);
