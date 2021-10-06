@@ -1,7 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import Head from 'next/head';
 import Router from 'next/router';
-import useSWR from 'swr';
 
 import segmentSnippet from 'lib/segment-snippet';
 import { useTheme } from 'lib/context/theme';
@@ -38,10 +37,6 @@ export default function Page({
   useEffect(() => {
     window.analytics?.page('', name);
   }, [name]);
-
-  // Scrappy fix to sync the user's Gmail with our database when they login.
-  // @see {@link https://github.com/readhammock/hammock/issues/38}
-  useSWR(sync && user?.subscriptions.length ? '/api/sync' : null);
 
   // Redirect to the subscriptions page if the user doesn't have any selected.
   useEffect(() => {
@@ -183,15 +178,6 @@ export default function Page({
           type='application/json'
           as='fetch'
         />
-        {sync && (
-          <link
-            rel='preload'
-            href='/api/sync'
-            crossOrigin='anonymous'
-            type='application/json'
-            as='fetch'
-          />
-        )}
       </Head>
       {children}
     </>
