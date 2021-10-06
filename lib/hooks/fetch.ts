@@ -71,6 +71,9 @@ export default function useFetch<T extends { id: string | number }>(
       return { ...prev, [type]: [...prev[type], href] };
     });
   }, [type, href, setKeys]);
+  useEffect(() => {
+    console.log(`Revalidate ${type}?`, !mutated[type]);
+  }, [type, mutated]);
   const { data, ...rest } = useSWRInfinite<T[]>(getKey, {
     revalidateIfStale: !mutated[type],
     revalidateOnFocus: !mutated[type],
