@@ -120,8 +120,8 @@ async function pushAPI(req: Req, res: Res): Promise<void> {
       logger.verbose(`Creating ${msgs.length} messages for ${userStr}...`);
       await Promise.all(
         msgs.map(async (m) => {
-          const [error] = await to(createMessage(m));
-          if (error) logger.warn(`Error creating message: ${error.message}`);
+          const [e] = await to(createMessage(m));
+          if (e) logger.warn(`Error creating message (${m.id}): ${e.message}`);
         })
       );
       res.status(200).end();

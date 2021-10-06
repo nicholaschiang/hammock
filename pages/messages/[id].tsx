@@ -75,20 +75,17 @@ export default function MessagePage(): JSX.Element {
     // TODO: Find an elegant way to mutate all the different possible feed
     // queries (e.g. for the archive page, quick read page, writers pages).
     await mutateSingle(updated, false);
-    async function update(): Promise<void> {
-      await mutate(url, fetcher(url, 'put', updated), false);
-      // Refresh the feed so that we know whether or not we have more messages
-      // to be loaded in the infinite scroller (e.g. if we remove a message from
-      // the feed because it's been archived, we no longer have HITS_PER_PAGE
-      // messages BUT there might still be more messages to be loaded).
-      await mutateAll();
-      // Skip the component state update if we've navigated back (to avoid the
-      // error: "Can't perform a state update on an unmounted component.").
-      if (!updated.archived) setArchiving(false);
-    }
-    void update();
+    await mutate(url, fetcher(url, 'put', updated), false);
+    // Refresh the feed so that we know whether or not we have more messages
+    // to be loaded in the infinite scroller (e.g. if we remove a message from
+    // the feed because it's been archived, we no longer have HITS_PER_PAGE
+    // messages BUT there might still be more messages to be loaded).
+    await mutateAll();
     // TODO: Go back when unarchiving as well and mutate the archive data too.
     if (updated.archived) Router.back();
+    // Skip the component state update if we've navigated back (to avoid the
+    // error: "Can't perform a state update on an unmounted component.").
+    if (!updated.archived) setArchiving(false);
   }, [mutateAll, mutateSingle, scroll, message]);
 
   useEffect(() => {
