@@ -64,6 +64,7 @@ export default NextAuth({
           scopes: (account.scope as string).split(' '),
           token: account.refresh_token || '',
         };
+        logger.verbose(`Fetching ${created.name} (${created.id})...`);
         const res = (await to(getUser(created.id)))[1];
         created.subscriptions = res?.subscriptions || [];
         created.label = res?.label || (await getOrCreateLabel(created));

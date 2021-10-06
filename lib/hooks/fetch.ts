@@ -95,6 +95,7 @@ export default function useFetch<T extends { id: string | number }>(
       ...args: Parameters<SWRInfiniteResponse<T[]>['mutate']>
     ): Promise<void> {
       const revalidate = typeof args[1] === 'boolean' ? args[1] : true;
+      console.log(`Refresh ${type}?`, revalidate);
       setMutated((prev) => ({ ...prev, [type]: !revalidate }));
       await Promise.all(
         keys[type].map((key) => {
@@ -108,6 +109,7 @@ export default function useFetch<T extends { id: string | number }>(
       );
     },
     async mutateSingle(resource: T, revalidate: boolean): Promise<void> {
+      console.log(`Refresh single ${type}?`, revalidate);
       setMutated((prev) => ({ ...prev, [type]: !revalidate }));
       await Promise.all(
         keys[type].map((key) => {

@@ -52,9 +52,14 @@ async function pushAPI(req: Req, res: Res): Promise<void> {
         .from<User>('users')
         .select()
         .eq('email', emailAddress);
-      if (!data?.length)
+      if (error) {
+        logger.error(`Error fetching user (${emailAddress}) token: ${error}`);
+        handleSupabaseError('selecting', 'user', emailAddress, error);
+      }
+      if (!data?.length) {
+        logger.error(`User (${emailAddress}) not found.`);
         throw new APIError(`User (${emailAddress}) not found`, 404);
-      handleSupabaseError('selecting', 'user', emailAddress, error);
+      }
       const user = data[0];
       const userStr = `${user.name} (${user.id})`;
       logger.verbose(`Fetching history (${historyId}) for ${userStr}...`);
