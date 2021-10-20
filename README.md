@@ -1,10 +1,16 @@
 <h1>Hammock</h1>
 <p>
-  <a aria-label='Website status' href='https://returnofthenewsletter.com'>
-    <img src='https://img.shields.io/website?down_color=lightgrey&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Freturnofthenewsletter.com&style=flat-square&labelColor=000000'>
+  <a aria-label='Website status' href='https://readhammock.com'>
+    <img src='https://img.shields.io/website?label=Website&down_color=lightgrey&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Freadhammock.com&style=flat&labelColor=394149'>
   </a>
-  <a aria-label='Maintainability' href='https://codeclimate.com/github/nicholaschiang/hammock'>
-    <img src='https://img.shields.io/codeclimate/maintainability/nicholaschiang/hammock?style=flat-square&labelColor=000000'>
+  <a aria-label='App status' href='https://app.readhammock.com'>
+    <img src='https://img.shields.io/website?label=App&down_color=lightgrey&down_message=down&up_color=brightgreen&up_message=up&url=https%3A%2F%2Fapp.readhammock.com&style=flat&labelColor=394149'>
+  </a>
+  <a aria-label='Test status' href='https://github.com/readhammock/hammock/actions/workflows/test.yml'>
+    <img src='https://github.com/readhammock/hammock/actions/workflows/test.yml/badge.svg'>
+  </a>
+  <a aria-label='Build status' href='https://github.com/readhammock/hammock/actions/workflows/build.yml'>
+    <img src='https://github.com/readhammock/hammock/actions/workflows/build.yml/badge.svg'>
   </a>
 </p>
 
