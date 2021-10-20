@@ -21,9 +21,9 @@ $$
     "locale" text not null,
     "token" text not null,
     "scopes" text[] not null,
-    "label" text not null,
-    "filter" text not null,
-    "subscriptions" subscription[] not null
+    "label" text not null default '',
+    "filter" text not null default '',
+    "subscriptions" subscription[] not null default array[]::subscription[]
   );
   create table messages (
     "user" numeric references users(id) on delete cascade on update cascade not null,
