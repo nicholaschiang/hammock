@@ -49,7 +49,7 @@ export default function useFetch<T extends { id: string | number }>(
   type: Type = 'message',
   url: string = '/api/messages',
   query: Record<string, string> = {},
-  opts: SWRInfiniteConfiguration = {}
+  opts: SWRInfiniteConfiguration = { revalidateAll: true }
 ): Fetch<T> {
   const href = useMemo(() => {
     const params = new URLSearchParams(query);
@@ -74,7 +74,10 @@ export default function useFetch<T extends { id: string | number }>(
   useEffect(() => {
     console.log(`Revalidate ${type}?`, !mutated[type]);
   }, [type, mutated]);
-  const isPaused = useCallback(() => mutated[type], [mutated, type]);
+  const isPaused = useCallback(() => {
+    console.log(`Is paused ${type}?`, mutated[type]);
+    return mutated[type];
+  }, [mutated, type]);
   const { data, ...rest } = useSWRInfinite<T[]>(getKey, { isPaused, ...opts });
   useEffect(() => {
     data?.flat().forEach((resource) => {
@@ -114,22 +117,29 @@ export default function useFetch<T extends { id: string | number }>(
             if (!prev || pageIdx === 0) return key;
             return `${key}${key.includes('?') ? '&' : '?'}page=${pageIdx}`;
           }
+          console.log(`Mutating single (${unstable_serialize(keyFx)}):`, resource);
           return mutate(
             unstable_serialize(keyFx),
             (response?: T[][]) =>
               response?.map((res: T[]) => {
                 const idx = res.findIndex((m) => m.id === resource.id);
-                // TODO: Insert this new resource into the correct sort position.
-                if (idx < 0) return [resource, ...res];
+                // TODO: Insert resource into proper sort position within all
+                // pages (i.e. don't insert into each results page because that
+                // causes the React "multiple children with same key" error).
+                if (idx < 0) return res;
                 try {
-                  if (isMessage(resource) && resource.archived)
+                  if (isMessage(resource) && resource.archived) {
+                    console.log(`Removing archived message (${unstable_serialize(keyFx)}):`, resource);
                     return [...res.slice(0, idx), ...res.slice(idx + 1)];
+                  }
                 } catch (e) {
                   captureException(e);
                 }
                 try {
-                  if (isHighlightWithMessage(resource) && resource.deleted)
+                  if (isHighlightWithMessage(resource) && resource.deleted) {
+                    console.log(`Removing deleted highlight (${unstable_serialize(keyFx)}):`, resource);
                     return [...res.slice(0, idx), ...res.slice(idx + 1)];
+                  }
                 } catch (e) {
                   captureException(e);
                 }
