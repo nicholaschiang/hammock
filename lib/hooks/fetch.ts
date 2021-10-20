@@ -121,28 +121,37 @@ export default function useFetch<T extends { id: string | number }>(
           return mutate(
             unstable_serialize(keyFx),
             (response?: T[][]) =>
-              response?.map((res: T[]) => {
+              response?.map((res: T[], pageIdx: number) => {
                 const idx = res.findIndex((m) => m.id === resource.id);
-                // TODO: Insert resource into proper sort position within all
-                // pages (i.e. don't insert into each results page because that
-                // causes the React "multiple children with same key" error).
-                if (idx < 0) return res;
                 try {
-                  if (isMessage(resource) && resource.archived) {
+                  if (isMessage(resource) && resource.archived && idx >= 0) {
                     console.log(`Removing archived message (${unstable_serialize(keyFx)}):`, resource);
                     return [...res.slice(0, idx), ...res.slice(idx + 1)];
                   }
+                  // TODO: If the message was newly archived, insert it into the
+                  // archive results (but in the proper page and in the proper
+                  // date sort order... which makes doing this difficult).
                 } catch (e) {
+                  console.log(`Resource was not message: ${e.message}`);
                   captureException(e);
                 }
                 try {
-                  if (isHighlightWithMessage(resource) && resource.deleted) {
-                    console.log(`Removing deleted highlight (${unstable_serialize(keyFx)}):`, resource);
-                    return [...res.slice(0, idx), ...res.slice(idx + 1)];
+                  if (isHighlightWithMessage(resource)) {
+                    console.log(`Mutating highlight with idx (${idx}) and pageIdx (${pageIdx}):`, resource);
+                    if (resource.deleted && idx >= 0) {
+                      console.log(`Removing deleted highlight (${unstable_serialize(keyFx)}):`, resource);
+                      return [...res.slice(0, idx), ...res.slice(idx + 1)];
+                    }
+                    if (!resource.deleted && idx < 0 && pageIdx === 0) {
+                      console.log(`Adding highlight (${unstable_serialize(keyFx)}):`, resource);
+                      return [resource, ...res];
+                    }
                   }
                 } catch (e) {
+                  console.log(`Resource was not highlight: ${e.message}`);
                   captureException(e);
                 }
+                if (idx < 0) return res;
                 return [...res.slice(0, idx), resource, ...res.slice(idx + 1)];
               }),
             revalidate
