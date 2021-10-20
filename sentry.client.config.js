@@ -16,7 +16,6 @@ Sentry.init({
         const preloads = [
           '/api/account',
           '/api/messages',
-          '/api/sync',
           '/api/subscriptions',
           '/api/highlights',
         ];

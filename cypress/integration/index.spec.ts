@@ -67,7 +67,6 @@ describe('Feed', () => {
     beforeEach(() => {
       cy.intercept('GET', '/api/account', user).as('get-account');
       cy.intercept('GET', '/api/messages', []).as('get-messages');
-      cy.intercept('GET', '/api/sync', {}).as('get-sync');
     });
 
     it('logs out and changes theme', () => {
