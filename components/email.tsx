@@ -84,7 +84,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                 style={{
                   fontFamily,
                   fontSize: '18px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   lineHeight: '24px',
                   height: '24px',
                   overflow: 'hidden',
@@ -100,7 +100,7 @@ function Messages({ messages }: MessagesProps): JSX.Element {
                   style={{
                     fontFamily,
                     fontSize: '12px',
-                    fontWeight: 600,
+                    fontWeight: 500,
                     color: colors.accents6,
                     backgroundColor: colors.accents2,
                     borderRadius: '12px',
@@ -201,7 +201,7 @@ export default function Email({ user, messages }: EmailProps): JSX.Element {
                             color: colors.onPrimary,
                             backgroundColor: colors.primary,
                             display: 'inline-block',
-                            fontWeight: 600,
+                            fontWeight: 500,
                             width: '100%',
                             textAlign: 'center',
                           }}
