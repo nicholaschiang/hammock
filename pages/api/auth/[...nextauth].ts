@@ -59,6 +59,8 @@ export default NextAuth({
           scopes: (account.scope as string).split(' '),
           token: account.refresh_token || '',
           subscriptions: undefined,
+          filter: undefined,
+          label: undefined,
         };
         logger.verbose(`Creating ${created.name} (${created.id})...`);
         await upsertUser(created);
