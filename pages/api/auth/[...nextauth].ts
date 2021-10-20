@@ -1,15 +1,10 @@
 import NextAuth from 'next-auth';
 import Providers from 'next-auth/providers';
 import { nanoid } from 'nanoid';
-import to from 'await-to-js';
 
 import { SCOPES, User } from 'lib/model/user';
 import { getUser, upsertUser } from 'lib/api/db/user';
-import getOrCreateFilter from 'lib/api/get/filter';
-import getOrCreateLabel from 'lib/api/get/label';
 import logger from 'lib/api/logger';
-import syncGmail from 'lib/api/gmail/sync';
-import watchGmail from 'lib/api/gmail/watch';
 
 export default NextAuth({
   providers: [
@@ -63,18 +58,12 @@ export default NextAuth({
           locale: profile.locale || user.locale,
           scopes: (account.scope as string).split(' '),
           token: account.refresh_token || '',
+          subscriptions: undefined,
+          filter: undefined,
+          label: undefined,
         };
-        logger.verbose(`Fetching ${created.name} (${created.id})...`);
-        const res = (await to(getUser(created.id)))[1];
-        created.subscriptions = res?.subscriptions || [];
-        created.label = res?.label || (await getOrCreateLabel(created));
-        created.filter = res?.filter || (await getOrCreateFilter(created));
         logger.verbose(`Creating ${created.name} (${created.id})...`);
-        await Promise.all([
-          upsertUser(created),
-          to(syncGmail(created)),
-          to(watchGmail(created)),
-        ]);
+        await upsertUser(created);
       }
       // Don't include user data in the JWT because it's larger than the max
       // cookie payload size supported by most browsers (~4096 bytes).

@@ -51,7 +51,6 @@ describe('Highlights', () => {
   beforeEach(() => {
     cy.intercept('GET', '/api/account', { fixture: 'user' }).as('get-account');
     cy.intercept('GET', '/api/highlights', []).as('get-highlights');
-    cy.intercept('GET', '/api/sync', {}).as('get-sync');
   });
 
   it('shows empty state', () => showsEmptyState(false));

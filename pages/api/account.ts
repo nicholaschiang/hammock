@@ -2,7 +2,7 @@ import { NextApiRequest as Req, NextApiResponse as Res } from 'next';
 import to from 'await-to-js';
 import { withSentry } from '@sentry/nextjs';
 
-import { User, isUser } from 'lib/model/user';
+import { SCOPES, User, isUser } from 'lib/model/user';
 import { APIErrorJSON } from 'lib/model/error';
 import getOrCreateFilter from 'lib/api/get/filter';
 import getOrCreateLabel from 'lib/api/get/label';
@@ -20,7 +20,28 @@ async function fetchAccount(req: Req, res: Res<User>): Promise<void> {
   console.time('get-account');
   try {
     const user = await verifyAuth(req);
-    res.status(200).json(user);
+    const shouldUpsertRecord = !user.label || !user.filter;
+    user.label = user.label || (await getOrCreateLabel(user));
+    user.filter = user.filter || (await getOrCreateFilter(user));
+    await Promise.all([
+      shouldUpsertRecord ? upsertUser(user) : undefined,
+      to(syncGmail(user)),
+      to(watchGmail(user)),
+    ]);
+    if (req.query.redirect) {
+      if (!Object.values(SCOPES).every((s) => user.scopes.includes(s))) {
+        Object.entries(SCOPES).some(([scope, url]) => {
+          if (user.scopes.includes(url)) return false;
+          logger.error(`Missing ${scope} for ${user.name} (${user.id})...`);
+          res.redirect(`/login?error=${scope}`);
+          return true;
+        });
+      } else {
+        res.redirect(user.subscriptions.length ? '/' : '/subscriptions');
+      }
+    } else {
+      res.status(200).json(user);
+    }
     logger.info(`Fetched ${user.name} (${user.id}).`);
     segment.track({ userId: user.id, event: 'User Fetched' });
   } catch (e) {

@@ -11,7 +11,12 @@ export async function createUser(user: User): Promise<User> {
   return data ? data[0] : user;
 }
 
-export async function upsertUser(user: User): Promise<User> {
+// Only fields with default PostgreSQL column values are optional.
+// @see {@link https://github.com/Microsoft/TypeScript/issues/25760}
+type WithOptional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
+type Optional = 'label' | 'filter' | 'subscriptions';
+
+export async function upsertUser(user: WithOptional<User, Optional>): Promise<User> {
   logger.debug(`Upserting user ${user.name} (${user.id}) row...`);
   const { data, error } = await supabase
     .from<User>('users')
