@@ -25,17 +25,18 @@ export interface Message {
 }
 
 export function isMessage(message: unknown): message is Message {
-  const stringFields = ['id', 'subject', 'snippet', 'raw', 'html'];
-  const numberFields = ['scroll', 'time'];
-
   if (!isJSON(message)) throw new APIError('Expected valid JSON body', 400);
   if (!isDateJSON(message.date))
-    throw new APIError('Expected valid "date" JSON field', 400);
-  if (stringFields.some((key) => typeof message[key] !== 'string'))
-    throw new APIError('Expected valid string JSON fields', 400);
-  if (numberFields.some((key) => typeof message[key] !== 'number'))
-    throw new APIError('Expected valid number JSON fields', 400);
+    throw new APIError('Expected ISO date string "date" field', 400);
+  ['id', 'subject', 'snippet', 'raw', 'html'].forEach((key) => {
+    if (typeof message[key] !== 'string')
+      throw new APIError(`Expected string "${key}" field`, 400);
+  });
+  ['scroll', 'time'].forEach((key) => {
+    if (typeof message[key] !== 'number')
+      throw new APIError(`Expected number "${key}" field`, 400);
+  });
   if (typeof message.archived !== 'boolean')
-    throw new APIError('Expected "archived" field of type boolean', 400);
+    throw new APIError('Expected boolean "archived" field', 400);
   return true;
 }
