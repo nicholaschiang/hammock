@@ -5703,9 +5703,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cypress@npm:^8.4.1":
-  version: 8.4.1
-  resolution: "cypress@npm:8.4.1"
+"cypress@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "cypress@npm:8.6.0"
   dependencies:
     "@cypress/request": ^2.88.6
     "@cypress/xvfb": ^1.2.4
@@ -5741,6 +5741,7 @@ __metadata:
     minimist: ^1.2.5
     ospath: ^1.2.2
     pretty-bytes: ^5.6.0
+    proxy-from-env: 1.0.0
     ramda: ~0.27.1
     request-progress: ^3.0.0
     supports-color: ^8.1.1
@@ -5750,7 +5751,7 @@ __metadata:
     yauzl: ^2.10.0
   bin:
     cypress: bin/cypress
-  checksum: 0a319a5a8abeac5af7f51d2f34abfd5ee7b9c0da8fe7fe09359dd38c1676f95459a92a26fdb8915d603677a44a8609bf6a73620d4cccac412ea73de412369e30
+  checksum: 64e9c97adcef6e592168f0ef18443a1ff1532b3341bc446b67bd62fad9220a1b9652274eb8f7804967c36563a88427e159683022a3a48398d0fea6947bcad811
   languageName: node
   linkType: hard
 
@@ -8319,7 +8320,7 @@ fsevents@~2.3.1:
     cookie: ^0.4.1
     cross-env: ^7.0.3
     csvtojson: ^2.0.10
-    cypress: ^8.4.1
+    cypress: ^8.6.0
     dequal: ^2.0.2
     dompurify: ^2.2.9
     dotenv: ^10.0.0
@@ -12528,6 +12529,13 @@ fsevents@~2.3.1:
     pbjs: bin/pbjs
     pbts: bin/pbts
   checksum: 3c7c6875ca794ae9c31c532f42368b6fd6d446b20d696f261946feb3f3a9afe482a142afdca7c5bf0cf958b2d79cdbb8bbd56f55bd13b221920267d3332a062e
+  languageName: node
+  linkType: hard
+
+"proxy-from-env@npm:1.0.0":
+  version: 1.0.0
+  resolution: "proxy-from-env@npm:1.0.0"
+  checksum: 35b2f98a6a6ecb0240c7ce84f5b60f234436da4984b6115971c6f782908984850d804160e0e70063ba711124950110a8a671b61875facb1b8a77d585a739213f
   languageName: node
   linkType: hard
 
